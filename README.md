@@ -1,2 +1,2 @@
-# thesis-name-tbd
+# SideQuest
 Codeworks thesis project
