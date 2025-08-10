@@ -67,10 +67,15 @@ All types and interfaces are in types.ts
 ## Client automation
 If you want to add components and/or services, feel free to use the scripts I have created. Running them allows the creation of Component and Service files. They are run straight from the client directory and will create the respective directories, js and css files where needed with a predesign template.
 ```
-npx plop component componentName
+npm run plop -- component componentName
+npm run plop -- service serviceName
 ```
+
+or
+
 ```
-npx plop service serviceName
+npm run plop:component componentName
+npm run plop:service serviceName
 ```
 
 ## Documentation - Apiary

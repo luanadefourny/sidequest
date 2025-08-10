@@ -1,4 +1,6 @@
-export default function (plop) {
+import type { NodePlopAPI } from 'plop';
+
+export default function (plop: NodePlopAPI) {
   plop.setGenerator('component', {
     description: 'Generate a React component with CSS',
     prompts: [
@@ -12,7 +14,7 @@ export default function (plop) {
       {
         type: 'add',
         path: 'src/components/{{pascalCase name}}/{{pascalCase name}}.tsx',
-        templateFile: 'plop-templates/component.jsx.hbs',
+        templateFile: 'plop-templates/component.tsx.hbs',
       },
       {
         type: 'add',
@@ -23,7 +25,7 @@ export default function (plop) {
   });
 
   plop.setGenerator('service', {
-    description: 'Generate a service JS module',
+    description: 'Generate a service TS module',
     prompts: [
       {
         type: 'input',
@@ -35,7 +37,7 @@ export default function (plop) {
       {
         type: 'add',
         path: 'src/services/{{camelCase name}}.ts',
-        templateFile: 'plop-templates/service.js.hbs',
+        templateFile: 'plop-templates/service.ts.hbs',
       },
     ],
   });
