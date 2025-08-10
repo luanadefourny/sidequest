@@ -11,7 +11,7 @@ export default function (plop) {
     actions: [
       {
         type: 'add',
-        path: 'src/components/{{pascalCase name}}/{{pascalCase name}}.jsx',
+        path: 'src/components/{{pascalCase name}}/{{pascalCase name}}.tsx',
         templateFile: 'plop-templates/component.jsx.hbs',
       },
       {
@@ -34,7 +34,7 @@ export default function (plop) {
     actions: [
       {
         type: 'add',
-        path: 'src/services/{{camelCase name}}.js',
+        path: 'src/services/{{camelCase name}}.ts',
         templateFile: 'plop-templates/service.js.hbs',
       },
     ],

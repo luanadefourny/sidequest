@@ -1,14 +1,15 @@
-import { Routes, Route } from 'react-router';
+import { Routes, Route, BrowserRouter } from 'react-router';
+import TestComponent from './components/TestComponent/TestComponent.tsx'
 import './App.css';
 
-function App() {
+export default function App() {
 
   return (
+    <BrowserRouter>
      <Routes>
-      <Route path="/" element={/*component here*/}></Route>
-      <Route path="/home" element={/**/}> </Route>
+      <Route path="/" element={<TestComponent />}></Route>
+      {/*<Route path="/home" element={<component here />}> </Route>*/}
     </Routes>
+    </BrowserRouter>
   )
 }
-
-export default App
