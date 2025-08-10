@@ -62,7 +62,10 @@ npm install
 npm run dev
 ```
 
+## Extra files
 All types and interfaces are in types.ts
+
+Constant global variables for client are in constants.ts (please define and change them in there only and import them where needed)
 
 ## Client automation
 If you want to add components and/or services, feel free to use the scripts I have created. Running them allows the creation of Component and Service files. They are run straight from the client directory and will create the respective directories, js and css files where needed with a predesign template.

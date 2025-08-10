@@ -3,7 +3,8 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.17.1"
+    "mongoose": "^8.17.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
