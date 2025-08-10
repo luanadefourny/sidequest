@@ -4,11 +4,11 @@ import { Model } from 'mongoose';
 export interface IUser extends mongoose.Document {
   username: string;
   email: string;
-  password: string;
+  password: string; //TODO: can we define the regex rule here?
   firstName: string;
   lastName: string;
   age: number;
-  isCurrent: boolean;
+  isCurrent: boolean; //TODO: will we need this with auth and stuff?
 }
 
 const UserSchema = new mongoose.Schema<IUser>({

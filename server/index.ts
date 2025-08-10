@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import userRouter from './router/userRouter';
+import userRouter from './routers/userRouter';
 
 const app: Application = express();
 const port: number = 3000;
