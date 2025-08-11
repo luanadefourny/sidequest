@@ -89,7 +89,7 @@ const QuestSchema = new Schema<IQuest>({
 }, { timestamps: true });
 
 //indexes make querying fasterr
-QuestSchema.index({ location: '2dsphere' });
+QuestSchema.index({ 'location.location': '2dsphere' });
 QuestSchema.index({ startAt: 1, endAt: 1 });
 QuestSchema.index({ source: 1, sourceId: 1 }, { unique: false });
 QuestSchema.index({ name: 'text', description: 'text' });
