@@ -15,7 +15,7 @@ export async function initMap(container: HTMLElement): Promise<void> {
   map = new Map(container, {
       zoom: 15,
       center: position,
-      mapId: '40c5454ddb73d58df4c06ef3',
+      mapId: import.meta.env.MAP_ID,
       mapTypeControl: false,
   });
 
