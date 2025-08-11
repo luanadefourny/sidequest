@@ -37,7 +37,8 @@ npm install
 ```
 **Seed the mock data** (from the server directory)
 
-To populate the database with mock data for development, you will have to create a `.env` file (based on the `.env.example` file) as well as run some JS code before building the app.
+
+To populate the database with mock data for development, you will have to create a `.env` file (based on the `.env.example` file) as well as run some TS code before building the app.
 
 1. Copy the `.env.example` file to `.env` (from the root directory)
 ```
@@ -45,15 +46,18 @@ cp .env.example .env
 ```
 2. Populate the variables in `.env` with the necessary values
 
-3. Run the seed file
+3. Run the seed file (from root)
 ```
-cd server
-node seed.js
+npx ts-node server/seed.ts --clean //starts fresh
+npx ts-node server/seed.ts //won't drop the existing collections
 ```
+
+If you want to switch between a database containing mock data and a clean database without any mock entries, you can simply change the `DB_NAME` variable in your `.env` file to point to the desired database name. This effectively switches the database connection, so running the app afterward will use the selected database without any further manual changes.
+</file>
 
 **Run the server**
 ```
-nodemon index.js
+nodemon index.ts
 ```
 **Client side**
 ```
@@ -82,4 +86,4 @@ npm run plop:service serviceName
 ```
 
 ## Documentation - Apiary
-
+Everyone has been invited to the sidequest apiary docs and everytime an update is made to the apiary file and pushed to dev, the docs will update over there.

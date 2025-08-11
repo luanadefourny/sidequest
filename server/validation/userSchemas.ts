@@ -8,7 +8,8 @@ const registerSchema = z.object({
     .regex(/[A-Z]/, 'one uppercase')
     .regex(/[a-z]/, 'one lowercase')
     .regex(/[0-9]/, 'one digit')
-    .regex(/[^A-Za-z0-9]/, 'one symbol'),
+    .regex(/[^A-Za-z0-9]/, 'one symbol')
+    .max(24),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   age: z.number().int().min(13),
@@ -21,7 +22,8 @@ const loginSchema = z.object({
     .regex(/[A-Z]/, 'one uppercase')
     .regex(/[a-z]/, 'one lowercase')
     .regex(/[0-9]/, 'one digit')
-    .regex(/[^A-Za-z0-9]/, 'one symbol'),
+    .regex(/[^A-Za-z0-9]/, 'one symbol')
+    .max(24),
 });
 
 export { registerSchema, loginSchema }
