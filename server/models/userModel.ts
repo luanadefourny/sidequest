@@ -9,6 +9,7 @@ export interface IUser extends mongoose.Document {
   lastName: string;
   age: number;
   isCurrent: boolean; //TODO: will we need this with auth and stuff?
+  friends: IUser[];
 }
 
 const UserSchema = new mongoose.Schema<IUser>({
@@ -41,6 +42,13 @@ const UserSchema = new mongoose.Schema<IUser>({
   isCurrent: {
     type: Boolean,
     default: false
+  },
+  friends: {
+    type: [{
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    }],
+    default: [],
   }
 });
 
