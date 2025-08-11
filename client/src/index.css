@@ -1,16 +1,1 @@
-* {
-  margin: 0px;
-  padding: 0px;
-  box-sizing: border-box;
-}
-
-html body {
-  width: 100%;
-  height: 100%;
-  /* background-color: #F5F5F5;
-  color: #141204;
-  font-family: 'Comfortaa', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; */
-}
+@import "tailwindcss";
