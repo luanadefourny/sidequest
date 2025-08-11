@@ -1,0 +1,105 @@
+FORMAT: 1A
+HOST: http://localhost:3000
+
+# SideQuest API
+API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST` to your real server later.
+
+# Data Structures
+## User (object)
++ _id: `64f1a2b3c4d5e6f7a8b9c0d1` (string)
++ username: `johndoe` (string)
++ email: `john@doe.com` (string)
++ firstName: `John` (string)
++ lastName: `Doe` (string)
++ age: 27 (number)
++ isCurrent: true (boolean)
++ following: [`64f1a2b3c4d5e6f7a8b9c0d2`] (array[string]) - user ids this user follows
++ followers: [`64f1a2b3c4d5e6f7a8b9c0d3`] (array[string]) - user ids following this user
++ profilePicture: `https://cdn.example.com/u/johndoe.jpg` (string, optional)
++ favoriteQuests: [`750f1a2b3c4d5e6f7a8b9c0d5`] (array[string]) - quest ids
++ favoriteLocations (array[FavoriteLocation])
+
+## FavoriteLocation (object)
++ label: `home` (string) - short label like home, work, mom
++ name: `John's flat` (string, optional) - display name
++ address: `221B Baker Street, London` (string, optional)
++ placeId: `ChIJd7zN_thz2EcR6w4sZ0iS6iQ` (string, optional)
++ location (GeoPoint)
+
+## GeoPoint (object)
++ type: `Point` (string)
++ coordinates: [-0.1585557, 51.5237718] (array[number]) - [longitude, latitude]
+
+## Quest (object)
++ _id: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
++ name: `Southbank Food Market` (string)
++ type: `event` (string) - enum: event, place, activity
++ location (GeoPoint)
++ ageRestricted: false (boolean)
++ price: 0 (number, optional)
++ currency: `GBP` (string, optional) - ISO 4217
++ url: `https://example.com/event/123` (string, optional)
++ startAt: `2025-08-20T10:00:00.000Z` (string, optional)
++ endAt: `2025-08-20T16:00:00.000Z` (string, optional)
++ description: `Street food and live music.` (string, optional)
++ source: `Eventbrite` (string, optional)
++ sourceId: `evt_123` (string, optional)
++ createdBy: `64f1a2b3c4d5e6f7a8b9c0d1` (string, optional)
+
+## RegisterUserData (object)
++ username (string, required)
++ email (string, required)
++ password (string, required)
++ firstName (string, required)
++ lastName (string, required)
++ age (number, required)
+
+## LoginUserData (object)
++ username (string, required)
++ password (string, required)
+
+# Group Users
+
+## List users [GET /users]
+Returns all users.
+
++ Response 200 (application/json)
+    + Attributes (array[User])
+
+## Register user [POST /users]
+Creates a new user.
+
++ Request (application/json)
+    + Attributes (RegisterUserData)
+
++ Response 201 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `username already exists` (string)
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to register user` (string)
+
+## Login user [PUT /users]
+Logs in an existing user and marks `isCurrent` true.
+
++ Request (application/json)
+    + Attributes (LoginUserData)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 401 (application/json)
+    + Attributes (object)
+        + error: `Password is incorrect` (string)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found` (string)
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to login` (string)
