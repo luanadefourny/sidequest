@@ -1,80 +1,73 @@
 FORMAT: 1A
-HOST: https://polls.apiblueprint.org/
+HOST: http://localhost:3000
 
-# sidequest
+# SideQuest API
+API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST` to your real server later.
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+# Data Structures
+## User (object)
++ _id: `64f1a2b3c4d5e6f7a8b9c0d1` (string)
++ username: `johndoe` (string)
++ email: `john@doe.com` (string)
++ firstName: `John` (string)
++ lastName: `Doe` (string)
++ age: 27 (number)
++ isCurrent: true (boolean)
 
-## Questions Collection [/questions]
+## RegisterUserData (object)
++ username (string, required)
++ email (string, required)
++ password (string, required)
++ firstName (string, required)
++ lastName (string, required)
++ age (number, required)
 
-### List All Questions [GET]
+## LoginUserData (object)
++ username (string, required)
++ password (string, required)
+
+# Group Users
+
+## List users [GET /users]
+Returns all users.
 
 + Response 200 (application/json)
+    + Attributes (array[User])
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+## Register user [POST /users]
+Creates a new user.
 
 + Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
+    + Attributes (RegisterUserData)
 
 + Response 201 (application/json)
+    + Attributes (User)
 
-    + Headers
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `username already exists` (string)
 
-            Location: /questions/2
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to register user` (string)
 
-    + Body
+## Login user [PUT /users]
+Logs in an existing user and marks `isCurrent` true.
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
++ Request (application/json)
+    + Attributes (LoginUserData)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 401 (application/json)
+    + Attributes (object)
+        + error: `Password is incorrect` (string)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found` (string)
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to login` (string)
