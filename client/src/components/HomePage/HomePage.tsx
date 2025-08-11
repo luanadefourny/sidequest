@@ -14,7 +14,7 @@ export default function HomePage() {
         <ul className="flex space-x-6 bg-white p-4 rounded-lg shadow-md">
           <li>
             <Link
-              to="/"
+              to="/homepage"
               className="text-blue-600 hover:text-blue-800 font-semibold"
             >
               Home
@@ -22,7 +22,7 @@ export default function HomePage() {
           </li>
           <li>
             <Link
-              to="/login"
+              to="/"
               className="text-blue-600 hover:text-blue-800 font-semibold"
             >
               Login
