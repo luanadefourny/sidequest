@@ -12,7 +12,7 @@ type User = {
   password: string;
   firstName: string;
   lastName: string;
-  age: number;
+  birthday: Date;
   isCurrent: boolean; //! to remove
   following: Types.ObjectId[];
   followers: Types.ObjectId[];
@@ -46,7 +46,7 @@ interface RegisterUserData {
   password: string;
   firstName: string;
   lastName: string;
-  age: number;
+  birthday: Date;
 }
 
 interface LoginUserData {

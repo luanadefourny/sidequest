@@ -8,7 +8,7 @@ export interface IUser extends Document {
   password: string; //TODO: can we define the regex rule here?
   firstName: string;
   lastName: string;
-  age: number;
+  birthday: Date;
   isCurrent: boolean; //TODO: will we need this with auth and stuff?
   following: Types.ObjectId[]; // users you follow
   followers: Types.ObjectId[]; // users following you
@@ -74,10 +74,9 @@ const UserSchema = new Schema<IUser>({
     required: true,
     trim: true,
   },
-  age: {
-    type: Number,
+  birthday: {
+    type: Date,
     required: true,
-    min: 13,
   },
   isCurrent: {
     type: Boolean,
