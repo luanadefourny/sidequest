@@ -12,8 +12,8 @@ async function getAllUsers (): Promise<User[]> {
     const { data } = await server.get<User[]>(`/users`);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ message?: string }>;
-    const detail = e.response?.data?.message ?? e.message;
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
     const status = e.response?.status ? ` ${e.response.status}` : '';
     throw new Error(`getAllUsers failed:${status} ${detail}`);
   }
@@ -25,8 +25,8 @@ async function registerUser (userData: RegisterUserData): Promise<User> {
   const { data } = await server.post<User>(`/users`, userData);
   return data;
  } catch (error) {
-  const e = error as AxiosError<{ message?: string }>;
-  const detail = e.response?.data?.message ?? e.message;
+  const e = error as AxiosError<{ error?: string; message?: string }>;
+  const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
   const status = e.response?.status ? ` ${e.response.status}` : '';
   throw new Error(`registerUser failed:${status} ${detail}`);
  }
@@ -37,8 +37,8 @@ async function loginUser (loginData: LoginUserData): Promise<User> {
     const { data } = await server.put<User>(`/users`, loginData);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ message?: string }>;
-    const detail = e.response?.data?.message ?? e.message;
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
     const status = e.response?.status ? ` ${e.response.status}` : '';
     throw new Error(`loginUser failed:${status} ${detail}`);
   }
