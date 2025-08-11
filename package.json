@@ -1,10 +1,9 @@
 {
   "dependencies": {
-    "express": "^5.1.0"
+    "dotenv": "^17.2.1"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
 }
