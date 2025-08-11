@@ -24,7 +24,7 @@ function loadGoogleMapsScript(onLoad: () => void) {
 
   const script = document.createElement('script');
   script.id = 'google-maps-script';
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker,places`;
   script.async = true;
   script.onload = onLoad;
   document.head.appendChild(script);
@@ -33,12 +33,18 @@ function loadGoogleMapsScript(onLoad: () => void) {
 export default function Map() {
   useEffect(() => {
     const container = document.getElementById('map');
+    const input = document.getElementById('pac-input') as HTMLInputElement;
     if (!container) return;
 
     loadGoogleMapsScript(() => {
-      initMap(container);
+      initMap(container, input);
     });
   }, []);
 
-  return <div id="map"></div>;
+  return (
+    <div className="MapComponent-container">
+      <div id="map"></div>
+      <input id="pac-input" type="text" placeholder="Search places" />
+    </div>
+  );
 }
