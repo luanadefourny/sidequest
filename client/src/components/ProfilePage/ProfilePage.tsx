@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { User, GeoPoint } from '../../types';
+import type { User } from '../../types';
 
 interface ProfileProps {
   user: User | null;
@@ -28,7 +28,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           <p className="text-gray-600">{user.email}</p>
           <div className="mt-2">
             <p className="text-sm text-gray-700"><strong>Name:</strong> {user.firstName} {user.lastName}</p>
-            <p className="text-sm text-gray-700"><strong>Age:</strong> {user.age}</p>
+            <p className="text-sm text-gray-700"><strong>Age:</strong> {user.birthday}</p>
             <p className="text-sm text-gray-700">
               <strong>Followers:</strong> {user.followers.length} | <strong>Following:</strong> {user.following.length}
             </p>
