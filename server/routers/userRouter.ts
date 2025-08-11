@@ -1,5 +1,13 @@
 import express, { Router } from 'express';
-import { getUsers, registerUser, loginUser, getUser } from '../controllers/userController';
+import { 
+  getUsers, 
+  registerUser, 
+  loginUser, 
+  getUser, 
+  editUserData, 
+  editUserCredentials,
+  editUserPassword
+} from '../controllers/userController';
 
 const router: Router = express.Router();
 
@@ -9,7 +17,7 @@ router.get('/users/:userId', getUser); //user lookup
 router.post('/users', registerUser); //TODO change with auth
 router.post('/login', loginUser); //TODO change with auth
 
-router.patch('/users/:userId', editUserNonSensitiveData);
+router.patch('/users/:userId', editUserData);
 router.patch('/users/:userId/credentials', editUserCredentials);
 router.patch('/users/:userId/password', editUserPassword);
 

@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import User from '../models/userModel';
-import { registerSchema, loginSchema } from '../validation/userSchemas';
+import { 
+  registerSchema, 
+  loginSchema, 
+  editUserDataSchema,
+  editUserCredentialsSchema,
+  editUserPasswordSchema,
+} from '../validation/userSchemas';
 
 async function getUsers (req: Request, res: Response): Promise<void> {
   try {
@@ -89,4 +95,100 @@ async function loginUser (req: Request, res: Response): Promise<void> {
   }
 }
 
-export { getUsers, registerUser, loginUser };
+//non-sensitive data only
+async function editUserData (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+  
+  const parsedBody = editUserDataSchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    res.status(400).json({ error: parsedBody.error });
+    return;
+  }
+
+  const { firstName, lastName, profilePicture, birthday } = parsedBody.data;
+  
+  const dataToUpdate: { 
+    firstName?: string, 
+    lastName?: string, 
+    profilePicture?: string, 
+    birthday?: Date 
+  } = {};
+  if (firstName !== undefined) dataToUpdate.firstName = firstName;
+  if (lastName !== undefined) dataToUpdate.lastName = lastName;
+  if (profilePicture !== undefined) dataToUpdate.profilePicture = profilePicture;
+  if (birthday !== undefined) dataToUpdate.birthday = birthday;
+  
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, dataToUpdate, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+}
+
+async function editUserCredentials (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+
+  const parsedBody = editUserCredentialsSchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    res.status(400).json({ error: parsedBody.error });
+    return;
+  }
+
+  const { username, email } = parsedBody.data;
+
+  const credentialsToUpdate: {
+    username?: string,
+    email?: string
+  } = {};
+  if (username !== undefined) credentialsToUpdate.username = username;
+  if (email !== undefined) credentialsToUpdate.email = email;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, credentialsToUpdate, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update user credentials' });
+  }
+}
+
+async function editUserPassword (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+
+  const parsedBody = editUserPasswordSchema.safeParse(req.body);
+  if (!parsedBody.success) {
+    res.status(400).json({ error: parsedBody.error });
+    return;
+  }
+
+  const { newPassword } = parsedBody.data;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, { password: newPassword }, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update user password' });
+  }
+}
+
+export { 
+  getUsers, 
+  registerUser, 
+  loginUser, 
+  getUser, 
+  editUserData,
+  editUserCredentials,
+  editUserPassword,
+};
