@@ -5,11 +5,26 @@ import { registerSchema, loginSchema } from '../validation/userSchemas';
 async function getUsers (req: Request, res: Response): Promise<void> {
   try {
     const users = await User.find({});
-    res.status(200).send(users);
+    res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 };
+
+async function getUser (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+  
+  try {
+    const user = await User.findById(userId);
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+}
 
 async function registerUser (req: Request, res: Response): Promise<void> {
   const parsedBody = registerSchema.safeParse(req.body);

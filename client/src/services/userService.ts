@@ -34,7 +34,7 @@ async function registerUser (userData: RegisterUserData): Promise<User> {
 
 async function loginUser (loginData: LoginUserData): Promise<User> {
   try {
-    const { data } = await server.put<User>(`/users`, loginData);
+    const { data } = await server.put<User>(`/login`, loginData);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;

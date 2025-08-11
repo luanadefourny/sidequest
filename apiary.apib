@@ -4,6 +4,11 @@ HOST: http://localhost:3000
 # SideQuest API
 API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST` to your real server later.
 
+**Endpoints in this file**
+- GET /users — list all users
+- POST /users — register a new user
+- PUT /users — login a user and mark `isCurrent: true`
+
 # Data Structures
 ## User (object)
 + _id: `64f1a2b3c4d5e6f7a8b9c0d1` (string)
@@ -65,6 +70,32 @@ Returns all users.
 
 + Response 200 (application/json)
     + Attributes (array[User])
+    + Body
+
+            [
+              {
+                "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+                "username": "johndoe",
+                "email": "john@doe.com",
+                "firstName": "John",
+                "lastName": "Doe",
+                "age": 27,
+                "isCurrent": false,
+                "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
+                "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
+                "profilePicture": "https://cdn.example.com/u/johndoe.jpg",
+                "favoriteQuests": ["750f1a2b3c4d5e6f7a8b9c0d5"],
+                "favoriteLocations": [
+                  {
+                    "label": "home",
+                    "name": "John's flat",
+                    "address": "221B Baker Street, London",
+                    "placeId": "ChIJd7zN_thz2EcR6w4sZ0iS6iQ",
+                    "location": { "type": "Point", "coordinates": [-0.1585557, 51.5237718] }
+                  }
+                ]
+              }
+            ]
 
 ## Register user [POST /users]
 Creates a new user.
@@ -74,6 +105,21 @@ Creates a new user.
 
 + Response 201 (application/json)
     + Attributes (User)
+    + Body
+
+            {
+              "_id": "750f1a2b3c4d5e6f7a8b9c0d9",
+              "username": "janedoe",
+              "email": "jane@doe.com",
+              "firstName": "Jane",
+              "lastName": "Doe",
+              "age": 28,
+              "isCurrent": false,
+              "following": [],
+              "followers": [],
+              "favoriteQuests": [],
+              "favoriteLocations": []
+            }
 
 + Response 400 (application/json)
     + Attributes (object)
@@ -91,6 +137,21 @@ Logs in an existing user and marks `isCurrent` true.
 
 + Response 200 (application/json)
     + Attributes (User)
+    + Body
+
+            {
+              "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+              "username": "johndoe",
+              "email": "john@doe.com",
+              "firstName": "John",
+              "lastName": "Doe",
+              "age": 27,
+              "isCurrent": true,
+              "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
+              "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
+              "favoriteQuests": ["750f1a2b3c4d5e6f7a8b9c0d5"],
+              "favoriteLocations": []
+            }
 
 + Response 401 (application/json)
     + Attributes (object)
