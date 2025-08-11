@@ -18,7 +18,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const { username, email, password, firstName, lastName, age } = parsedBody.data;
+  const { username, email, password, firstName, lastName, birthday } = parsedBody.data;
 
   try {
     // check that the username and email provided doesn't already belong to a user
@@ -35,7 +35,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
       password, //TODO: hash
       firstName,
       lastName,
-      age,
+      birthday,
     });
 
     res.status(201).json(newUser);

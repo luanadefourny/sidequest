@@ -12,7 +12,7 @@ const registerSchema = z.object({
     .max(24),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  age: z.number().int().min(13),
+  birthday: z.coerce.date(),
 });
 
 const loginSchema = z.object({

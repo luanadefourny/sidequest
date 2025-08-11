@@ -77,7 +77,7 @@ async function run() {
         password: 'Test@1234', // Upper+lower+number+symbol, length 9
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
-        age: faker.number.int({ min: 18, max: 50 }),
+        birthday: faker.date.birthdate({ min: 18, max: 50, mode: 'age' }),
         isCurrent: false,
         following: [],
         followers: [],
