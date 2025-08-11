@@ -13,7 +13,6 @@ function TestComponent () {
 
   return (
     <div className="testComponent-container">
-      <div ref={mapContainerRef} className="map"></div>
     </div>
   );
 }

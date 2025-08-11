@@ -1,5 +1,3 @@
-// Initialize and add the map
-let map;
 
 export async function initMap(container: HTMLElement): Promise<void> {
   // The location of Grand Place
@@ -8,14 +6,13 @@ export async function initMap(container: HTMLElement): Promise<void> {
   // Request needed libraries.
   //@ts-ignore - this is used to ignore ts errors bellow this line (in our case google.maps throws a TS error)
   const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
-  //@ts-ignore
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
 
   // The map, centered at Grand Place
-  map = new Map(container, {
+  const map = new Map(container, {
       zoom: 15,
       center: position,
-      mapId: import.meta.env.MAP_ID,
+      mapId: import.meta.env.VITE_MAP_ID,
       mapTypeControl: false,
   });
 

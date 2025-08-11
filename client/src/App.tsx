@@ -5,6 +5,7 @@ import RegisterPage from './components/RegisterPage/RegisterPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import FavouritesPage from './components/FavouritesPage/FavouritesPage';
 import './App.css';
+import MapComponent from './components/MapComponent/MapComponent';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/favourites" element={<FavouritesPage />} />
+        <Route path="/map" element={<MapComponent />} />
       </Routes>
     </BrowserRouter>
   );
