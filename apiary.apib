@@ -13,6 +13,38 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + lastName: `Doe` (string)
 + age: 27 (number)
 + isCurrent: true (boolean)
++ following: [`64f1a2b3c4d5e6f7a8b9c0d2`] (array[string]) - user ids this user follows
++ followers: [`64f1a2b3c4d5e6f7a8b9c0d3`] (array[string]) - user ids following this user
++ profilePicture: `https://cdn.example.com/u/johndoe.jpg` (string, optional)
++ favoriteQuests: [`750f1a2b3c4d5e6f7a8b9c0d5`] (array[string]) - quest ids
++ favoriteLocations (array[FavoriteLocation])
+
+## FavoriteLocation (object)
++ label: `home` (string) - short label like home, work, mom
++ name: `John's flat` (string, optional) - display name
++ address: `221B Baker Street, London` (string, optional)
++ placeId: `ChIJd7zN_thz2EcR6w4sZ0iS6iQ` (string, optional)
++ location (GeoPoint)
+
+## GeoPoint (object)
++ type: `Point` (string)
++ coordinates: [-0.1585557, 51.5237718] (array[number]) - [longitude, latitude]
+
+## Quest (object)
++ _id: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
++ name: `Southbank Food Market` (string)
++ type: `event` (string) - enum: event, place, activity
++ location (GeoPoint)
++ ageRestricted: false (boolean)
++ price: 0 (number, optional)
++ currency: `GBP` (string, optional) - ISO 4217
++ url: `https://example.com/event/123` (string, optional)
++ startAt: `2025-08-20T10:00:00.000Z` (string, optional)
++ endAt: `2025-08-20T16:00:00.000Z` (string, optional)
++ description: `Street food and live music.` (string, optional)
++ source: `Eventbrite` (string, optional)
++ sourceId: `evt_123` (string, optional)
++ createdBy: `64f1a2b3c4d5e6f7a8b9c0d1` (string, optional)
 
 ## RegisterUserData (object)
 + username (string, required)
