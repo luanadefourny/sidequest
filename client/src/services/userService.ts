@@ -101,9 +101,10 @@ async function editUserPassword (userId: Types.ObjectId, password: string): Prom
   }
 }
 
-async function getMyQuests (userId: Types.ObjectId): Promise<MyQuests[]> {
+async function getMyQuests (userId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
   try {
-    const { data } = await server.get<MyQuests[]>(`/users/${userId}/my-quests`);
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.get<MyQuests[]>(`/users/${userId}/my-quests${queryParams}`);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -113,9 +114,10 @@ async function getMyQuests (userId: Types.ObjectId): Promise<MyQuests[]> {
   }
 }
 
-async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId): Promise<MyQuests[]> {
+async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
   try {
-    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}`);
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -125,9 +127,18 @@ async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId): 
   }
 }
 
-// async function removeFromMyQuests () {
-
-// }
+async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[] | []> {
+  try {
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`addToMyQuests failed:${status} ${detail}`);
+  }
+}
 
 // async function toggleFavoriteQuest () {
   
@@ -143,4 +154,5 @@ export {
   editUserPassword,
   getMyQuests,
   addToMyQuests,
+  removeFromMyQuests,
 };

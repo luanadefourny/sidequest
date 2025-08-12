@@ -9,7 +9,7 @@ import {
   editUserPassword,
   getMyQuests,
   addToMyQuests,
-  // removeFromMyQuests,
+  removeFromMyQuests,
   // toggleFavoriteQuest,
 } from '../controllers/userController';
 
@@ -27,7 +27,7 @@ router.patch('/users/:userId/password', editUserPassword);
 
 router.get('/users/:userId/my-quests', getMyQuests); //?populate=0|1 to the end to decide whether to populate results or not
 router.post('/users/:userId/my-quests/:questId', addToMyQuests); //can do populate here too
-// router.delete('/users/:userId/my-quests/:questId', removeFromMyQuests);
+router.delete('/users/:userId/my-quests/:questId', removeFromMyQuests);
 // router.patch('/users/:userId/my-quests/:questId/favorite', toggleFavoriteQuest);
 
 // router.get('/users/:userId/locations', getMyLocations);

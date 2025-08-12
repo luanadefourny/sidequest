@@ -283,7 +283,45 @@ async function addToMyQuests (req: Request, res: Response): Promise<void> {
 }
 
 async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
+    const { userId, questId } = req.params;
+  if (!userId || !questId) {
+    res.status(400).json({ error: 'Missing userId or questId parameter' });
+    return;
+  }
 
+  try {
+    //TODO what if a quest disappears from api but is still saved to a user?
+    const quest = await Quest.findById(questId);
+    if (!quest) {
+      res.status(404).json({ error: 'Quest not found' });
+      return;
+    }
+
+    const userToUpdate = await User.findById(userId);
+    if (!userToUpdate) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    //check if quest is part of myQuests
+    const questIndex = userToUpdate.myQuests.findIndex(myQuest => myQuest.quest.toString() === questId)
+    //nothing to remove
+    if (questIndex === -1) {
+      res.status(204).send();
+      return;
+    }
+    //remove quest
+    userToUpdate.myQuests.splice(questIndex, 1);
+    await userToUpdate.save();
+
+    if (req.query.populate === '1') {
+      await userToUpdate.populate('myQuests.quest');
+    }
+
+    res.status(200).json(userToUpdate.myQuests);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove quest from myQuests' });
+  }
 }
 
 async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> {
@@ -300,4 +338,5 @@ export {
   editUserPassword,
   getMyQuests,
   addToMyQuests,
+  removeFromMyQuests,
 };
