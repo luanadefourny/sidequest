@@ -1,12 +1,20 @@
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function LoginPage() {
+
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState()
   const navigate = useNavigate()
 
  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  navigate("/homepage")
+  
+  // axios.post('http://localhost:3000/login', {email, password})
+  // .then(result =>{console.log(result)
+   navigate("/homepage")
+//  }).catch(err=> console.log(err))
  }
 
   return (
