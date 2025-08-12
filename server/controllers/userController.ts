@@ -136,6 +136,10 @@ async function editUserData (req: Request, res: Response): Promise<void> {
   console.log(dataToUpdate);
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, dataToUpdate, { new: true });
+    if (!updatedUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user' });
@@ -166,6 +170,10 @@ async function editUserCredentials (req: Request, res: Response): Promise<void> 
 
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, credentialsToUpdate, { new: true });
+    if (!updatedUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user credentials' });
@@ -189,6 +197,10 @@ async function editUserPassword (req: Request, res: Response): Promise<void> {
 
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, { password: newPassword }, { new: true });
+    if (!updatedUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user password' });

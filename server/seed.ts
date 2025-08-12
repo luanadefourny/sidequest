@@ -82,8 +82,8 @@ async function run() {
         following: [],
         followers: [],
         profilePicture: hasPic ? faker.helpers.arrayElement(PROFILE_PICS) : undefined,
-        favoriteQuests: [],
-        favoriteLocations: [],
+        myQuests: [],
+        myLocations: [],
       } as any;
     });
 
@@ -109,7 +109,7 @@ async function run() {
       }
 
       quests.push({
-        name: faker.company.catchPhrase(),
+        name: `quest-${i + 1}`,
         type: qType,
         // Matches your current nested LocationSchema:
         // location: { location: { type: 'Point', coordinates: [lon, lat] } }
