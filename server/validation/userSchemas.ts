@@ -26,4 +26,32 @@ const loginSchema = z.object({
     .max(24),
 });
 
-export { registerSchema, loginSchema }
+const editUserDataSchema = z.object({
+  firstName: z.string().min(1).optional(),
+  lastName: z.string().min(1).optional(),
+  profilePicture: z.string().optional(),
+  birthday: z.coerce.date().optional(),
+});
+
+const editUserCredentialsSchema = z.object({
+  username: z.string().min(3).max(32).optional(),
+  email: z.email().optional(),
+});
+
+const editUserPasswordSchema = z.object({
+  newPassword: z.string()
+    .min(8)
+    .regex(/[A-Z]/, 'one uppercase')
+    .regex(/[a-z]/, 'one lowercase')
+    .regex(/[0-9]/, 'one digit')
+    .regex(/[^A-Za-z0-9]/, 'one symbol')
+    .max(24),
+});
+
+export { 
+  registerSchema, 
+  loginSchema, 
+  editUserDataSchema, 
+  editUserCredentialsSchema, 
+  editUserPasswordSchema, 
+}
