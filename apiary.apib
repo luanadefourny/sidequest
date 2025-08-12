@@ -214,7 +214,7 @@ Login with `username` and `password`. Returns the user profile. In MVP there is 
 
 + Response 400 (application/json)
     + Attributes (object)
-        + error: `ZodError` (or validation error)
+        + error: `ZodError`
 
 + Response 401 (application/json)
     + Attributes (object)
@@ -246,7 +246,7 @@ Partially update **firstName**, **lastName**, **profilePicture**, **birthday**.
 
 + Response 400 (application/json)
     + Attributes (object)
-        + error: `ZodError` (or validation error)
+        + error: `ZodError`
 
 + Response 404 (application/json)
     + Attributes (object)
@@ -276,7 +276,7 @@ Change **username** and/or **email**. Returns 409 if either is already taken.
 
 + Response 400 (application/json)
     + Attributes (object)
-        + error: `ZodError` (or validation error)
+        + error: `ZodError`
 
 + Response 404 (application/json)
     + Attributes (object)
@@ -301,7 +301,7 @@ Update password with validation. For MVP, `oldPassword` may be omitted.
 
 + Response 400 (application/json)
     + Attributes (object)
-        + error: `ZodError` (or validation error)
+        + error: `ZodError`
 
 + Response 404 (application/json)
     + Attributes (object)
@@ -332,7 +332,7 @@ Returns the `myQuests` array for the specified user. Optionally, setting the que
 
 + Response 404 (application/json)
     + Attributes (object)
-        + error: `User not found` (or `No quests found for this user`)
+        + error: `User not found`
 
 + Response 500 (application/json)
     + Attributes (object)
@@ -357,7 +357,7 @@ Add a quest to `myQuests`. Idempotent — returns 200 with current array if alre
 
 + Response 404 (application/json)
     + Attributes (object)
-        + error: `User not found` (or `Quest not found`)
+        + error: `User not found`
 
 + Response 500 (application/json)
     + Attributes (object)
