@@ -4,7 +4,8 @@ import type {
   User, 
   RegisterUserData, 
   LoginUserData, 
-  EditUserData, 
+  EditUserData,
+  Credentials, 
 } from '../types';
 import { Types } from 'mongoose';
 
@@ -74,8 +75,16 @@ async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData) {
   }
 }
 
-async function editUserCredentials () {
-
+async function editUserCredentials (userId: Types.ObjectId, credentials: Credentials) {
+  try {
+    const { data } = await server.patch<User>(`/users/${userId}/credentials`, credentials);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`editUserCredentials failed:${status} ${detail}`);
+  }
 }
 
 async function editUserPassword () {

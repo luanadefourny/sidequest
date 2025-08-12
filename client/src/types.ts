@@ -24,6 +24,13 @@ type User = {
   }[];
 }
 
+type PublicUserData = {
+  username: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+}
+
 type Quest = {
   _id: Types.ObjectId;
   name: string;
@@ -61,10 +68,17 @@ interface EditUserData {
   birthday?: Date;
 }
 
+interface Credentials {
+  username?: string;
+  email?: string;
+}
+
 export type { 
   User, 
+  PublicUserData,
   Quest, 
   RegisterUserData, 
   LoginUserData,
   EditUserData, 
+  Credentials,
 }

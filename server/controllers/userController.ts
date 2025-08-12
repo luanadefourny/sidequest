@@ -6,7 +6,7 @@ import {
   editUserDataSchema,
   editUserCredentialsSchema,
   editUserPasswordSchema,
-} from '../validation/userSchemas';
+} from '../validation/userValidationSchemas';
 
 async function getUsers (req: Request, res: Response): Promise<void> {
   try {
