@@ -7,6 +7,7 @@ import FavouritesPage from './components/FavouritesPage/FavouritesPage';
 import type { User } from './types';
 import './App.css';
 import MapComponent from './components/MapComponent/MapComponent';
+import QuestsPage from './components/QuestsPage/Quests';
 
 export default function App() {
   const user: User | null = null;
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage user={user} />} />
         <Route path="/favourites" element={<FavouritesPage />} />
+        <Route path="/quests" element={<QuestsPage />} />
         <Route path="/map" element={<MapComponent />} />
       </Routes>
     </BrowserRouter>
