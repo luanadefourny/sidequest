@@ -262,7 +262,11 @@ async function addToMyQuests (req: Request, res: Response): Promise<void> {
     //check if quest is already part of myQuests
     const inMyQuests = userToUpdate.myQuests.some(myQuest => myQuest.quest.toString() === questId)
     if (inMyQuests) {
-      res.status(204).send(); //no change, already in there
+      //TODO remove code repetition
+      if (req.query.populate === '1') {
+        await userToUpdate.populate('myQuests.quest');
+      }
+      res.status(200).json(userToUpdate.myQuests);
       return;
     }
 

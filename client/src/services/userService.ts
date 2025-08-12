@@ -127,22 +127,32 @@ async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, p
   }
 }
 
-async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[] | []> {
+async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
   try {
     const queryParams = populate ? `?populate=${populate}` : '';
-    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    const { data, status } = await server.delete<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    return status === 204 ? [] : data; //in case there is nothing to remove
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`removeFromMyQuests failed:${status} ${detail}`);
+  }
+}
+
+async function toggleFavoriteQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+  try {
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.patch<MyQuests[]>(`/users/${userId}/my-quests/${questId}/favorite${queryParams}`);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
     const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
     const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`addToMyQuests failed:${status} ${detail}`);
+    throw new Error(`toggleFavoriteQuest failed:${status} ${detail}`);
+
   }
 }
-
-// async function toggleFavoriteQuest () {
-  
-// }
 
 export { 
   getUsers, 
@@ -155,4 +165,5 @@ export {
   getMyQuests,
   addToMyQuests,
   removeFromMyQuests,
+  toggleFavoriteQuest,
 };
