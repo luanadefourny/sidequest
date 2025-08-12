@@ -3,6 +3,8 @@ import { Model, Types, Schema, Document } from 'mongoose';
 import { IQuest } from './questModel';
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
+  __v: number;
   username: string;
   email: string;
   password: string; //TODO: can we define the regex rule here?
@@ -62,7 +64,8 @@ const UserSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false, //cannot be grabbed to return to the user
   },
   firstName: {
     type: String,
@@ -114,7 +117,11 @@ const UserSchema = new Schema<IUser>({
 });
 
 //indexes make querying faster
-UserSchema.index({ 'favoriteLocations.location': '2dsphere' })
+UserSchema.index({ 'favoriteLocations.location': '2dsphere' });
+//doesn't let the password or __v get returned
+UserSchema.set('toJSON', {
+  transform(_doc: IUser, ret: Partial<IUser>) { delete ret.password; delete ret.__v; return ret; }
+});
 
 const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
 

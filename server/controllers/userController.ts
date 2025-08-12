@@ -29,7 +29,12 @@ async function getUser (req: Request, res: Response): Promise<void> {
       .findById(userId)
       .select('username firstName lastName profilePicture')
       .lean();
-    console.log(user);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });
@@ -109,6 +114,7 @@ async function editUserData (req: Request, res: Response): Promise<void> {
   }
   
   const parsedBody = editUserDataSchema.safeParse(req.body);
+  console.log(parsedBody);
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error });
     return;
@@ -127,6 +133,7 @@ async function editUserData (req: Request, res: Response): Promise<void> {
   if (profilePicture !== undefined) dataToUpdate.profilePicture = profilePicture;
   if (birthday !== undefined) dataToUpdate.birthday = birthday;
   
+  console.log(dataToUpdate);
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, dataToUpdate, { new: true });
     res.status(200).json(updatedUser);
