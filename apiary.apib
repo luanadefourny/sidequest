@@ -7,7 +7,7 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 **Endpoints in this file**
 - GET /users — list all users
 - POST /users — register a new user
-- PUT /users — login a user and mark `isCurrent: true`
+- POST /login — login a user and mark `isCurrent: true`
 
 # Data Structures
 ## User (object)
@@ -16,19 +16,22 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + email: `john@doe.com` (string)
 + firstName: `John` (string)
 + lastName: `Doe` (string)
-+ age: 27 (number)
++ birthday: `1997-05-21T00:00:00.000Z` (string) - ISO date
 + isCurrent: true (boolean)
 + following: [`64f1a2b3c4d5e6f7a8b9c0d2`] (array[string]) - user ids this user follows
 + followers: [`64f1a2b3c4d5e6f7a8b9c0d3`] (array[string]) - user ids following this user
-+ profilePicture: `https://cdn.example.com/u/johndoe.jpg` (string, optional)
-+ favoriteQuests: [`750f1a2b3c4d5e6f7a8b9c0d5`] (array[string]) - quest ids
-+ favoriteLocations (array[FavoriteLocation])
++ profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
++ myQuests (array[MyQuest])
++ myLocations (array[MyLocation])
 
-## FavoriteLocation (object)
+## MyQuest (object)
++ quest: `750f1a2b3c4d5e6f7a8b9c0d5` (string) - Quest id
++ isFavorite: false (boolean)
+
+## MyLocation (object)
 + label: `home` (string) - short label like home, work, mom
 + name: `John's flat` (string, optional) - display name
 + address: `221B Baker Street, London` (string, optional)
-+ placeId: `ChIJd7zN_thz2EcR6w4sZ0iS6iQ` (string, optional)
 + location (GeoPoint)
 
 ## GeoPoint (object)
@@ -57,7 +60,7 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + password (string, required)
 + firstName (string, required)
 + lastName (string, required)
-+ age (number, required)
++ birthday (string, required) - ISO date
 
 ## LoginUserData (object)
 + username (string, required)
@@ -79,18 +82,19 @@ Returns all users.
                 "email": "john@doe.com",
                 "firstName": "John",
                 "lastName": "Doe",
-                "age": 27,
+                "birthday": "1997-05-21T00:00:00.000Z",
                 "isCurrent": false,
                 "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
                 "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
-                "profilePicture": "https://cdn.example.com/u/johndoe.jpg",
-                "favoriteQuests": ["750f1a2b3c4d5e6f7a8b9c0d5"],
-                "favoriteLocations": [
+                "profilePicture": "/profile-pics/profile-pic-4.jpg",
+                "myQuests": [
+                  { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": true }
+                ],
+                "myLocations": [
                   {
                     "label": "home",
                     "name": "John's flat",
                     "address": "221B Baker Street, London",
-                    "placeId": "ChIJd7zN_thz2EcR6w4sZ0iS6iQ",
                     "location": { "type": "Point", "coordinates": [-0.1585557, 51.5237718] }
                   }
                 ]
@@ -113,12 +117,13 @@ Creates a new user.
               "email": "jane@doe.com",
               "firstName": "Jane",
               "lastName": "Doe",
-              "age": 28,
+              "birthday": "1996-08-10T00:00:00.000Z",
               "isCurrent": false,
               "following": [],
               "followers": [],
-              "favoriteQuests": [],
-              "favoriteLocations": []
+              "profilePicture": "/profile-pics/profile-pic-1.jpg",
+              "myQuests": [],
+              "myLocations": []
             }
 
 + Response 400 (application/json)
@@ -129,7 +134,7 @@ Creates a new user.
     + Attributes (object)
         + error: `Failed to register user` (string)
 
-## Login user [PUT /users]
+## Login user [POST /login]
 Logs in an existing user and marks `isCurrent` true.
 
 + Request (application/json)
@@ -145,12 +150,15 @@ Logs in an existing user and marks `isCurrent` true.
               "email": "john@doe.com",
               "firstName": "John",
               "lastName": "Doe",
-              "age": 27,
+              "birthday": "1997-05-21T00:00:00.000Z",
               "isCurrent": true,
               "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
               "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
-              "favoriteQuests": ["750f1a2b3c4d5e6f7a8b9c0d5"],
-              "favoriteLocations": []
+              "profilePicture": "/profile-pics/profile-pic-4.jpg",
+              "myQuests": [
+                { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": true }
+              ],
+              "myLocations": []
             }
 
 + Response 401 (application/json)

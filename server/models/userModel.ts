@@ -20,6 +20,8 @@ export interface IUser extends Document {
   }[]; // quests
   myLocations: {
     label: string;
+    name?: string;
+    address?: string;
     location: {
       type: 'Point';
       coordinates: [number, number]; // [lon, lat]
@@ -39,10 +41,20 @@ const MyQuestSchema = new Schema({
   },
 }, { _id: false });
 
-const MyLocationsSchema = new Schema({
+const MyLocationSchema = new Schema({
   label: {
     type: String,
     required: true,
+    trim: true,
+  },
+  name: {
+    type: String,
+    required: false,
+    trim: true,
+  },
+  address: {
+    type: String,
+    required: false,
     trim: true,
   },
   location: {
@@ -122,7 +134,7 @@ const UserSchema = new mongoose.Schema<IUser>({
     default: [],
   },
   myLocations: {
-    type: [MyLocationsSchema],
+    type: [MyLocationSchema],
     default: [],
   },
 });

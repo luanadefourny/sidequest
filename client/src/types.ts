@@ -22,8 +22,10 @@ type User = {
     isFavorite: boolean;
   }[];
   myLocations: {
-    label: string;
-    location: GeoPoint;
+    label: string; //work
+    name?: string; //Apple Southampton
+    address?: string; //325 somethign road, SO15 1QE
+    location: GeoPoint; //[lon, lat]
   }[];
 }
 
