@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import NavBar from '../Navbar/navbar';
 
 interface Quest {
   id: number;
@@ -12,8 +13,11 @@ const quests: Quest[] = [
 ];
 
 export default function QuestsPage() {
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-10">
+      <NavBar />
       {/* Title */}
       <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">
         Available Quests

@@ -1,9 +1,15 @@
 import { Link } from "react-router-dom";
 import Map from "../MapComponent/MapComponent";
+import NavBar from '../Navbar/navbar';
 
 export default function HomePage() {
+
+
   return (
+    <div className="home-page">
+      <NavBar />
     <div className="min-h-screen flex flex-col items-center justify-start bg-gray-50 p-4 pt-10">
+
       {/* Page title */}
       <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">Home Page</h1>
       <p className="mb-8 text-gray-700 text-center max-w-md">
@@ -59,6 +65,7 @@ export default function HomePage() {
           </button>
         </Link>
       </div>
+    </div>
     </div>
   );
 }
