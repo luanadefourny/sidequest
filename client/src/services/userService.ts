@@ -113,9 +113,17 @@ async function getMyQuests (userId: Types.ObjectId): Promise<MyQuests[]> {
   }
 }
 
-// async function addToMyQuests () {
-
-// }
+async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId): Promise<MyQuests[]> {
+  try {
+    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`addToMyQuests failed:${status} ${detail}`);
+  }
+}
 
 // async function removeFromMyQuests () {
 
@@ -134,4 +142,5 @@ export {
   editUserCredentials,
   editUserPassword,
   getMyQuests,
+  addToMyQuests,
 };

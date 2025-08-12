@@ -17,9 +17,9 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 
 **to be done**
 - GET /users/{userId}/my-quests{?populate} — list myQuests
-- POST /users/{userId}/my-quests/{questId} — add quest to myQuests
-- DELETE /users/{userId}/my-quests/{questId} — remove quest from myQuests
-- PATCH /users/{userId}/my-quests/{questId}/favorite - set/unset favorite flag (only if in myQuests)
+- POST /users/{userId}/my-quests/{questId}{?populate} — add quest to myQuests
+- DELETE /users/{userId}/my-quests/{questId}{?populate} — remove quest from myQuests
+- PATCH /users/{userId}/my-quests/{questId}/favorite{?populate} - set/unset favorite flag (only if in myQuests)
 
 - GET /users/{userId}/locations — list saved locations
 - POST /users/{userId}/locations — add saved location

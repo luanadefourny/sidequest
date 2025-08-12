@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import User from '../models/userModel';
 import Quest from '../models/questModel';
 import { 
@@ -231,7 +232,7 @@ async function getMyQuests (req: Request, res: Response): Promise<void> {
     if (req.query.populate === '1') {
       await user.populate('myQuests.quest');
     }
-    
+
     res.status(200).json(user.myQuests);
   } catch (err) {
     res.status(500).json({ error: 'Failed to get myQuests' });
@@ -239,7 +240,46 @@ async function getMyQuests (req: Request, res: Response): Promise<void> {
 }
 
 async function addToMyQuests (req: Request, res: Response): Promise<void> {
+  const { userId, questId } = req.params;
+  if (!userId || !questId) {
+    res.status(400).json({ error: 'Missing userId or questId parameter' });
+    return;
+  }
 
+  try {
+    const quest = await Quest.findById(questId);
+    if (!quest) {
+      res.status(404).json({ error: 'Quest not found' });
+      return;
+    }
+
+    const userToUpdate = await User.findById(userId);
+    if (!userToUpdate) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    //check if quest is already part of myQuests
+    const inMyQuests = userToUpdate.myQuests.some(myQuest => myQuest.quest.toString() === questId)
+    if (inMyQuests) {
+      res.status(204).send(); //no change, already in there
+      return;
+    }
+
+    userToUpdate.myQuests.push({
+      quest: new Types.ObjectId(questId),
+      isFavorite: false,
+    });
+
+    await userToUpdate.save();
+    if (req.query.populate === '1') {
+      await userToUpdate.populate('myQuests.quest');
+    }
+
+    res.status(201).json(userToUpdate.myQuests);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add quest to myQuests' });
+  }
 }
 
 async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
@@ -259,4 +299,5 @@ export {
   editUserCredentials,
   editUserPassword,
   getMyQuests,
+  addToMyQuests,
 };
