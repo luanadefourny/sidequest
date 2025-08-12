@@ -1,6 +1,5 @@
 import mongoose from '../db';
 import { Model, Types, Schema, Document } from 'mongoose';
-import { IQuest } from './questModel';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -15,17 +14,32 @@ export interface IUser extends Document {
   following: Types.ObjectId[]; // users you follow
   followers: Types.ObjectId[]; // users following you
   profilePicture: string;
-  favoriteQuests: Types.ObjectId[]; // quests
-  favoriteLocations: {
+  myQuests: {
+    quest: Types.ObjectId;
+    isFavorite: boolean;
+  }[]; // quests
+  myLocations: {
     label: string;
     location: {
       type: 'Point';
       coordinates: [number, number]; // [lon, lat]
-    };
+    }
   }[];
 }
 
-const FavoriteLocationSchema = new Schema({
+const MyQuestSchema = new Schema({
+  quest: {
+    type: Schema.ObjectId,
+    ref: 'Quest',
+    required: true,
+  },
+  isFavorite: {
+    type: Boolean,
+    default: false,
+  },
+}, { _id: false });
+
+const MyLocationsSchema = new Schema({
   label: {
     type: String,
     required: true,
@@ -48,7 +62,7 @@ const FavoriteLocationSchema = new Schema({
   }
 }, { _id: false });
 
-const UserSchema = new Schema<IUser>({
+const UserSchema = new mongoose.Schema<IUser>({
   username: {
     type: String,
     required: true,
@@ -103,21 +117,18 @@ const UserSchema = new Schema<IUser>({
     type: String,
     required: false,
   },
-  favoriteQuests: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'Quest',
-    }],
+  myQuests: {
+    type: [MyQuestSchema],
     default: [],
   },
-  favoriteLocations: {
-    type: [FavoriteLocationSchema],
+  myLocations: {
+    type: [MyLocationsSchema],
     default: [],
   },
 });
 
 //indexes make querying faster
-UserSchema.index({ 'favoriteLocations.location': '2dsphere' });
+UserSchema.index({ 'myLocations.location': '2dsphere' });
 //doesn't let the password or __v get returned
 UserSchema.set('toJSON', {
   transform(_doc: IUser, ret: Partial<IUser>) { delete ret.password; delete ret.__v; return ret; }

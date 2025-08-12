@@ -9,16 +9,19 @@ type User = {
   _id: Types.ObjectId;
   username: string;
   email: string;
-  password: string;
+  // password: string;
   firstName: string;
   lastName: string;
   birthday: Date;
   isCurrent: boolean; //! to remove
-  following: Types.ObjectId[];
-  followers: Types.ObjectId[];
+  following: Types.ObjectId[] | User[];
+  followers: Types.ObjectId[] | User[];
   profilePicture: string;
-  favoriteQuests: Types.ObjectId[];
-  favoriteLocations: {
+  myQuests: {
+    quest: Types.ObjectId | Quest;
+    isFavorite: boolean;
+  }[];
+  myLocations: {
     label: string;
     location: GeoPoint;
   }[];
