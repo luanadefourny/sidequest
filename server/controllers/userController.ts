@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../models/userModel';
+import Quest from '../models/questModel';
 import { 
   registerSchema, 
   loginSchema, 
@@ -207,6 +208,48 @@ async function editUserPassword (req: Request, res: Response): Promise<void> {
   }
 }
 
+async function getMyQuests (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+  
+  try {
+    const user = await User.findById(userId).select('myQuests');
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (!user.myQuests || user.myQuests.length === 0) {
+      res.status(404).json({ error: 'No quests found for this user' });
+      return;
+    }
+
+    if (req.query.populate === '1') {
+      await user.populate('myQuests.quest');
+    }
+    
+    res.status(200).json(user.myQuests);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get myQuests' });
+  }
+}
+
+async function addToMyQuests (req: Request, res: Response): Promise<void> {
+
+}
+
+async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
+
+}
+
+async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> {
+
+}
+
 export { 
   getUsers, 
   registerUser, 
@@ -215,4 +258,5 @@ export {
   editUserData,
   editUserCredentials,
   editUserPassword,
+  getMyQuests,
 };

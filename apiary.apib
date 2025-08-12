@@ -88,6 +88,10 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + username (string, required)
 + password (string, required)
 
+## MyQuest (object)
++ quest: `750f1a2b3c4d5e6f7a8b9c0d5` (string) - Quest id or embedded Quest object if populated
++ isFavorite: false (boolean)
+
 # Group Users
 
 ## List users [GET /users]
@@ -282,14 +286,37 @@ Update password with validation. For MVP, `oldPassword` may be omitted.
 **not done yet**
 
 ## List myQuests [GET /users/{userId}/my-quests{?populate}]
-Return the user's `myQuests`. Use `?populate=1` to return full quest documents for `myQuests.quest`.
+Returns the `myQuests` array for the specified user. Optionally, setting the query parameter `populate=1` will replace quest IDs with full Quest documents.
 
 + Parameters
-    + userId: `64f1a2b3c4...` (string)
-    + populate: `0` (number, optional) — `0|1`
+    + userId: `1234567890abcdef12345678` (required, string) - The ID of the user
+    + populate: `1` (optional, string) - If set to 1, quest IDs are replaced with full Quest objects
 
 + Response 200 (application/json)
-    + Attributes (array[MyQuest])
+    + Attributes (array[MyQuests])
+    + Body
+            [
+              {
+                "questId": "5f8f8c44b54764421b7156c1",
+                "status": "in-progress",
+                "startedAt": "2021-07-21T17:32:28Z",
+                "completedAt": null
+              },
+              {
+                "questId": "5f8f8c44b54764421b7156c2",
+                "status": "completed",
+                "startedAt": "2021-06-15T12:00:00Z",
+                "completedAt": "2021-07-01T12:00:00Z"
+              }
+            ]
+
++ Response 404 (application/json)
+    + Attributes
+        + error: `No quests found for user` (string)
+
++ Response 400 (application/json)
+    + Attributes
+        + error: `Missing userId parameter` (string)
 
 ## Add a quest to myQuests [POST /users/{userId}/my-quests/{questId}]
 Add a quest to `myQuests`. Idempotent - returns 204 if it already exists.

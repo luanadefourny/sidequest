@@ -17,10 +17,7 @@ type User = {
   following: Types.ObjectId[] | User[];
   followers: Types.ObjectId[] | User[];
   profilePicture: string;
-  myQuests: {
-    quest: Types.ObjectId | Quest;
-    isFavorite: boolean;
-  }[];
+  myQuests: MyQuests[];
   myLocations: {
     label: string; //work
     name?: string; //Apple Southampton
@@ -78,6 +75,11 @@ interface Credentials {
   email?: string;
 }
 
+interface MyQuests {
+  quest: Types.ObjectId | Quest;
+  isFavorite: boolean;
+}
+
 export type { 
   User, 
   PublicUserData,
@@ -86,4 +88,5 @@ export type {
   LoginUserData,
   EditUserData, 
   Credentials,
+  MyQuests,
 }

@@ -6,7 +6,8 @@ import type {
   LoginUserData, 
   EditUserData,
   Credentials,
-  PublicUserData, 
+  PublicUserData,
+  MyQuests, 
 } from '../types';
 import { Types } from 'mongoose';
 
@@ -100,6 +101,30 @@ async function editUserPassword (userId: Types.ObjectId, password: string): Prom
   }
 }
 
+async function getMyQuests (userId: Types.ObjectId): Promise<MyQuests[]> {
+  try {
+    const { data } = await server.get<MyQuests[]>(`/users/${userId}/my-quests`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`getMyQuests failed:${status} ${detail}`);
+  }
+}
+
+// async function addToMyQuests () {
+
+// }
+
+// async function removeFromMyQuests () {
+
+// }
+
+// async function toggleFavoriteQuest () {
+  
+// }
+
 export { 
   getUsers, 
   getUser, 
@@ -108,4 +133,5 @@ export {
   editUserData,
   editUserCredentials,
   editUserPassword,
+  getMyQuests,
 };

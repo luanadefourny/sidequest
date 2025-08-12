@@ -6,7 +6,11 @@ import {
   getUser, 
   editUserData, 
   editUserCredentials,
-  editUserPassword
+  editUserPassword,
+  getMyQuests,
+  // addToMyQuests,
+  // removeFromMyQuests,
+  // toggleFavoriteQuest,
 } from '../controllers/userController';
 
 const router: Router = express.Router();
@@ -21,7 +25,7 @@ router.patch('/users/:userId', editUserData);
 router.patch('/users/:userId/credentials', editUserCredentials);
 router.patch('/users/:userId/password', editUserPassword);
 
-// router.get('/users/:userId/my-quests?populate=0|1', getMyQuests);
+router.get('/users/:userId/my-quests', getMyQuests); //?populate=0|1 to the end to decide whether to populate results or not
 // router.post('/users/:userId/my-quest/:questId', addToMyQuests);
 // router.delete('/users/:userId/my-quest/:questId', removeFromMyQuests);
 // router.patch('/users/:userId/my-quest/:questId/favorite', toggleFavoriteQuest);
