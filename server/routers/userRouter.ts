@@ -21,14 +21,15 @@ router.patch('/users/:userId', editUserData);
 router.patch('/users/:userId/credentials', editUserCredentials);
 router.patch('/users/:userId/password', editUserPassword);
 
-// router.get('/users/:userId/favorites/quests?populate=0|1', getUserFavoriteQuests);
-// router.post('/users/:userId/favorites/:questId', addQuestToFavorites);
-// router.delete('/users/:userId/favorites/:questId', removeQuestFromFavorites);
+// router.get('/users/:userId/my-quests?populate=0|1', getMyQuests);
+// router.post('/users/:userId/my-quest/:questId', addToMyQuests);
+// router.delete('/users/:userId/my-quest/:questId', removeFromMyQuests);
+// router.patch('/users/:userId/my-quest/:questId/favorite', toggleFavoriteQuest);
 
-// router.get('/users/:userId/locations', getUserSavedLocations);
-// router.post('/users/:userId/locations', createUserSavedLocation);
-// router.patch('/users/:userId/locations/:label', editUserSavedLocation);
-// router.delete('/users/:userId/locations/:label', removeUserSavedLocation);
+// router.get('/users/:userId/locations', getMyLocations);
+// router.post('/users/:userId/locations', addToMyLocation);
+// router.patch('/users/:userId/locations/:label', editMyLocation);
+// router.delete('/users/:userId/locations/:label', removeFromMyLocation);
 
 // router.get('/users/:userId/follwers', getUserFollowers);
 // router.get('/users/:userId/follwing', getUserFollowing);

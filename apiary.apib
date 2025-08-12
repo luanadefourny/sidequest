@@ -4,10 +4,32 @@ HOST: http://localhost:3000
 # SideQuest API
 API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST` to your real server later.
 
-**Endpoints in this file**
-- GET /users — list all users
+**Endpoints overview (Users)**
+- GET /users — list all users (public fields only)
+- GET /users/{userId} — get a user's public profile
+
 - POST /users — register a new user
 - POST /login — login a user and mark `isCurrent: true`
+
+- PATCH /users/{userId} — edit non‑sensitive profile data
+- PATCH /users/{userId}/credentials — edit username/email
+- PATCH /users/{userId}/password — change password
+
+**to be done**
+- GET /users/{userId}/my-quests{?populate} — list myQuests
+- POST /users/{userId}/my-quests/{questId} — add quest to myQuests
+- DELETE /users/{userId}/my-quests/{questId} — remove quest from myQuests
+- PATCH /users/{userId}/my-quests/{questId}/favorite - set/unset favorite flag (only if in myQuests)
+
+- GET /users/{userId}/locations — list saved locations
+- POST /users/{userId}/locations — add saved location
+- PATCH /users/{userId}/locations/{label} — update saved location
+- DELETE /users/{userId}/locations/{label} — delete saved location
+
+- POST /users/{userId}/follow — follow a user
+- DELETE /users/{userId}/follow — unfollow a user
+- GET /users/{userId}/followers — list followers
+- GET /users/{userId}/following — list following
 
 # Data Structures
 ## User (object)
@@ -69,7 +91,7 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 # Group Users
 
 ## List users [GET /users]
-Returns all users.
+Return all users with **public fields only**. Intended for admin or basic directory screens. Avoid heavy payloads.
 
 + Response 200 (application/json)
     + Attributes (array[User])
@@ -101,8 +123,28 @@ Returns all users.
               }
             ]
 
+## Get user by id [GET /users/{userId}]
+Return a user's **public profile**. Never includes sensitive fields.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + _id: `64f1a2...` (string)
+        + username: `johndoe` (string)
+        + firstName: `John` (string)
+        + lastName: `Doe` (string)
+        + profilePicture: `/profile-pics/profile-pic-4.jpg` (string)
+        + followersCount: 10 (number)
+        + followingCount: 5 (number)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
 ## Register user [POST /users]
-Creates a new user.
+Create a new user. Validates required fields and uniqueness for `username` and `email`.
 
 + Request (application/json)
     + Attributes (RegisterUserData)
@@ -135,7 +177,7 @@ Creates a new user.
         + error: `Failed to register user` (string)
 
 ## Login user [POST /login]
-Logs in an existing user and marks `isCurrent` true.
+Login with `username` and `password`. Returns the user profile. In MVP there is no token.
 
 + Request (application/json)
     + Attributes (LoginUserData)
@@ -172,3 +214,224 @@ Logs in an existing user and marks `isCurrent` true.
 + Response 500 (application/json)
     + Attributes (object)
         + error: `Failed to login` (string)
+
+## Edit user profile (non‑sensitive) [PATCH /users/{userId}]
+Partially update **firstName**, **lastName**, **profilePicture**, **birthday**.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + firstName: `Luana` (string, optional)
+        + lastName: `Defourny` (string, optional)
+        + profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
+        + birthday: `1997-05-21T00:00:00.000Z` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
+## Edit credentials [PATCH /users/{userId}/credentials]
+Change **username** and/or **email**. Returns 409 if either is already taken.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + username: `newname` (string, optional)
+        + email: `new@email.com` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 409 (application/json)
+    + Attributes (object)
+        + error: `username already exists`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
+## Edit password [PATCH /users/{userId}/password]
+Update password with validation. For MVP, `oldPassword` may be omitted.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + oldPassword: `Test@1234` (string, optional)
+        + newPassword: `New@1234` (string, required)
+
++ Response 204
+
++ Response 401 (application/json)
+    + Attributes (object)
+        + error: `Old password incorrect`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
+
+**not done yet**
+
+## List myQuests [GET /users/{userId}/my-quests{?populate}]
+Return the user's `myQuests`. Use `?populate=1` to return full quest documents for `myQuests.quest`.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + populate: `0` (number, optional) — `0|1`
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
+## Add a quest to myQuests [POST /users/{userId}/my-quests/{questId}]
+Add a quest to `myQuests`. Idempotent - returns 204 if it already exists.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 204
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User or quest not found`
+
+## Remove quest from myQuests [DELETE /users/{userId}/my-quests/{questId}]
+Remove a quest from `myQuests`. Idempotent - returns 205 if it does not exist.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 204
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User or quest not found`
+
+## Set favorite on a myQuest [PATCH /users/{userId}/my-quests/{questId}/favorite]
+Set or unset the `isFavorite` flag, **only if the quest is already in** `myQuests`.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + isFavorite: true (boolean, required)
+
++ Response 204
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `myQuest not found` (string)
+
+## List saved locations [GET /users/{userId}/locations]
+Return saved presets for the user.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[MyLocation])
+
+## Add saved location [POST /users/{userId}/locations]
+Create a new preset. `label` acts as the natural key.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (MyLocation)
+
++ Response 201 (application/json)
+    + Attributes (MyLocation)
+
++ Response 409 (application/json)
+    + Attributes (object)
+        + error: `label already exists`
+
+## Update saved location [PATCH /users/{userId}/locations/{label}]
+Edit preset fields or rename via `newLabel`.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + label: `home` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + name: `John's flat` (string, optional)
+        + address: `221B Baker Street, London` (string, optional)
+        + location: (GeoPoint, optional)
+        + newLabel: `work` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (MyLocation)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `Location not found`
+
+## Delete saved location [DELETE /users/{userId}/locations/{label}]
+Remove a preset by label. Idempotent.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + label: `home` (string)
+
++ Response 204
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `Location not found`
+
+## Follow user [POST /users/{userId}/follow]
+Follow the target user. Idempotent. Returns 204 even if already following.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 204
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
+## Unfollow user [DELETE /users/{userId}/follow]
+Unfollow the target user. Idempotent. Returns 204 even if not following.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 204
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
+## List followers [GET /users/{userId}/followers]
+Return followers as user ids for MVP.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[string])
+
+## List following [GET /users/{userId}/following]
+Return following as user ids for MVP.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[string])
+
