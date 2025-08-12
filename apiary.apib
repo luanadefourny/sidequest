@@ -20,7 +20,6 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 - DELETE /users/{userId}/my-quests/{questId}{?populate} — remove quest from myQuests
 - PATCH /users/{userId}/my-quests/{questId}/favorite{?populate} - set/unset favorite flag (only if in myQuests)
 
-**to be done**
 - GET /users/{userId}/locations — list saved locations
 - POST /users/{userId}/locations — add saved location
 - PATCH /users/{userId}/locations/{label} — update saved location
@@ -45,10 +44,6 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
 + myQuests (array[MyQuest])
 + myLocations (array[MyLocation])
-
-## MyQuest (object)
-+ quest: `750f1a2b3c4d5e6f7a8b9c0d5` (string) - Quest id
-+ isFavorite: false (boolean)
 
 ## MyLocation (object)
 + label: `home` (string) - short label like home, work, mom
@@ -413,106 +408,3 @@ Set or unset the `isFavorite` flag, **only if the quest is already in** `myQuest
 + Response 500 (application/json)
     + Attributes (object)
         + error: `Failed to toggle favorite status`
-        
-**not done yet**
-## List saved locations [GET /users/{userId}/locations]
-Return saved presets for the user.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-
-+ Response 200 (application/json)
-    + Attributes (array[MyLocation])
-
-## Add saved location [POST /users/{userId}/locations]
-Create a new preset. `label` acts as the natural key.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-
-+ Request (application/json)
-    + Attributes (MyLocation)
-
-+ Response 201 (application/json)
-    + Attributes (MyLocation)
-
-+ Response 409 (application/json)
-    + Attributes (object)
-        + error: `label already exists`
-
-## Update saved location [PATCH /users/{userId}/locations/{label}]
-Edit preset fields or rename via `newLabel`.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-    + label: `home` (string)
-
-+ Request (application/json)
-    + Attributes (object)
-        + name: `John's flat` (string, optional)
-        + address: `221B Baker Street, London` (string, optional)
-        + location: (GeoPoint, optional)
-        + newLabel: `work` (string, optional)
-
-+ Response 200 (application/json)
-    + Attributes (MyLocation)
-
-+ Response 404 (application/json)
-    + Attributes (object)
-        + error: `Location not found`
-
-## Delete saved location [DELETE /users/{userId}/locations/{label}]
-Remove a preset by label. Idempotent.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-    + label: `home` (string)
-
-+ Response 204
-
-+ Response 404 (application/json)
-    + Attributes (object)
-        + error: `Location not found`
-
-## Follow user [POST /users/{userId}/follow]
-Follow the target user. Idempotent. Returns 204 even if already following.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-
-+ Response 204
-
-+ Response 404 (application/json)
-    + Attributes (object)
-        + error: `User not found`
-
-## Unfollow user [DELETE /users/{userId}/follow]
-Unfollow the target user. Idempotent. Returns 204 even if not following.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-
-+ Response 204
-
-+ Response 404 (application/json)
-    + Attributes (object)
-        + error: `User not found`
-
-## List followers [GET /users/{userId}/followers]
-Return followers as user ids for MVP.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-
-+ Response 200 (application/json)
-    + Attributes (array[string])
-
-## List following [GET /users/{userId}/following]
-Return following as user ids for MVP.
-
-+ Parameters
-    + userId: `64f1a2b3c4...` (string)
-
-+ Response 200 (application/json)
-    + Attributes (array[string])
-
