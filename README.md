@@ -40,7 +40,7 @@ npm install
 
 To populate the database with mock data for development, you will have to create a `.env` file (based on the `.env.example` file) as well as run some TS code before building the app.
 
-1. Copy the `.env.example` file to `.env` (from the root directory)
+1. Copy the `.env.example` file to `.env` (server)
 ```
 cp .env.example .env
 ```

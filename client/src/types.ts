@@ -9,19 +9,28 @@ type User = {
   _id: Types.ObjectId;
   username: string;
   email: string;
-  password: string;
+  // password: string;
   firstName: string;
   lastName: string;
   birthday: Date;
   isCurrent: boolean; //! to remove
-  following: Types.ObjectId[];
-  followers: Types.ObjectId[];
+  following: Types.ObjectId[] | User[];
+  followers: Types.ObjectId[] | User[];
   profilePicture: string;
-  favoriteQuests: Types.ObjectId[];
-  favoriteLocations: {
-    label: string;
-    location: GeoPoint;
+  myQuests: MyQuests[];
+  myLocations: {
+    label: string; //work
+    name?: string; //Apple Southampton
+    address?: string; //325 somethign road, SO15 1QE
+    location: GeoPoint; //[lon, lat]
   }[];
+}
+
+type PublicUserData = {
+  username: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
 }
 
 type Quest = {
@@ -61,10 +70,23 @@ interface EditUserData {
   birthday?: Date;
 }
 
+interface Credentials {
+  username?: string;
+  email?: string;
+}
+
+interface MyQuests {
+  quest: Types.ObjectId | Quest;
+  isFavorite: boolean;
+}
+
 export type { 
   User, 
+  PublicUserData,
   Quest, 
   RegisterUserData, 
   LoginUserData,
   EditUserData, 
+  Credentials,
+  MyQuests,
 }

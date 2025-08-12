@@ -1,8 +1,9 @@
 import mongoose from '../db';
 import { Model, Types, Schema, Document } from 'mongoose';
-import { IQuest } from './questModel';
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
+  __v: number;
   username: string;
   email: string;
   password: string; //TODO: can we define the regex rule here?
@@ -13,20 +14,47 @@ export interface IUser extends Document {
   following: Types.ObjectId[]; // users you follow
   followers: Types.ObjectId[]; // users following you
   profilePicture: string;
-  favoriteQuests: Types.ObjectId[]; // quests
-  favoriteLocations: {
+  myQuests: {
+    quest: Types.ObjectId;
+    isFavorite: boolean;
+  }[]; // quests
+  myLocations: {
     label: string;
+    name?: string;
+    address?: string;
     location: {
       type: 'Point';
       coordinates: [number, number]; // [lon, lat]
-    };
+    }
   }[];
 }
 
-const FavoriteLocationSchema = new Schema({
+const MyQuestSchema = new Schema({
+  quest: {
+    type: Schema.ObjectId,
+    ref: 'Quest',
+    required: true,
+  },
+  isFavorite: {
+    type: Boolean,
+    default: false,
+  },
+}, { _id: false });
+
+const MyLocationSchema = new Schema({
   label: {
     type: String,
     required: true,
+    trim: true,
+  },
+  name: {
+    type: String,
+    required: false,
+    trim: true,
+  },
+  address: {
+    type: String,
+    required: false,
     trim: true,
   },
   location: {
@@ -46,7 +74,7 @@ const FavoriteLocationSchema = new Schema({
   }
 }, { _id: false });
 
-const UserSchema = new Schema<IUser>({
+const UserSchema = new mongoose.Schema<IUser>({
   username: {
     type: String,
     required: true,
@@ -62,7 +90,8 @@ const UserSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false, //cannot be grabbed to return to the user
   },
   firstName: {
     type: String,
@@ -100,21 +129,22 @@ const UserSchema = new Schema<IUser>({
     type: String,
     required: false,
   },
-  favoriteQuests: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'Quest',
-    }],
+  myQuests: {
+    type: [MyQuestSchema],
     default: [],
   },
-  favoriteLocations: {
-    type: [FavoriteLocationSchema],
+  myLocations: {
+    type: [MyLocationSchema],
     default: [],
   },
 });
 
 //indexes make querying faster
-UserSchema.index({ 'favoriteLocations.location': '2dsphere' })
+UserSchema.index({ 'myLocations.location': '2dsphere' });
+//doesn't let the password or __v get returned
+UserSchema.set('toJSON', {
+  transform(_doc: IUser, ret: Partial<IUser>) { delete ret.password; delete ret.__v; return ret; }
+});
 
 const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
 

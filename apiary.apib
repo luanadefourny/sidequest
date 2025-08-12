@@ -4,10 +4,31 @@ HOST: http://localhost:3000
 # SideQuest API
 API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST` to your real server later.
 
-**Endpoints in this file**
-- GET /users — list all users
+**Endpoints overview (Users)**
+- GET /users — list all users (public fields only)
+- GET /users/{userId} — get a user's public profile
+
 - POST /users — register a new user
-- PUT /users — login a user and mark `isCurrent: true`
+- POST /login — login a user and mark `isCurrent: true`
+
+- PATCH /users/{userId} — edit non‑sensitive profile data
+- PATCH /users/{userId}/credentials — edit username/email
+- PATCH /users/{userId}/password — change password
+
+- GET /users/{userId}/my-quests{?populate} — list myQuests
+- POST /users/{userId}/my-quests/{questId}{?populate} — add quest to myQuests
+- DELETE /users/{userId}/my-quests/{questId}{?populate} — remove quest from myQuests
+- PATCH /users/{userId}/my-quests/{questId}/favorite{?populate} - set/unset favorite flag (only if in myQuests)
+
+- GET /users/{userId}/locations — list saved locations
+- POST /users/{userId}/locations — add saved location
+- PATCH /users/{userId}/locations/{label} — update saved location
+- DELETE /users/{userId}/locations/{label} — delete saved location
+
+- POST /users/{userId}/follow — follow a user
+- DELETE /users/{userId}/follow — unfollow a user
+- GET /users/{userId}/followers — list followers
+- GET /users/{userId}/following — list following
 
 # Data Structures
 ## User (object)
@@ -16,19 +37,18 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + email: `john@doe.com` (string)
 + firstName: `John` (string)
 + lastName: `Doe` (string)
-+ age: 27 (number)
++ birthday: `1997-05-21T00:00:00.000Z` (string) - ISO date
 + isCurrent: true (boolean)
 + following: [`64f1a2b3c4d5e6f7a8b9c0d2`] (array[string]) - user ids this user follows
 + followers: [`64f1a2b3c4d5e6f7a8b9c0d3`] (array[string]) - user ids following this user
-+ profilePicture: `https://cdn.example.com/u/johndoe.jpg` (string, optional)
-+ favoriteQuests: [`750f1a2b3c4d5e6f7a8b9c0d5`] (array[string]) - quest ids
-+ favoriteLocations (array[FavoriteLocation])
++ profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
++ myQuests (array[MyQuest])
++ myLocations (array[MyLocation])
 
-## FavoriteLocation (object)
+## MyLocation (object)
 + label: `home` (string) - short label like home, work, mom
 + name: `John's flat` (string, optional) - display name
 + address: `221B Baker Street, London` (string, optional)
-+ placeId: `ChIJd7zN_thz2EcR6w4sZ0iS6iQ` (string, optional)
 + location (GeoPoint)
 
 ## GeoPoint (object)
@@ -57,16 +77,20 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + password (string, required)
 + firstName (string, required)
 + lastName (string, required)
-+ age (number, required)
++ birthday (string, required) - ISO date
 
 ## LoginUserData (object)
 + username (string, required)
 + password (string, required)
 
+## MyQuest (object)
++ quest: `750f1a2b3c4d5e6f7a8b9c0d5` (string) - Quest id or embedded Quest object if populated
++ isFavorite: false (boolean)
+
 # Group Users
 
 ## List users [GET /users]
-Returns all users.
+Return all users with **public fields only**. Intended for admin or basic directory screens. Avoid heavy payloads.
 
 + Response 200 (application/json)
     + Attributes (array[User])
@@ -79,26 +103,57 @@ Returns all users.
                 "email": "john@doe.com",
                 "firstName": "John",
                 "lastName": "Doe",
-                "age": 27,
+                "birthday": "1997-05-21T00:00:00.000Z",
                 "isCurrent": false,
                 "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
                 "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
-                "profilePicture": "https://cdn.example.com/u/johndoe.jpg",
-                "favoriteQuests": ["750f1a2b3c4d5e6f7a8b9c0d5"],
-                "favoriteLocations": [
+                "profilePicture": "/profile-pics/profile-pic-4.jpg",
+                "myQuests": [
+                  { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": true }
+                ],
+                "myLocations": [
                   {
                     "label": "home",
                     "name": "John's flat",
                     "address": "221B Baker Street, London",
-                    "placeId": "ChIJd7zN_thz2EcR6w4sZ0iS6iQ",
                     "location": { "type": "Point", "coordinates": [-0.1585557, 51.5237718] }
                   }
                 ]
               }
             ]
 
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch users`
+
+## Get user by id [GET /users/{userId}]
+Return a user's **public profile**. Never includes sensitive fields.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + _id: `64f1a2...` (string)
+        + username: `johndoe` (string)
+        + firstName: `John` (string)
+        + lastName: `Doe` (string)
+        + profilePicture: `/profile-pics/profile-pic-4.jpg` (string)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch user`
+
 ## Register user [POST /users]
-Creates a new user.
+Create a new user. Validates required fields and uniqueness for `username` and `email`.
 
 + Request (application/json)
     + Attributes (RegisterUserData)
@@ -113,12 +168,13 @@ Creates a new user.
               "email": "jane@doe.com",
               "firstName": "Jane",
               "lastName": "Doe",
-              "age": 28,
+              "birthday": "1996-08-10T00:00:00.000Z",
               "isCurrent": false,
               "following": [],
               "followers": [],
-              "favoriteQuests": [],
-              "favoriteLocations": []
+              "profilePicture": "/profile-pics/profile-pic-1.jpg",
+              "myQuests": [],
+              "myLocations": []
             }
 
 + Response 400 (application/json)
@@ -129,8 +185,8 @@ Creates a new user.
     + Attributes (object)
         + error: `Failed to register user` (string)
 
-## Login user [PUT /users]
-Logs in an existing user and marks `isCurrent` true.
+## Login user [POST /login]
+Login with `username` and `password`. Returns the user profile. In MVP there is no token.
 
 + Request (application/json)
     + Attributes (LoginUserData)
@@ -145,22 +201,210 @@ Logs in an existing user and marks `isCurrent` true.
               "email": "john@doe.com",
               "firstName": "John",
               "lastName": "Doe",
-              "age": 27,
+              "birthday": "1997-05-21T00:00:00.000Z",
               "isCurrent": true,
               "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
               "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
-              "favoriteQuests": ["750f1a2b3c4d5e6f7a8b9c0d5"],
-              "favoriteLocations": []
+              "profilePicture": "/profile-pics/profile-pic-4.jpg",
+              "myQuests": [
+                { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": true }
+              ],
+              "myLocations": []
             }
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError` (or validation error)
 
 + Response 401 (application/json)
     + Attributes (object)
-        + error: `Password is incorrect` (string)
+        + error: `Password is incorrect`
 
 + Response 404 (application/json)
     + Attributes (object)
-        + error: `User not found` (string)
+        + error: `User not found`
 
 + Response 500 (application/json)
     + Attributes (object)
-        + error: `Failed to login` (string)
+        + error: `Failed to login`
+
+## Edit user profile (non‑sensitive) [PATCH /users/{userId}]
+Partially update **firstName**, **lastName**, **profilePicture**, **birthday**.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + firstName: `Luana` (string, optional)
+        + lastName: `Defourny` (string, optional)
+        + profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
+        + birthday: `1997-05-21T00:00:00.000Z` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError` (or validation error)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to update user`
+
+## Edit credentials [PATCH /users/{userId}/credentials]
+Change **username** and/or **email**. Returns 409 if either is already taken.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + username: `newname` (string, optional)
+        + email: `new@email.com` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 409 (application/json)
+    + Attributes (object)
+        + error: `username already exists`
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError` (or validation error)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to update user credentials`
+
+## Edit password [PATCH /users/{userId}/password]
+Update password with validation. For MVP, `oldPassword` may be omitted.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + newPassword: `New@1234` (string, required)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError` (or validation error)
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to update user password`
+
+## List myQuests [GET /users/{userId}/my-quests{?populate}]
+Returns the `myQuests` array for the specified user. Optionally, setting the query parameter `populate=1` will replace quest IDs with full Quest documents.
+
++ Parameters
+    + userId: `1234567890abcdef12345678` (required, string) - The ID of the user
+    + populate: `1` (optional, string) - If set to 1, quest IDs are replaced with full Quest objects
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+    + Body
+        [
+          { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": false },
+          { "quest": "750f1a2b3c4d5e6f7a8b9c0d6", "isFavorite": true }
+        ]
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found` (or `No quests found for this user`)
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to get myQuests`
+
+## Add a quest to myQuests [POST /users/{userId}/my-quests/{questId}{?populate}]
+Add a quest to `myQuests`. Idempotent — returns 200 with current array if already exists; 201 with updated array if newly added. Supports `?populate=1`.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 201 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found` (or `Quest not found`)
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to add quest to myQuests`
+
+## Remove quest from myQuests [DELETE /users/{userId}/my-quests/{questId}{?populate}]
+Remove a quest from `myQuests`. Idempotent — returns 204 if it does not exist; 200 with updated array (possibly empty) if removed. Supports `?populate=1`.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 204
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to remove quest from myQuests`
+
+## Set favorite on a myQuest [PATCH /users/{userId}/my-quests/{questId}/favorite{?populate}]
+Set or unset the `isFavorite` flag, **only if the quest is already in** `myQuests`. Supports `?populate=1`.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found` (or `Quest not found in myQuests`)
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to toggle favorite status`
