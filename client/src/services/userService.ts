@@ -36,7 +36,7 @@ async function getUser (userId: Types.ObjectId): Promise<PublicUserData> {
     const e = error as AxiosError<{ error?: string; message?: string }>;
     const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
     const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getUsers failed:${status} ${detail}`);
+    throw new Error(`getUser failed:${status} ${detail}`);
   }
 }
 
@@ -91,7 +91,7 @@ async function editUserCredentials (userId: Types.ObjectId, credentials: Credent
 
 async function editUserPassword (userId: Types.ObjectId, password: string): Promise<User> {
   try {
-    const { data } = await server.patch<User>(`/users/${userId}/password`, password);
+    const { data } = await server.patch<User>(`/users/${userId}/password`, { newPassword: password });
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;

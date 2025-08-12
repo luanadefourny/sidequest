@@ -22,7 +22,7 @@ async function getUsers (req: Request, res: Response): Promise<void> {
 async function getUser (req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
-    res.status(400).json({ error: 'No user ID provided' });
+    res.status(400).json({ error: 'Missing userId parameter' });
     return;
   }
   
@@ -212,7 +212,7 @@ async function editUserPassword (req: Request, res: Response): Promise<void> {
 async function getMyQuests (req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
-    res.status(400).json({ error: 'No user ID provided' });
+    res.status(400).json({ error: 'Missing userId parameter' });
     return;
   }
   
@@ -287,7 +287,7 @@ async function addToMyQuests (req: Request, res: Response): Promise<void> {
 }
 
 async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
-    const { userId, questId } = req.params;
+  const { userId, questId } = req.params;
   if (!userId || !questId) {
     res.status(400).json({ error: 'Missing userId or questId parameter' });
     return;
@@ -295,11 +295,11 @@ async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
 
   try {
     //TODO what if a quest disappears from api but is still saved to a user?
-    const quest = await Quest.findById(questId);
-    if (!quest) {
-      res.status(404).json({ error: 'Quest not found' });
-      return;
-    }
+    // const quest = await Quest.findById(questId);
+    // if (!quest) {
+    //   res.status(404).json({ error: 'Quest not found' });
+    //   return;
+    // }
 
     const userToUpdate = await User.findById(userId);
     if (!userToUpdate) {
@@ -329,7 +329,45 @@ async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
 }
 
 async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> {
+  const { userId, questId } = req.params;
+  if (!userId || !questId) {
+    res.status(400).json({ error: 'Missing userId or questId parameter' });
+    return;
+  }
 
+  try {
+    //TODO what if a quest disappears from api but is still saved to a user?
+    // const quest = await Quest.findById(questId);
+    // if (!quest) {
+    //   res.status(404).json({ error: 'Quest not found' });
+    //   return;
+    // }
+
+    const userToUpdate = await User.findById(userId);
+    if (!userToUpdate) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const questToFavorite = userToUpdate.myQuests.find(myQuest => myQuest.quest.toString() === questId);
+    if (!questToFavorite) {
+      res.status(404).json({ error: 'Quest not found in myQuests' });
+      return;
+    }
+
+    //toggle
+    questToFavorite.isFavorite = !questToFavorite.isFavorite;
+
+    await userToUpdate.save()
+
+    if (req.query.populate === '1') {
+      await userToUpdate.populate('myQuests.quest');
+    }
+
+    res.status(200).json(userToUpdate.myQuests);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to favorite quest from myQuests' });
+  }
 }
 
 export { 
@@ -343,4 +381,5 @@ export {
   getMyQuests,
   addToMyQuests,
   removeFromMyQuests,
+  toggleFavoriteQuest,
 };

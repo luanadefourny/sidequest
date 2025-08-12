@@ -10,7 +10,7 @@ import {
   getMyQuests,
   addToMyQuests,
   removeFromMyQuests,
-  // toggleFavoriteQuest,
+  toggleFavoriteQuest,
 } from '../controllers/userController';
 
 const router: Router = express.Router();
