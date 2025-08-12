@@ -5,7 +5,8 @@ import type {
   RegisterUserData, 
   LoginUserData, 
   EditUserData,
-  Credentials, 
+  Credentials,
+  PublicUserData, 
 } from '../types';
 import { Types } from 'mongoose';
 
@@ -26,9 +27,9 @@ async function getUsers (): Promise<User[]> {
   }
 }
 
-async function getUser (userId: Types.ObjectId): Promise<User> {
+async function getUser (userId: Types.ObjectId): Promise<PublicUserData> {
   try {
-    const { data } = await server.get<User>(`/users/${userId}`);
+    const { data } = await server.get<PublicUserData>(`/users/${userId}`);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -63,7 +64,7 @@ async function loginUser (loginData: LoginUserData): Promise<User> {
 }
 
 // only for non-sensitive data like first/last name, profile picture, birthday
-async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData) {
+async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData): Promise<User> {
   try {
     const { data } = await server.patch<User>(`/users/${userId}`, dataToEdit);
     return data;
@@ -75,7 +76,7 @@ async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData) {
   }
 }
 
-async function editUserCredentials (userId: Types.ObjectId, credentials: Credentials) {
+async function editUserCredentials (userId: Types.ObjectId, credentials: Credentials): Promise<User> {
   try {
     const { data } = await server.patch<User>(`/users/${userId}/credentials`, credentials);
     return data;
@@ -87,8 +88,16 @@ async function editUserCredentials (userId: Types.ObjectId, credentials: Credent
   }
 }
 
-async function editUserPassword () {
-
+async function editUserPassword (userId: Types.ObjectId, password: string): Promise<User> {
+  try {
+    const { data } = await server.patch<User>(`/users/${userId}/password`, password);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`editUserPassword failed:${status} ${detail}`);
+  }
 }
 
 export { 

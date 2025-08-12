@@ -25,7 +25,11 @@ async function getUser (req: Request, res: Response): Promise<void> {
   }
   
   try {
-    const user = await User.findById(userId);
+    const user = await User
+      .findById(userId)
+      .select('username firstName lastName profilePicture')
+      .lean();
+    console.log(user);
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });
@@ -96,6 +100,7 @@ async function loginUser (req: Request, res: Response): Promise<void> {
 }
 
 //non-sensitive data only
+//TODO make separate endpoint for porfile picture upload in sprint 2 (for now just selecting from 10 profile picture options)
 async function editUserData (req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
