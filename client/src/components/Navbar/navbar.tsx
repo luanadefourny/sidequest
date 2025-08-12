@@ -27,6 +27,7 @@ export default function NavBar() {
             <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg z-10">
               <a href="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
               <a href="/favourites" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favourites</a>
+              <a href="/quests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Quests Lists</a>
               <a href="/third list" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Third list</a>
             </div>
           )}

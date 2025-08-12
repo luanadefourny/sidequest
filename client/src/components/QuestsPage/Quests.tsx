@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import NavBar from '../Navbar/navbar';
+import NavBar from "../Navbar/navbar";
+import { RiBookmarkLine, RiBookmarkFill } from "react-icons/ri";
+import { FormEvent, useEffect, useState } from "react";
 
 interface Quest {
   id: number;
@@ -8,17 +10,35 @@ interface Quest {
 }
 
 const quests: Quest[] = [
-  { id: 1, title: "Finding Nemo", description: "Dont ge eaten by sharks." },
-  { id: 2, title: "Find the One piece", description: "Defeat sea emperors" },
+  { id: 1, title: "Finding Nemo", description: "Don't get eaten by sharks." },
+  { id: 2, title: "Find the One Piece", description: "Defeat sea emperors" },
+  { id: 3, title: "Find the Dragonballs", description: "Defeat Goku" },
 ];
 
 export default function QuestsPage() {
+  const [favorites, setFavorites] = useState<number[]>([]);
+  useEffect(() => {
+    const saved = localStorage.getItem("favorites");
+    if (saved) {
+      setFavorites(JSON.parse(saved));
+    }
+  }, []);
 
+  useEffect(() => {
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
 
-  return (
+  const toggleFavorite = (questId: number) => {
+    setFavorites((prev) =>
+      prev.includes(questId)
+        ? prev.filter((id) => id !== questId)
+        : [...prev, questId]
+    );
+  };
+   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-10">
       <NavBar />
-      {/* Title */}
+
       <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">
         Available Quests
       </h1>
@@ -45,6 +65,19 @@ export default function QuestsPage() {
             >
               View Quest
             </Link>
+
+            {/* Favorite Button */}
+            <button
+              onClick={() => toggleFavorite(quest.id)}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mt-3"
+            >
+              {favorites.includes(quest.id) ? (
+                <RiBookmarkFill className="text-xl text-yellow-500" />
+              ) : (
+                <RiBookmarkLine className="text-xl" />
+              )}
+              Save
+            </button>
           </div>
         ))}
       </div>
