@@ -8,6 +8,7 @@ import type { User } from './types';
 import './App.css';
 import MapComponent from './components/MapComponent/MapComponent';
 import QuestsPage from './components/QuestsPage/Quests';
+import MyQuests from './components/MyQuests/MyQuests'
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
        <Route path="/homepage" element={<HomePage />} />
        <Route path="/register" element={<RegisterPage />} />
        <Route path="/profile" element={<ProfilePage user={user} />} />
+        <Route path="/myquests" element={<MyQuests />} />
        <Route path="/favquestlist" element={<FavQuestList/>} />
        <Route path="/quests" element={<QuestsPage />} />
        <Route path="/map" element={<MapComponent />} />

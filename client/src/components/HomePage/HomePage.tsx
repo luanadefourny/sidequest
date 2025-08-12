@@ -16,44 +16,6 @@ export default function HomePage() {
         Welcome to the home page!
       </p>
 
-      {/* Navigation */}
-      <nav className="navbar w-full sm:w-auto">
-        <ul className="flex flex-col sm:flex-row sm:space-x-6 bg-white p-4 rounded-lg shadow-md items-center gap-3 sm:gap-0">
-          <li>
-            <Link
-              to="/homepage"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              Login
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/profile"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              Profile
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/favourites"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              Favourites
-            </Link>
-          </li>
-        </ul>
-      </nav>
-
       {/* Map container */}
       <div className="w-full sm:w-[600px] h-[300px] sm:h-[480px] bg-white rounded-lg shadow-lg overflow-hidden mt-6">
         <Map />
