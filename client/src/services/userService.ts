@@ -4,7 +4,10 @@ import type {
   User, 
   RegisterUserData, 
   LoginUserData, 
-  EditUserData, 
+  EditUserData,
+  Credentials,
+  PublicUserData,
+  MyQuests, 
 } from '../types';
 import { Types } from 'mongoose';
 
@@ -25,15 +28,15 @@ async function getUsers (): Promise<User[]> {
   }
 }
 
-async function getUser (userId: Types.ObjectId): Promise<User> {
+async function getUser (userId: Types.ObjectId): Promise<PublicUserData> {
   try {
-    const { data } = await server.get<User>(`/users/${userId}`);
+    const { data } = await server.get<PublicUserData>(`/users/${userId}`);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
     const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
     const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getUsers failed:${status} ${detail}`);
+    throw new Error(`getUser failed:${status} ${detail}`);
   }
 }
 
@@ -62,7 +65,7 @@ async function loginUser (loginData: LoginUserData): Promise<User> {
 }
 
 // only for non-sensitive data like first/last name, profile picture, birthday
-async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData) {
+async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData): Promise<User> {
   try {
     const { data } = await server.patch<User>(`/users/${userId}`, dataToEdit);
     return data;
@@ -74,12 +77,81 @@ async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData) {
   }
 }
 
-async function editUserCredentials () {
-
+async function editUserCredentials (userId: Types.ObjectId, credentials: Credentials): Promise<User> {
+  try {
+    const { data } = await server.patch<User>(`/users/${userId}/credentials`, credentials);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`editUserCredentials failed:${status} ${detail}`);
+  }
 }
 
-async function editUserPassword () {
+async function editUserPassword (userId: Types.ObjectId, password: string): Promise<User> {
+  try {
+    const { data } = await server.patch<User>(`/users/${userId}/password`, { newPassword: password });
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`editUserPassword failed:${status} ${detail}`);
+  }
+}
 
+async function getMyQuests (userId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+  try {
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.get<MyQuests[]>(`/users/${userId}/my-quests${queryParams}`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`getMyQuests failed:${status} ${detail}`);
+  }
+}
+
+async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+  try {
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`addToMyQuests failed:${status} ${detail}`);
+  }
+}
+
+async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+  try {
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data, status } = await server.delete<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    return status === 204 ? [] : data; //in case there is nothing to remove
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`removeFromMyQuests failed:${status} ${detail}`);
+  }
+}
+
+async function toggleFavoriteQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+  try {
+    const queryParams = populate ? `?populate=${populate}` : '';
+    const { data } = await server.patch<MyQuests[]>(`/users/${userId}/my-quests/${questId}/favorite${queryParams}`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`toggleFavoriteQuest failed:${status} ${detail}`);
+
+  }
 }
 
 export { 
@@ -90,4 +162,8 @@ export {
   editUserData,
   editUserCredentials,
   editUserPassword,
+  getMyQuests,
+  addToMyQuests,
+  removeFromMyQuests,
+  toggleFavoriteQuest,
 };

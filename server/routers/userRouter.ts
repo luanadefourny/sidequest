@@ -6,7 +6,11 @@ import {
   getUser, 
   editUserData, 
   editUserCredentials,
-  editUserPassword
+  editUserPassword,
+  getMyQuests,
+  addToMyQuests,
+  removeFromMyQuests,
+  toggleFavoriteQuest,
 } from '../controllers/userController';
 
 const router: Router = express.Router();
@@ -21,14 +25,16 @@ router.patch('/users/:userId', editUserData);
 router.patch('/users/:userId/credentials', editUserCredentials);
 router.patch('/users/:userId/password', editUserPassword);
 
-// router.get('/users/:userId/favorites/quests?populate=0|1', getUserFavoriteQuests);
-// router.post('/users/:userId/favorites/:questId', addQuestToFavorites);
-// router.delete('/users/:userId/favorites/:questId', removeQuestFromFavorites);
+//! all following endpoints have this: ?populate=0|1 to the end to decide whether to populate results or not
+router.get('/users/:userId/my-quests', getMyQuests);
+router.post('/users/:userId/my-quests/:questId', addToMyQuests);
+router.delete('/users/:userId/my-quests/:questId', removeFromMyQuests);
+router.patch('/users/:userId/my-quests/:questId/favorite', toggleFavoriteQuest);
 
-// router.get('/users/:userId/locations', getUserSavedLocations);
-// router.post('/users/:userId/locations', createUserSavedLocation);
-// router.patch('/users/:userId/locations/:label', editUserSavedLocation);
-// router.delete('/users/:userId/locations/:label', removeUserSavedLocation);
+// router.get('/users/:userId/locations', getMyLocations);
+// router.post('/users/:userId/locations', addToMyLocation);
+// router.patch('/users/:userId/locations/:label', editMyLocation);
+// router.delete('/users/:userId/locations/:label', removeFromMyLocation);
 
 // router.get('/users/:userId/follwers', getUserFollowers);
 // router.get('/users/:userId/follwing', getUserFollowing);
