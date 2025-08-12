@@ -54,4 +54,17 @@ interface LoginUserData {
   password: string;
 }
 
-export type { User, Quest, RegisterUserData, LoginUserData }
+interface EditUserData {
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
+  birthday?: Date;
+}
+
+export type { 
+  User, 
+  Quest, 
+  RegisterUserData, 
+  LoginUserData,
+  EditUserData, 
+}

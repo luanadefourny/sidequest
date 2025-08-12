@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import path from 'path';
 import dotenv from 'dotenv';
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 const DB_PORT: string | undefined = process.env.DB_PORT;
 const DB_NAME: string | undefined = process.env.DB_NAME;

@@ -1,13 +1,19 @@
 import axios, { AxiosError } from 'axios';
 import { serverUrl } from "../constants";
-import type { User, RegisterUserData, LoginUserData } from '../types';
+import type { 
+  User, 
+  RegisterUserData, 
+  LoginUserData, 
+  EditUserData, 
+} from '../types';
+import { Types } from 'mongoose';
 
 const server = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
 })
 
-async function getAllUsers (): Promise<User[]> {
+async function getUsers (): Promise<User[]> {
   try {
     const { data } = await server.get<User[]>(`/users`);
     return data;
@@ -15,11 +21,22 @@ async function getAllUsers (): Promise<User[]> {
     const e = error as AxiosError<{ error?: string; message?: string }>;
     const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
     const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getAllUsers failed:${status} ${detail}`);
+    throw new Error(`getUsers failed:${status} ${detail}`);
   }
 }
 
-//TODO: maybe change name, depending on whether there are separate login and register endpoints
+async function getUser (userId: Types.ObjectId): Promise<User> {
+  try {
+    const { data } = await server.get<User>(`/users/${userId}`);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`getUsers failed:${status} ${detail}`);
+  }
+}
+
 async function registerUser (userData: RegisterUserData): Promise<User> {
  try {
   const { data } = await server.post<User>(`/users`, userData);
@@ -34,7 +51,7 @@ async function registerUser (userData: RegisterUserData): Promise<User> {
 
 async function loginUser (loginData: LoginUserData): Promise<User> {
   try {
-    const { data } = await server.put<User>(`/login`, loginData);
+    const { data } = await server.post<User>(`/login`, loginData);
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -44,4 +61,33 @@ async function loginUser (loginData: LoginUserData): Promise<User> {
   }
 }
 
-export { getAllUsers, registerUser, loginUser };
+// only for non-sensitive data like first/last name, profile picture, birthday
+async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData) {
+  try {
+    const { data } = await server.patch<User>(`/users/${userId}`, dataToEdit);
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`editUserData failed:${status} ${detail}`);
+  }
+}
+
+async function editUserCredentials () {
+
+}
+
+async function editUserPassword () {
+
+}
+
+export { 
+  getUsers, 
+  getUser, 
+  registerUser, 
+  loginUser, 
+  editUserData,
+  editUserCredentials,
+  editUserPassword,
+};
