@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import NavBar from "../Navbar/navbar";
-import { RiDeleteBinLine } from "react-icons/ri";
 import { useEffect, useState } from "react";
+import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
+import FavouriteButton from "../FavouriteButton/favouriteButton";
 
 interface Quest {
   id: number;
@@ -18,32 +19,19 @@ const quests: Quest[] = [
 export default function MyQuestsPage() {
   const [myQuests, setMyQuests] = useState<number[]>([]);
 
-  // Load saved quest IDs from localStorage on mount
   useEffect(() => {
-    const savedMyQuests = localStorage.getItem("myQuests");
-    if (savedMyQuests) {
-      setMyQuests(JSON.parse(savedMyQuests));
-    }
+    const saved = localStorage.getItem("myQuests");
+    if (saved) setMyQuests(JSON.parse(saved));
   }, []);
 
-  // Remove quest from MyQuests
-  const removeQuest = (id: number) => {
-    const updated = myQuests.filter((qid) => qid !== id);
-    setMyQuests(updated);
-    localStorage.setItem("myQuests", JSON.stringify(updated));
-  };
-
-  // Filter quests that are in myQuests
   const myQuestList = quests.filter((quest) => myQuests.includes(quest.id));
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
       <NavBar />
-
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
         My Quests
       </h1>
-
       {myQuestList.length === 0 ? (
         <p className="text-center text-gray-700 text-lg">
           You have no quests added yet.{" "}
@@ -66,25 +54,24 @@ export default function MyQuestsPage() {
                   {quest.description}
                 </p>
               </div>
-
-              <button
-                onClick={() => removeQuest(quest.id)}
-                className="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-                aria-label={`Remove ${quest.title} from My Quests`}
-              >
-                <RiDeleteBinLine className="mr-2 text-xl" /> Remove
-              </button>
+              <FavouriteButton questId={quest.id}/>
+              <MyQuestsButton questId={quest.id} />
             </div>
           ))}
         </div>
       )}
-
       <div className="mt-12 text-center">
         <Link
           to="/quests"
           className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
         >
           Back to Quests
+        </Link>
+        <Link
+          to="/favquestlist"
+          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
+        >
+          To Favourite Quests
         </Link>
       </div>
     </div>

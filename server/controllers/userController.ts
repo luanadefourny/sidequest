@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import User from '../models/userModel';
 import Quest from '../models/questModel';
-import { 
-  registerSchema, 
-  loginSchema, 
+import {
+  registerSchema,
+  loginSchema,
   editUserDataSchema,
   editUserCredentialsSchema,
   editUserPasswordSchema,
 } from '../validation/userValidationSchemas';
+
 
 async function getUsers (req: Request, res: Response): Promise<void> {
   try {
@@ -25,7 +26,7 @@ async function getUser (req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: 'Missing userId parameter' });
     return;
   }
-  
+
   try {
     const user = await User
       .findById(userId)
@@ -114,7 +115,7 @@ async function editUserData (req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: 'No user ID provided' });
     return;
   }
-  
+
   const parsedBody = editUserDataSchema.safeParse(req.body);
   console.log(parsedBody);
   if (!parsedBody.success) {
@@ -123,18 +124,18 @@ async function editUserData (req: Request, res: Response): Promise<void> {
   }
 
   const { firstName, lastName, profilePicture, birthday } = parsedBody.data;
-  
-  const dataToUpdate: { 
-    firstName?: string, 
-    lastName?: string, 
-    profilePicture?: string, 
-    birthday?: Date 
+
+  const dataToUpdate: {
+    firstName?: string,
+    lastName?: string,
+    profilePicture?: string,
+    birthday?: Date
   } = {};
   if (firstName !== undefined) dataToUpdate.firstName = firstName;
   if (lastName !== undefined) dataToUpdate.lastName = lastName;
   if (profilePicture !== undefined) dataToUpdate.profilePicture = profilePicture;
   if (birthday !== undefined) dataToUpdate.birthday = birthday;
-  
+
   console.log(dataToUpdate);
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, dataToUpdate, { new: true });
@@ -215,7 +216,7 @@ async function getMyQuests (req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: 'Missing userId parameter' });
     return;
   }
-  
+
   try {
     const user = await User.findById(userId).select('myQuests');
 
@@ -370,11 +371,11 @@ async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> 
   }
 }
 
-export { 
-  getUsers, 
-  registerUser, 
-  loginUser, 
-  getUser, 
+export {
+  getUsers,
+  registerUser,
+  loginUser,
+  getUser,
   editUserData,
   editUserCredentials,
   editUserPassword,

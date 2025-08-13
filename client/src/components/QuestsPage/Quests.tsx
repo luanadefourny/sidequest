@@ -1,12 +1,8 @@
 import { Link } from "react-router-dom";
 import NavBar from "../Navbar/navbar";
-import {
-  RiBookmarkLine,
-  RiBookmarkFill,
-  RiAddLine,
-  RiCheckboxCircleFill,
-} from "react-icons/ri";
-import { useEffect, useState } from "react";
+
+import FavouriteButton from "../FavouriteButton/favouriteButton";
+import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 
 interface Quest {
   id: number;
@@ -21,43 +17,14 @@ const quests: Quest[] = [
 ];
 
 export default function QuestsPage() {
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [myQuests, setMyQuests] = useState<number[]>([]);
 
-  // Load favorites & myQuests from localStorage on mount
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem("favorites");
-    if (savedFavorites) setFavorites(JSON.parse(savedFavorites));
-    const savedMyQuests = localStorage.getItem("myQuests");
-    if (savedMyQuests) setMyQuests(JSON.parse(savedMyQuests));
-  }, []);
 
-  // Save favorites & myQuests on changes
-  useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
 
-  useEffect(() => {
-    localStorage.setItem("myQuests", JSON.stringify(myQuests));
-  }, [myQuests]);
 
   // Toggle favorites
-  const toggleFavorite = (questId: number) => {
-    setFavorites((prev) =>
-      prev.includes(questId)
-        ? prev.filter((id) => id !== questId)
-        : [...prev, questId]
-    );
-  };
 
-  // Toggle myQuests
-  const toggleMyQuest = (questId: number) => {
-    setMyQuests((prev) =>
-      prev.includes(questId)
-        ? prev.filter((id) => id !== questId)
-        : [...prev, questId]
-    );
-  };
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
@@ -94,65 +61,27 @@ export default function QuestsPage() {
               </Link>
 
               {/* Favorite Button */}
-              <button
-                onClick={() => toggleFavorite(quest.id)}
-                className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 hover:border-yellow-400 transition text-yellow-400 hover:text-yellow-500 shadow-md"
-                aria-label={
-                  favorites.includes(quest.id)
-                    ? "Remove from Favorites"
-                    : "Add to Favorites"
-                }
-                title={
-                  favorites.includes(quest.id)
-                    ? "Remove from Favorites"
-                    : "Add to Favorites"
-                }
-              >
-                {favorites.includes(quest.id) ? (
-                  <RiBookmarkFill className="text-2xl" />
-                ) : (
-                  <RiBookmarkLine className="text-2xl" />
-                )}
-              </button>
+              <FavouriteButton questId={quest.id}/>
 
               {/* MyQuests Button */}
-              <button
-                onClick={() => toggleMyQuest(quest.id)}
-                className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition shadow-md
-                  ${
-                    myQuests.includes(quest.id)
-                      ? "border-green-500 text-green-600 bg-green-100 hover:bg-green-200"
-                      : "border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-100"
-                  }
-                `}
-                aria-label={
-                  myQuests.includes(quest.id)
-                    ? "Remove from My Quests"
-                    : "Add to My Quests"
-                }
-                title={
-                  myQuests.includes(quest.id)
-                    ? "Remove from My Quests"
-                    : "Add to My Quests"
-                }
-              >
-                {myQuests.includes(quest.id) ? (
-                  <RiCheckboxCircleFill className="text-2xl" />
-                ) : (
-                  <RiAddLine className="text-2xl" />
-                )}
-              </button>
+              <MyQuestsButton questId={quest.id}/>
             </div>
           </div>
         ))}
       </div>
-
       <div className="mt-12 text-center">
+
         <Link
-          to="/homepage"
+          to="/favquestlist"
           className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
         >
-          Back to Home
+          To Favourite Quests
+        </Link>
+        <Link
+          to="/myquests"
+          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
+        >
+          To My Quests
         </Link>
       </div>
     </div>
