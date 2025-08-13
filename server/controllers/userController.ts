@@ -240,6 +240,38 @@ async function getMyQuests (req: Request, res: Response): Promise<void> {
   }
 }
 
+async function getMyQuest (req: Request, res: Response): Promise<void> {
+  const { userId, questId } = req.params;
+  if (!userId || !questId) {
+    res.status(400).json({ error: 'Missing userId or questId parameter' });
+    return;
+  }
+
+  try {
+    const user = await User.findById(userId).select('myQuests');
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    //check if quest is part of myQuests
+    const questIndex = user.myQuests.findIndex(myQuest => myQuest.quest.toString() === questId)
+
+    if (questIndex === -1) {
+      res.status(404).json({ error: 'No quest with that questId found for this user' });
+      return;
+    }
+
+    if (req.query.populate === '1') {
+      await user.populate('myQuests.quest');
+    }
+
+    res.status(200).json(user.myQuests[questIndex]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get myQuests' });
+  }
+}
+
 async function addToMyQuests (req: Request, res: Response): Promise<void> {
   const { userId, questId } = req.params;
   if (!userId || !questId) {
@@ -380,6 +412,7 @@ export {
   editUserCredentials,
   editUserPassword,
   getMyQuests,
+  getMyQuest, 
   addToMyQuests,
   removeFromMyQuests,
   toggleFavoriteQuest,

@@ -8,6 +8,7 @@ import {
   editUserCredentials,
   editUserPassword,
   getMyQuests,
+  getMyQuest,
   addToMyQuests,
   removeFromMyQuests,
   toggleFavoriteQuest,
@@ -27,6 +28,7 @@ router.patch('/users/:userId/password', editUserPassword);
 
 //! all following endpoints have this: ?populate=0|1 to the end to decide whether to populate results or not
 router.get('/users/:userId/my-quests', getMyQuests);
+router.get('/users/:userId/my-quests/:questId', getMyQuest);
 router.post('/users/:userId/my-quests/:questId', addToMyQuests);
 router.delete('/users/:userId/my-quests/:questId', removeFromMyQuests);
 router.patch('/users/:userId/my-quests/:questId/favorite', toggleFavoriteQuest);
