@@ -13,21 +13,16 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:3000/", {
-        username: username.trim(),
-        password: password.trim(),
+      const response = await axios.post("http://localhost:3000/login", {
+        username: username.trim(), 
+        password: password.trim()
       });
 
-      console.log("Login successful:", response.data);
-
-      // Redirect after successful login
+      console.log("Login successful", response.data);
       navigate("/homepage");
     } catch (err: any) {
       console.error("Login error:", err);
-
-      if (err.response?.status === 401) {
-        setError("Invalid username or password");
-      } else if (err.response?.data?.error) {
+      if (err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
         setError("Login failed");
@@ -37,15 +32,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
-      >
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
-        {error && (
-          <p className="mb-4 text-red-600 text-center font-semibold">{error}</p>
-        )}
+        {error && <p className="mb-4 text-red-600 text-center font-semibold">{error}</p>}
 
         <label htmlFor="username" className="block mb-2 font-semibold text-gray-700">
           Username
@@ -81,10 +71,7 @@ export default function LoginPage() {
         </button>
 
         <div className="mt-4 text-center">
-          <Link
-            to="/register"
-            className="text-blue-600 hover:text-blue-800 font-semibold"
-          >
+          <Link to="/register" className="text-blue-600 hover:text-blue-800 font-semibold">
             Don't have an account? Register here
           </Link>
         </div>
