@@ -2,10 +2,12 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/userService";
+import PasswordRequirements from "../PasswordPopup/passwordPopup";
 
 
 export default function RegisterPage() {
  const navigate = useNavigate();
+ const [showPasswordReqs, setShowPasswordReqs] = useState(false);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -120,18 +122,25 @@ export default function RegisterPage() {
          className="w-full mb-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
        />
 
-       <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">
-         Password
-       </label>
-       <input
-         type="password"
-         id="password"
-         name="password"
-         placeholder="Create a password"
-         value={password}
-        onChange={(e) => setPassword(e.target.value)}
-         className="w-full mb-6 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-       />
+        <label htmlFor="password" className="block mb-2 font-semibold text-gray-700 flex items-center">
+          Password
+        </label>
+        <PasswordRequirements
+          open={showPasswordReqs}
+          onClose={() => setShowPasswordReqs(false)}
+          password={password}
+        />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Create a password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          className="w-full mb-6 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onFocus={() => setShowPasswordReqs(true)}
+          onBlur={() => setShowPasswordReqs(false)}
+        />
         <label htmlFor="confirmPassword" className="block mb-2 font-semibold text-gray-700">
           Confirm Password
         </label>
