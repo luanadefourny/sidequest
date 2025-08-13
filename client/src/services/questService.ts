@@ -3,6 +3,7 @@ import { serverUrl } from '../constants';
 import { Types } from 'mongoose';
 import type {
   Quest,
+  QuestFilters,
 } from '../types';
 
 const server = axios.create({
@@ -10,9 +11,9 @@ const server = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-async function getQuests (): Promise<Quest[]> {
+async function getQuests (filters: QuestFilters = {}): Promise<Quest[]> {
   try {
-    const { data } = await server.get<Quest[]>(`/quests`);
+    const { data } = await server.get<Quest[]>(`/quests`, { params: filters });
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;

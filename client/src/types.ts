@@ -80,6 +80,18 @@ interface MyQuests {
   isFavorite: boolean;
 }
 
+type QuestFilters = {
+  type?: 'event' | 'place' | 'activity';
+  ageRestricted?: '0' | '1';
+  priceMin?: number | string;
+  priceMax?: number | string;
+  currency?: string;               // e.g. 'GBP' | 'EUR'
+  startAfter?: string;             // ISO
+  endBefore?: string;              // ISO
+  near?: string;                   // "lon,lat"
+  radius?: number | string;        // meters
+};
+
 export type { 
   User, 
   PublicUserData,
@@ -89,4 +101,5 @@ export type {
   EditUserData, 
   Credentials,
   MyQuests,
+  QuestFilters, 
 }
