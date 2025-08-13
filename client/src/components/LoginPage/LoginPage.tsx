@@ -4,17 +4,22 @@ import axios from "axios";
 
 export default function LoginPage() {
 
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState()
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("")
   const navigate = useNavigate()
 
- const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  
-  // axios.post('http://localhost:3000/login', {email, password})
-  // .then(result =>{console.log(result)
+  // try {
+  //     const response = await axios.post('http://localhost:3000/login', {email, password});
+  //   localStorage.setItem('token', response.data.token);
+  // console.log('Login successful');
    navigate("/homepage")
-//  }).catch(err=> console.log(err))
+  // } catch (err) {
+  //     console.log('Invalid email or password');
+    
+
+  // }
  }
 
   return (
