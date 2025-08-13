@@ -45,16 +45,6 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + myQuests (array[MyQuest])
 + myLocations (array[MyLocation])
 
-## MyLocation (object)
-+ label: `home` (string) - short label like home, work, mom
-+ name: `John's flat` (string, optional) - display name
-+ address: `221B Baker Street, London` (string, optional)
-+ location (GeoPoint)
-
-## GeoPoint (object)
-+ type: `Point` (string)
-+ coordinates: [-0.1585557, 51.5237718] (array[number]) - [longitude, latitude]
-
 ## Quest (object)
 + _id: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
 + name: `Southbank Food Market` (string)
@@ -70,6 +60,16 @@ API for users and quests. During design, use Apiary's Mock and Proxy. Set `HOST`
 + source: `Eventbrite` (string, optional)
 + sourceId: `evt_123` (string, optional)
 + createdBy: `64f1a2b3c4d5e6f7a8b9c0d1` (string, optional)
+
+## MyLocation (object)
++ label: `home` (string) - short label like home, work, mom
++ name: `John's flat` (string, optional) - display name
++ address: `221B Baker Street, London` (string, optional)
++ location (GeoPoint)
+
+## GeoPoint (object)
++ type: `Point` (string)
++ coordinates: [-0.1585557, 51.5237718] (array[number]) - [longitude, latitude]
 
 ## RegisterUserData (object)
 + username (string, required)
@@ -94,33 +94,6 @@ Return all users with **public fields only**. Intended for admin or basic direct
 
 + Response 200 (application/json)
     + Attributes (array[User])
-    + Body
-
-            [
-              {
-                "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
-                "username": "johndoe",
-                "email": "john@doe.com",
-                "firstName": "John",
-                "lastName": "Doe",
-                "birthday": "1997-05-21T00:00:00.000Z",
-                "isCurrent": false,
-                "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
-                "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
-                "profilePicture": "/profile-pics/profile-pic-4.jpg",
-                "myQuests": [
-                  { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": true }
-                ],
-                "myLocations": [
-                  {
-                    "label": "home",
-                    "name": "John's flat",
-                    "address": "221B Baker Street, London",
-                    "location": { "type": "Point", "coordinates": [-0.1585557, 51.5237718] }
-                  }
-                ]
-              }
-            ]
 
 + Response 500 (application/json)
     + Attributes (object)
@@ -160,22 +133,6 @@ Create a new user. Validates required fields and uniqueness for `username` and `
 
 + Response 201 (application/json)
     + Attributes (User)
-    + Body
-
-            {
-              "_id": "750f1a2b3c4d5e6f7a8b9c0d9",
-              "username": "janedoe",
-              "email": "jane@doe.com",
-              "firstName": "Jane",
-              "lastName": "Doe",
-              "birthday": "1996-08-10T00:00:00.000Z",
-              "isCurrent": false,
-              "following": [],
-              "followers": [],
-              "profilePicture": "/profile-pics/profile-pic-1.jpg",
-              "myQuests": [],
-              "myLocations": []
-            }
 
 + Response 400 (application/json)
     + Attributes (object)
@@ -193,24 +150,6 @@ Login with `username` and `password`. Returns the user profile. In MVP there is 
 
 + Response 200 (application/json)
     + Attributes (User)
-    + Body
-
-            {
-              "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
-              "username": "johndoe",
-              "email": "john@doe.com",
-              "firstName": "John",
-              "lastName": "Doe",
-              "birthday": "1997-05-21T00:00:00.000Z",
-              "isCurrent": true,
-              "following": ["64f1a2b3c4d5e6f7a8b9c0d2"],
-              "followers": ["64f1a2b3c4d5e6f7a8b9c0d3"],
-              "profilePicture": "/profile-pics/profile-pic-4.jpg",
-              "myQuests": [
-                { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": true }
-              ],
-              "myLocations": []
-            }
 
 + Response 400 (application/json)
     + Attributes (object)
@@ -228,8 +167,8 @@ Login with `username` and `password`. Returns the user profile. In MVP there is 
     + Attributes (object)
         + error: `Failed to login`
 
-## Edit user profile (non‑sensitive) [PATCH /users/{userId}]
-Partially update **firstName**, **lastName**, **profilePicture**, **birthday**.
+## Edit user profile [PATCH /users/{userId}]
+Partially update non-sensitive data **firstName**, **lastName**, **profilePicture**, **birthday**.
 
 + Parameters
     + userId: `64f1a2b3c4...` (string)
