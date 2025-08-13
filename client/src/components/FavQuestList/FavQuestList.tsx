@@ -1,47 +1,83 @@
-
 import NavBar from "../Navbar/navbar";
 import { Link } from "react-router-dom";
-
+import FavouriteButton from "../FavouriteButton/favouriteButton";
+import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
+import { useEffect, useState } from "react";
 
 interface Quest {
- id: number;
- title: string;
- description: string;
+  id: number;
+  title: string;
+  description: string;
 }
 
-
 const quests: Quest[] = [
- { id: 1, title: "Finding Nemo", description: "Dont ge eaten by sharks." },
- { id: 2, title: "Find the One piece", description: "Defeat sea emperors" },
+  { id: 1, title: "Finding Nemo", description: "Don't get eaten by sharks." },
+  { id: 2, title: "Find the One Piece", description: "Defeat sea emperors" },
+  { id: 3, title: "Find the Dragonballs", description: "Defeat Goku" },
 ];
 
-
 export default function FavouritesPage() {
+  const [favorites, setFavorites] = useState<number[]>([]);
 
- return (
-   <div className="favourites-page">
-   <NavBar />
-   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-       {quests.map((quest) => (
-         <div
-           key={quest.id}
-           className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between"
-         >
-           <div>
-             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-               {quest.title}
-             </h2>
-             <p className="text-gray-600 mb-4">{quest.description}</p>
-           </div>
-           <Link
-             to={`/quests/${quest.id}`}
-             className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center"
-           >
-             View Quest
-           </Link>
-         </div>
-       ))}
-     </div>
- </div>
- );
-};
+  // Load saved favorites from localStorage on mount
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("favorites");
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // Filter quests that are in favorites
+  const myFavQuestList = quests.filter((quest) => favorites.includes(quest.id));
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
+      <NavBar />
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
+        My Favourite Quests
+      </h1>
+      {myFavQuestList.length === 0 ? (
+        <p className="text-center text-gray-700 text-lg">
+          You have no favourite quests added yet.{" "}
+          <Link to="/quests" className="text-blue-600 hover:underline">
+            Browse quests
+          </Link>
+        </p>
+      ) : (
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {myFavQuestList.map((quest) => (
+            <div
+              key={quest.id}
+              className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                  {quest.title}
+                </h2>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  {quest.description}
+                </p>
+              </div>
+              <FavouriteButton questId={quest.id}/>
+              <MyQuestsButton questId={quest.id} />
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="mt-12 text-center">
+        <Link
+          to="/quests"
+          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
+        >
+          Back to Quests
+        </Link>
+        <Link
+          to="/myquests"
+          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
+        >
+          To My Quests
+        </Link>
+      </div>
+    </div>
+  );
+}
