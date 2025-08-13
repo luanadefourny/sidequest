@@ -11,4 +11,12 @@ export default defineConfig({
       // Pass your API key to your app, replacing placeholder in index.html if needed
       __API_KEY__: JSON.stringify(env.VITE_API_KEY),
     },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', // your backend port
+        changeOrigin: true,
+      }
+    }
+  }
 })

@@ -21,36 +21,85 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
 
   const autocomplete = new Autocomplete(input);
   autocomplete.bindTo("bounds", map);
-  autocomplete.addListener("place_changed", () => {
-    const place = autocomplete.getPlace();
-    if (!place.geometry || !place.geometry.location) {
-      return;
-    }
+  autocomplete.addListener("place_changed", async () => {
+  const place = autocomplete.getPlace();
+  if (!place.geometry || !place.geometry.location) return;
 
-    const name = place.name || 'Not registered';
-    const address = place.formatted_address || 'No adress';
-    const coords = place.geometry.location;
-    const latitude = coords.lat();
-    const longitude = coords.lng();
-    console.log({ name, address, latitude, longitude });
+  const coords = place.geometry.location;
+  const latitude = coords.lat();
+  const longitude = coords.lng();
 
-    if (place.geometry.viewport) {
-      map.fitBounds(place.geometry.viewport);
-    } else {
-      map.setCenter(place.geometry.location);
-      map.setZoom(17);
-    }
-    // Remove old marker if exists
-    if (currentMarker) {
-      currentMarker.map = null;  // Remove from map
-      currentMarker = null;
-    }
+  // Removes old marker if there is one
+  if (currentMarker) {
+    currentMarker.map = null;
+    currentMarker = null;
+  }
 
-    // Add new marker
-    currentMarker = new AdvancedMarkerElement({
-      map: map,
-      position: place.geometry.location,
-      title: place.name || 'Found spot',
+  // Adds new marker for the searched place
+  currentMarker = new AdvancedMarkerElement({
+    map,
+    position: place.geometry.location,
+    title: place.name || "Found spot",
+  });
+
+  // Create a LatLngBounds object to include all markers
+  const bounds = new google.maps.LatLngBounds();
+  bounds.extend(place.geometry.location);
+
+  try {
+    const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=10000`);
+    if (!res.ok) throw new Error("Failed to fetch OpenTripMap data");
+    const data = await res.json();
+
+    const infoWindow = new google.maps.InfoWindow();
+
+    data.forEach((feature: any) => {
+      const [lon, lat] = feature.geometry.coordinates;
+      const name = feature.properties.name || "Unnamed place";
+      const kinds = feature.properties.kinds || "No category found";
+      const address = feature.properties.address || "No address found";
+
+      const icon = document.createElement("img");
+      icon.src = "./creep.jpg";
+      icon.style.width = "20px";
+      icon.style.height = "20px";
+
+      const marker = new AdvancedMarkerElement({
+        map,
+        position: { lat, lng: lon },
+        title: name,
+        content: icon,
+      });
+
+      // Include OpenTripMap markers in bounds
+      bounds.extend({ lat, lng: lon });
+
+      marker.addListener("click", async () => {
+        const res = await fetch(`/api/opentripmap/details/${feature.properties.xid}`);
+        const details = await res.json();
+        const address = details.address ? `${details.address.road || ''} ${details.address.house_number || ''}, ${details.address.city || ''}, ${details.address.country || ''}` : 'No address available';
+        
+        //TODO get a fallback image to plug in as default if we have no details.preview.source
+
+        infoWindow.setContent(`
+          <div style="font-size:14px">
+            ${details.preview?.source ? `<img src="${details.preview.source}" style="max-height:500px; width:auto; height:auto;"/>` : ""}
+            <strong>${name}</strong><br/>
+            <em>${kinds}</em><br/>
+            ${address}
+          </div>
+        `);
+        infoWindow.open(map, marker);
+      });
     });
+
+    // Fit map to include the searched place + all OpenTripMap markers
+    map.fitBounds(bounds);
+
+  } catch (error) {
+    console.error("Error loading OpenTripMap data:", error);
+    map.setCenter(place.geometry.location);
+    map.setZoom(17);
+  }
   });
 }
