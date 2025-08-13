@@ -61,7 +61,7 @@ async function getQuests (req: Request, res: Response): Promise<void> {
 }
 
 async function getQuest (req: Request, res: Response): Promise<void> {
-  const { userId: questId } = req.params;
+  const { questId } = req.params;
   if (!questId) {
     res.status(400).json({ error: 'Missing questId parameter' });
     return;

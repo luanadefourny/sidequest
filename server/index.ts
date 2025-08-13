@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import userRouter from './routers/userRouter';
+import questRouter from './routers/questRouter';
 
 import path from 'path';
 import dotenv from 'dotenv';
@@ -14,6 +15,7 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(userRouter);
+app.use(questRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}!`);
