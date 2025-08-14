@@ -185,16 +185,15 @@ async function editUserCredentials (req: Request, res: Response): Promise<void> 
   const { username, email } = parsedBody.data;
 
   if (username || email) {
-    const conflict = await User.findOne({
-      $or: [
-        ...(username ? [{ username }] : []),
-        ...(email ? [{ email }] : []),
-      ],
-      _id: { $ne: userId },
-    });
-    if (conflict) {
-      const property = conflict.username === username ? 'username' : 'email';
-      res.status(409).json({ error: `${property} already exists` });
+    const [usernameTaken, emailTaken] = await Promise.all([
+      username ? User.exists({ username, _id: { $ne: userId } }) : null,
+      email ? User.exists({ email, _id: { $ne: userId } }) : null,
+    ]);
+    if (usernameTaken || emailTaken) {
+      const propertiesTaken: ('username' | 'email')[] = [];
+      if (usernameTaken) propertiesTaken.push('username');
+      if (emailTaken) propertiesTaken.push('email');
+      res.status(409).json({ error: `${propertiesTaken.join(' and ')} already ${propertiesTaken.length === 1 ? 'exist' : 'exists'}` });
       return;
     }
   }
