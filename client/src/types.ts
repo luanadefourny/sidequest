@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 type GeoPoint = {
   type: 'Point';
   coordinates: [number, number]; // [lon, lat]
@@ -104,6 +106,10 @@ type ErrorBody = {
   message?: string;
 }
 
+type LayoutProps = {
+  children: ReactNode;
+}
+
 export type { 
   User, 
   PublicUserData,
@@ -116,4 +122,5 @@ export type {
   MyQuest,
   FavQuest,
   ErrorBody,
+  LayoutProps,
 }
