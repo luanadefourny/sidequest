@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import userRouter from './routers/userRouter';
+import questRouter from './routers/questRouter';
 import apiRouter from './routers/apiRouter';
 
 import path from 'path';
@@ -15,6 +16,7 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(userRouter);
+app.use(questRouter);
 app.use(apiRouter);
 
 app.listen(PORT, () => {
