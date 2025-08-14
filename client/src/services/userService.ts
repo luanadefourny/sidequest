@@ -7,7 +7,7 @@ import type {
   EditUserData,
   Credentials,
   PublicUserData,
-  MyQuests, 
+  MyQuest, 
 } from '../types';
 import { Types } from 'mongoose';
 
@@ -101,10 +101,9 @@ async function editUserPassword (userId: Types.ObjectId, password: string): Prom
   }
 }
 
-async function getMyQuests (userId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+async function getMyQuests (userId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
   try {
-    const queryParams = populate ? `?populate=${populate}` : '';
-    const { data } = await server.get<MyQuests[]>(`/users/${userId}/my-quests${queryParams}`);
+    const { data } = await server.get<MyQuest[]>(`/users/${userId}/my-quests`, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -114,10 +113,21 @@ async function getMyQuests (userId: Types.ObjectId, populate?: 0|1): Promise<MyQ
   }
 }
 
-async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+async function getMyQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest> {
   try {
-    const queryParams = populate ? `?populate=${populate}` : '';
-    const { data } = await server.post<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    const { data } = await server.get<MyQuest>(`/users/${userId}/my-quests/${questId}`, { params: populate !== undefined ? { populate } : {} });
+    return data;
+  } catch (error) {
+    const e = error as AxiosError<{ error?: string; message?: string }>;
+    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
+    const status = e.response?.status ? ` ${e.response.status}` : '';
+    throw new Error(`getMyQuest failed:${status} ${detail}`);
+  }
+}
+
+async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
+  try {
+    const { data } = await server.post<MyQuest[]>(`/users/${userId}/my-quests/${questId}`, undefined, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -127,10 +137,9 @@ async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, p
   }
 }
 
-async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
   try {
-    const queryParams = populate ? `?populate=${populate}` : '';
-    const { data, status } = await server.delete<MyQuests[]>(`/users/${userId}/my-quests/${questId}${queryParams}`);
+    const { data, status } = await server.delete<MyQuest[]>(`/users/${userId}/my-quests/${questId}`, { params: populate !== undefined ? { populate } : {} });
     return status === 204 ? [] : data; //in case there is nothing to remove
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -140,10 +149,9 @@ async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.Object
   }
 }
 
-async function toggleFavoriteQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuests[]> {
+async function toggleFavoriteQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
   try {
-    const queryParams = populate ? `?populate=${populate}` : '';
-    const { data } = await server.patch<MyQuests[]>(`/users/${userId}/my-quests/${questId}/favorite${queryParams}`);
+    const { data } = await server.patch<MyQuest[]>(`/users/${userId}/my-quests/${questId}/favorite`, undefined, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
     const e = error as AxiosError<{ error?: string; message?: string }>;
@@ -163,6 +171,7 @@ export {
   editUserCredentials,
   editUserPassword,
   getMyQuests,
+  getMyQuest,
   addToMyQuests,
   removeFromMyQuests,
   toggleFavoriteQuest,
