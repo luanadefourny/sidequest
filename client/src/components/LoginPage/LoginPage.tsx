@@ -1,52 +1,82 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useUser } from "../Context/userContext";
+import { loginUser } from "../../services/userService";
 
 export default function LoginPage() {
-
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("")
-  const navigate = useNavigate()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  // try {
-  //     const response = await axios.post('http://localhost:3000/login', {email, password});
-  //   localStorage.setItem('token', response.data.token);
-  // console.log('Login successful');
-   navigate("/homepage")
-  // } catch (err) {
-  //     console.log('Invalid email or password');
-    
+    e.preventDefault();
+    setError("");
 
-  // }
- }
+    try {
+      const user = await loginUser({
+        username: username.trim(),
+        password: password.trim(),
+      });
+
+      if (!user) {
+        setError("Login failed: No user data returned");
+        return;
+      }
+
+      console.log("Login successful", user);
+      setUser({ id: user._id, username: user.username });
+
+      navigate("/homepage");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Login failed");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form 
-      onSubmit={handleSubmit}
-      className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
+      >
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
-        <label htmlFor="email" className="block mb-2 font-semibold text-gray-700">
-          Email
+        {error && (
+          <p className="mb-4 text-red-600 text-center font-semibold">{error}</p>
+        )}
+
+        <label
+          htmlFor="username"
+          className="block mb-2 font-semibold text-gray-700"
+        >
+          Username
         </label>
         <input
           type="text"
-          id="email"
-          name="email"
-          placeholder="Enter your email"
+          id="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your username"
           className="w-full mb-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">
+        <label
+          htmlFor="password"
+          className="block mb-2 font-semibold text-gray-700"
+        >
           Password
         </label>
         <input
           type="password"
           id="password"
-          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
           className="w-full mb-6 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -55,7 +85,6 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition"
         >
-          
           Log In
         </button>
 
