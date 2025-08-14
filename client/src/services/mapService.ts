@@ -162,6 +162,9 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
         
       // Fit map to include the searched place + all OpenTripMap markers
       map.fitBounds(bounds);
+      if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+        map.setZoom(15);
+      }
         
       } catch (error) {
         console.error("Error loading OpenTripMap data:", error);
