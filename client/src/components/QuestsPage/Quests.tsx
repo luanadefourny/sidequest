@@ -6,15 +6,19 @@ import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import { useEffect, useState } from "react";
 
-
+interface Quest {
+  id: number;
+  title: string;
+  description: string;
+}
 
 export default function QuestsPage() {
-const [quests, setQuests] = useState([]);
+  const [quests, setQuests] = useState<Quest[]>([]);
 
 useEffect(() => {
   const fetchQuests = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/quests")
+      const response = await axios.get<Quest[]>("http://localhost:3000/quests")
       setQuests(response.data)
     } catch (error) {
       console.error(error)
