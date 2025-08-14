@@ -32,7 +32,7 @@ function loadGoogleMapsScript(onLoad: () => void) {
   document.head.appendChild(script);
 }
 
-export default function Map() {
+export default function MapComponent() {
 
   const [showInput, setShowInput] = useState(false);
 

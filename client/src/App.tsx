@@ -24,7 +24,7 @@ export default function App() {
        <Route path="/homepage" element={<HomePage />} />
        <Route path="/register" element={<RegisterPage />} />
        <Route path="/profile" element={<ProfilePage user={user} />} />
-        <Route path="/myquests" element={<MyQuests />} />
+       <Route path="/myquests" element={<MyQuests />} />
        <Route path="/favquestlist" element={<FavQuestList/>} />
        <Route path="/quests" element={<QuestsPage />} />
        <Route path="/map" element={<MapComponent />} />

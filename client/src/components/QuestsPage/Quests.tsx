@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import NavBar from "../Navbar/navbar";
+import NavBar from "../Navbar/Navbar";
 import { useEffect, useState } from "react";
 import { useUser } from "../Context/userContext";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
