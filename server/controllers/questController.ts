@@ -57,7 +57,7 @@ async function getQuests (req: Request, res: Response): Promise<void> {
     // const quests = await Quest.find(quest);
     const amountOfQuestsToReturn = (() => {
       const n = Number(limit);
-      if (!Number.isFinite(n)) return 50; //defaults to 50
+      if (!Number.isFinite(n)) return 20; //defaults to 50
       return Math.max(1, Math.min(n, 100)); //will never return more than 100 or less than 1
     })();
 
