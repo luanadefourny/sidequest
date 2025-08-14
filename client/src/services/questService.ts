@@ -11,6 +11,8 @@ const server = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+//TODO using 'as' is bad practice
+
 async function getQuests (filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const { data } = await server.get<Quest[]>(`/quests`, { params: filters });
