@@ -76,13 +76,20 @@ interface Credentials {
 interface MyQuest {
   quest: string | Quest;
   isFavorite: boolean;
+  description: string;
 }
 
 interface FavQuest {
   quest: string | Quest;
   isFavorite: boolean;
+  description: string;
+
 }
 
+interface FavouriteButtonProps {
+  questId: string;
+  initialIsFavorite?: boolean; 
+}
 
 type QuestFilters = {
   type?: 'event' | 'place' | 'activity';
@@ -113,5 +120,6 @@ export type {
   QuestFilters, 
   MyQuest,
   FavQuest,
+  FavouriteButtonProps,
   ErrorBody,
 }

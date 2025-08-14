@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "../Context/userContext";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
-import { getQuests } from "../../services/questService";
+import { getQuests, } from "../../services/questService";
 import { getMyQuests } from "../../services/userService";
 import type { Quest, MyQuest } from "../../types";
 
@@ -48,7 +48,7 @@ export default function QuestsPage() {
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {quests.map((quest) => (
           <div
-            key={quest._id} // use string ID from backend
+            key={quest._id}
             className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
           >
             <div className="mb-6">
@@ -64,10 +64,9 @@ export default function QuestsPage() {
                 View Quest
               </Link>
 
-              {/* Favorite Button */}
+              <FavouriteButton questId={quest._id}
+               />
 
-
-              {/* MyQuests Button */}
               <MyQuestsButton
                 questId={quest._id}
                 myQuests={myQuests}
