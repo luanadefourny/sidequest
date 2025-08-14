@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { getQuests } from "../../services/questService";
 import { toggleFavoriteQuest } from "../../services/userService";
-import NavBar from "../Navbar/navbar";
-import FavouriteButton from "../FavouriteButton/favouriteButton";
+import NavBar from "../Navbar/Navbar";
+import FavouriteButton from "../FavouriteButton/FavouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 
 interface Quest {
@@ -11,7 +11,7 @@ interface Quest {
   description: string;
 }
 
-export default function QuestsPage() {
+export default function FavQuestsPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
 

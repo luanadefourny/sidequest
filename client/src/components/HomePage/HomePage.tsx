@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import Map from "../MapComponent/MapComponent";
-import NavBar from '../Navbar/navbar';
+import MapComponent from "../MapComponent/MapComponent";
+import NavBar from '../Navbar/Navbar';
 
 export default function HomePage() {
 
@@ -18,7 +18,7 @@ export default function HomePage() {
 
       {/* Map container */}
       <div className="w-full sm:w-[600px] h-[300px] sm:h-[480px] bg-white rounded-lg shadow-lg overflow-hidden mt-6">
-        <Map />
+        <MapComponent />
       </div>
       <div className="mt-6">
         <Link to="/quests">
