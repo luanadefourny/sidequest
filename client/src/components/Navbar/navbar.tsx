@@ -10,8 +10,8 @@ export default function NavBar() {
  const { user, setUser } = useUser();
 
   const handleLogout = async () => {
-    if (user?.id) {
-      await logoutUser(user.id);
+    if (user?._id) {
+      await logoutUser(user._id);
       setUser(null);
     }
     navigate("/");
