@@ -1,58 +1,97 @@
-import {
-  RiBookmarkLine,
-  RiBookmarkFill,
-} from "react-icons/ri";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import NavBar from "../Navbar/navbar";
+import FavouriteButton from "../FavouriteButton/favouriteButton";
+import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import { useUser } from "../Context/userContext";
-import type { FavQuest } from "../../types";
-import { toggleFavoriteQuest } from "../../services/userService";
+import { getMyQuests } from "../../services/userService";
+import type { MyQuest } from "../../types";
 
-interface FavouriteButtonProps {
-  questId: string;
-  fav: string[];
-  setFav: React.Dispatch<React.SetStateAction<string[]>>;
-}
-
-export default function FavouriteButton({ questId, fav, setFav }: FavouriteButtonProps) {
+export default function FavouritesPage() {
   const { user } = useUser();
-  const isInFav = fav.includes(questId);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [myQuests, setMyQuests] = useState<MyQuest[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleQuest = async () => {
-    if (!user?.id) {
-      console.warn("No user logged in");
-      return;
-    }
+  useEffect(() => {
+    const fetchMyQuests = async () => {
+      if (!user?.id) return;
+      try {
+        const quests = await getMyQuests(user.id, 1);
+        setMyQuests(quests);
+      } catch (error) {
+        console.error("Error fetching quests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 300);
+    fetchMyQuests();
+  }, [user?.id]);
 
-    setFav(prev =>
-      isInFav ? prev.filter(id => id !== questId) : [...prev, questId]
+  const favoriteQuests = myQuests.filter(q => q.isFavorite);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading favorite quests...</p>
+      </div>
     );
-
-    try {
-      const updated = await toggleFavoriteQuest(user.id, questId);
-      setFav(updated?.map((q: FavQuest) => q.quest.toString()) || []);
-    } catch (error) {
-      console.error("Error updating quest:", error);
-    }
-  };
+  }
 
   return (
-    <button
-      onClick={toggleQuest}
-      className={`flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 
-        hover:border-yellow-400 transition text-yellow-400 hover:text-yellow-500 shadow-md 
-        ${isAnimating ? "scale-110 transition-transform duration-200" : ""}`}
-      aria-label={isInFav ? "Remove from Favorites" : "Add to Favorites"}
-      title={isInFav ? "Remove from Favorites" : "Add to Favorites"}
-    >
-      {isInFav ? (
-        <RiBookmarkFill className="text-2xl" />
+    <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
+      <NavBar />
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
+        My Favourite Quests
+      </h1>
+
+      {favoriteQuests.length === 0 ? (
+        <p className="text-center text-gray-700 text-lg">
+          You have no favourite quests added yet.{" "}
+          <Link to="/quests" className="text-blue-600 hover:underline">
+            Browse quests
+          </Link>
+        </p>
       ) : (
-        <RiBookmarkLine className="text-2xl" />
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {favoriteQuests.map((quest) => {
+            const questId = typeof quest.quest === "string" ? quest.quest : quest.quest._id;
+            const title = typeof quest.quest === "string" ? "Unknown Quest" : quest.quest.name;
+            const description = typeof quest.quest === "string" ? "" : quest.quest.description;
+
+            return (
+              <div
+                key={questId}
+                className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
+              >
+                <div className="mb-6">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-3">{title}</h2>
+                  <p className="text-gray-700 text-base leading-relaxed">{description}</p>
+                </div>
+                <div className="flex justify-between">
+                  <FavouriteButton questId={questId} />
+                  <MyQuestsButton questId={questId} myQuests={myQuests} setMyQuests={setMyQuests} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
-    </button>
+
+      <div className="mt-12 text-center flex justify-center gap-4">
+        <Link
+          to="/quests"
+          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
+        >
+          Back to Quests
+        </Link>
+        <Link
+          to="/myquests"
+          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
+        >
+          To My Quests
+        </Link>
+      </div>
+    </div>
   );
 }

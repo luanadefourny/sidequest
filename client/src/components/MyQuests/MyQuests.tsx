@@ -71,7 +71,9 @@ export default function MyQuestsPage() {
               </div>
 
               <div className="flex items-center justify-between mt-auto space-x-4">
-                <FavouriteButton questId={quest._id} />
+                <FavouriteButton 
+                questId={quest._id} 
+                />
                 <MyQuestsButton
                   questId={quest._id}
                   myQuests={myQuests}
