@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { IoIosLogOut } from "react-icons/io";
+import { useUser } from "../Context/userContext";
+import { logoutUser } from "../../services/userService";
 
 export default function NavBar() {
  const [menuOpen, setMenuOpen] = useState(false);
+ const navigate = useNavigate();
+ const { user, setUser } = useUser();
 
+  const handleLogout = async () => {
+    if (user?.id) {
+      await logoutUser(user.id);
+      setUser(null);
+    }
+    navigate("/");
+  };
 
  return (
    <nav className="navbar">
@@ -29,9 +40,18 @@ export default function NavBar() {
          {menuOpen && (
            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg z-10">
               <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</Link>
+              <Link to="/quests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Available Quests</Link>
               <Link to="/myquests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Quests</Link>
-             <Link to="/favquestlist" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favourite Quests</Link>
+              <Link to="/favquestlist" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favourite Quests</Link>
+              <div
+                className="content-center flex justify-center px-2 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                onClick={handleLogout}
+              >
+                <IoIosLogOut className="inline-block mr-2 text-2xl" />
+                <span className="font-semibold">Logout</span>
+              </div>
            </div>
+           
          )}
        </li>
      </ul>
