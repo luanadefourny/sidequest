@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "../Context/userContext";
 import { getQuests } from "../../services/questService";
 import { getMyQuests } from "../../services/userService";
-import FavouriteButton from "../FavouriteButton/FavouriteButton";
+import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import type { Quest, MyQuest } from "../../types";
 
