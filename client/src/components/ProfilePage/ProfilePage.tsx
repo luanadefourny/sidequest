@@ -1,13 +1,10 @@
-import React from 'react';
 import NavBar from '../Navbar/Navbar';
+import { useUser } from '../Context/userContext';
 
-import type { User } from '../../types';
 
-interface ProfileProps {
-  user: User | null;
-}
-
-const Profile: React.FC<ProfileProps> = ({ user }) => {
+export default function ProfilePage() {
+  const { user } = useUser();
+  
 
   if (!user) {
     return (
@@ -57,5 +54,3 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
     </div>
   );
 };
-
-export default Profile;

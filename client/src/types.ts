@@ -25,10 +25,12 @@ type User = {
 }
 
 type PublicUserData = {
+  _id: string;
   username: string;
   firstName: string;
   lastName: string;
   profilePicture: string;
+  birthday: Date;
 }
 
 type Quest = {
