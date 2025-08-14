@@ -1,11 +1,12 @@
 import { RiAddLine, RiCheckboxCircleFill } from "react-icons/ri";
-import axios from "axios";
 import { useUser } from "../Context/userContext";
+import { addToMyQuests, removeFromMyQuests } from "../../services/userService";
+import type { MyQuest } from "../../types";
 
 interface MyQuestsButtonProps {
-  questId: number;
-  myQuests: number[];
-  setMyQuests: React.Dispatch<React.SetStateAction<number[]>>;
+  questId: string;
+  myQuests: string[];
+  setMyQuests: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQuestsButtonProps) {
@@ -18,18 +19,13 @@ export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQue
       return;
     }
 
-    console.log("Sending request:", {
-      method: isInMyQuests ? "DELETE" : "POST",
-      url: `http://localhost:3000/users/${user.id}/my-quests/${questId}`,
-    });
-
     try {
       if (isInMyQuests) {
-        await axios.delete(`http://localhost:3000/users/${user.id}/my-quests/${questId}`);
-        setMyQuests((prev) => prev.filter((id) => id !== questId));
+        const updated = await removeFromMyQuests(user.id, questId);
+        setMyQuests(updated?.map((q: MyQuest) => q.quest.toString()) || []);
       } else {
-        await axios.post(`http://localhost:3000/users/${user.id}/my-quests/${questId}`);
-        setMyQuests((prev) => [...prev, questId]);
+        const updated = await addToMyQuests(user.id, questId);
+        setMyQuests(updated?.map((q: MyQuest) => q.quest.toString()) || []);
       }
     } catch (error) {
       console.error("Error updating quest:", error);

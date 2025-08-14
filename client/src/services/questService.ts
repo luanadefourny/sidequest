@@ -1,6 +1,6 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { extractAxiosError } from '../helperFunctions';
 import { serverUrl } from '../constants';
-import { Types } from 'mongoose';
 import type {
   Quest,
   QuestFilters,
@@ -11,30 +11,21 @@ const server = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-//TODO using 'as' is bad practice
-
 async function getQuests (filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const { data } = await server.get<Quest[]>(`/quests`, { params: filters });
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getQuests failed:${status} ${detail}`);
-
+    extractAxiosError(error, 'getQuests');
   }
 }
 
-async function getQuest (questId: Types.ObjectId): Promise<Quest> {
+async function getQuest (questId: string): Promise<Quest> {
   try {
     const { data } = await server.get<Quest>(`/quests/${questId}`);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getQuest failed:${status} ${detail}`);
+    extractAxiosError(error, 'getQuest');
   }
 }
 

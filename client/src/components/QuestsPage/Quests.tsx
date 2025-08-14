@@ -1,44 +1,34 @@
 import { Link } from "react-router-dom";
 import NavBar from "../Navbar/navbar";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../Context/userContext";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
-
-interface Quest {
-  id: number;
-  title: string;
-  description: string;
-}
+import { getQuests } from "../../services/questService";
+import { getMyQuests } from "../../services/userService";
+import type { Quest, MyQuest } from "../../types";
 
 export default function QuestsPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
-  const [myQuests, setMyQuests] = useState<number[]>([]);
+  const [myQuests, setMyQuests] = useState<string[]>([]);
   const { user } = useUser();
 
+  // Fetch all quests
   useEffect(() => {
     const fetchQuests = async () => {
-      try {
-        const response = await axios.get<Quest[]>("http://localhost:3000/quests");
-        setQuests(response.data);
-      } catch (error) {
-        console.error("Failed to fetch quests:", error);
-      }
+      const data = await getQuests();
+      if (data) setQuests(data);
     };
     fetchQuests();
   }, []);
 
+  // Fetch user's quests
   useEffect(() => {
-    if (!user?.id) return;
     const fetchMyQuests = async () => {
-      try {
-        const response = await axios.get<number[]>(
-          `http://localhost:3000/users/${user.id}/my-quests`
-        );
-        setMyQuests(response.data);
-      } catch (error) {
-        console.error("Failed to fetch user's quests:", error);
+      if (!user?.id) return;
+      const data = await getMyQuests(user.id);
+      if (data) {
+        setMyQuests(data.map((q: MyQuest) => q.quest.toString()));
       }
     };
     fetchMyQuests();
@@ -47,36 +37,39 @@ export default function QuestsPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
       <NavBar />
+
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
         Available Quests
       </h1>
       <p className="text-gray-600 text-center max-w-3xl mx-auto mb-10 text-lg leading-relaxed">
         Choose your next adventure and start your journey!
       </p>
+
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {quests.map((quest) => (
           <div
-            key={quest.id}
+            key={quest._id} // use string ID from backend
             className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
           >
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                {quest.title}
-              </h2>
-              <p className="text-gray-700 text-base leading-relaxed">
-                {quest.description}
-              </p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-3">{quest.title}</h2>
+              <p className="text-gray-700 text-base leading-relaxed">{quest.description}</p>
             </div>
+
             <div className="flex items-center justify-between mt-auto space-x-4">
               <Link
-                to={`/quests/${quest.id}`}
+                to={`/quests/${quest._id}`}
                 className="flex-grow text-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
               >
                 View Quest
               </Link>
-              <FavouriteButton questId={quest.id} />
+
+              {/* Favorite Button */}
+              <FavouriteButton questId={quest._id} />
+
+              {/* MyQuests Button */}
               <MyQuestsButton
-                questId={quest.id}
+                questId={quest._id}
                 myQuests={myQuests}
                 setMyQuests={setMyQuests}
               />
@@ -84,6 +77,7 @@ export default function QuestsPage() {
           </div>
         ))}
       </div>
+
       <div className="mt-12 text-center space-x-4">
         <Link
           to="/favquestlist"

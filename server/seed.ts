@@ -113,11 +113,9 @@ async function run() {
         type: qType,
         // Matches your current nested LocationSchema:
         // location: { location: { type: 'Point', coordinates: [lon, lat] } }
-        location: {
-          location: {
-            type: 'Point',
-            coordinates: [qLon, qLat],
-          },
+      location: {
+          type: 'Point',
+          coordinates: [qLon, qLat],
         },
         ageRestricted: faker.datatype.boolean({ probability: 0.2 }),
         price: faker.helpers.arrayElement([0, faker.number.int({ min: 5, max: 75 })]),
