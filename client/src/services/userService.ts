@@ -9,12 +9,14 @@ import type {
   PublicUserData,
   MyQuest, 
 } from '../types';
-import { Types } from 'mongoose';
+import { Types } from 'mongoose'; //TODO remove
 
 const server = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
 });
+
+//TODO using 'as' is bad practice
 
 async function getUsers (): Promise<User[]> {
   try {

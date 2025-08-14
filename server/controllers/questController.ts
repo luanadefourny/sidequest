@@ -12,7 +12,8 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       startAfter, endBefore,          // ISO dates
       near,                           // 'lon,lat'
       radius,                         // meters
-    } = req.query as Record< string, string | undefined>;
+      limit,                          // max results to return (default will be 50)
+    } = req.query as Record< string, string | undefined>; //TODO using 'as' is bad practice
 
     interface QuestFilter {
       type?: string;
@@ -53,7 +54,15 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       };
     }
 
-    const quests = await Quest.find(quest);
+    // const quests = await Quest.find(quest);
+    const amountOfQuestsToReturn = (() => {
+      const n = Number(limit);
+      if (!Number.isFinite(n)) return 50; //defaults to 50
+      return Math.max(1, Math.min(n, 100)); //will never return more than 100 or less than 1
+    })();
+
+    const quests = await Quest.find(quest).limit(amountOfQuestsToReturn);
+
     res.status(200).json(quests);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch quests' });

@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
 
+//TODO remove Types and make them strings
+
 type GeoPoint = {
   type: 'Point';
   coordinates: [number, number]; // [lon, lat]
@@ -90,6 +92,7 @@ type QuestFilters = {
   endBefore?: string;              // ISO
   near?: string;                   // "lon,lat"
   radius?: number | string;        // meters
+  limit?: number;
 };
 
 export type { 
