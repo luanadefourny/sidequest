@@ -28,8 +28,8 @@ export default function NavBar() {
          </button>
          {menuOpen && (
            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg z-10">
-             <a href="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-             <a href="/myquests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Quests</a>
+              <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</Link>
+              <Link to="/myquests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Quests</Link>
              <Link to="/favquestlist" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favourite Quests</Link>
            </div>
          )}
