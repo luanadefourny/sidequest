@@ -66,7 +66,7 @@ export default function MyQuestsPage() {
               className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
             >
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">{quest.title}</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-3">{quest.name}</h2>
                 <p className="text-gray-700 text-base leading-relaxed">{quest.description}</p>
               </div>
 
