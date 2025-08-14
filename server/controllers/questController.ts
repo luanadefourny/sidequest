@@ -22,7 +22,7 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       currency?: string;
       startAt?: { $gte?: Date };
       endAt?: { $lte?: Date };
-      'location.location'?: {
+      location?: {
         $near: {
           $geometry: { type: string; coordinates: [number, number] };
           $maxDistance: number;
@@ -46,7 +46,7 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       const [longitudeString, latitudeString] = near.split(',');
       const longitude = Number(longitudeString);
       const latitude = Number(latitudeString);
-      quest['location.location'] = {
+      quest.location = {
         $near: {
           $geometry: { type: 'Point', coordinates: [longitude, latitude] },
           $maxDistance: Number(radius ?? 3000)
