@@ -1,11 +1,10 @@
-.testComponent-container {
-  height: 1100px;
-  width: 500px;
-  margin: 0;
-  padding: 0;
+.MapComponent-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
 }
 
 #map {
-  height: 1000px;
+  height: 100%;
   width: 100%;
 }
