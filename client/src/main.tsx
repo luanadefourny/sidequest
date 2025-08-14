@@ -6,8 +6,8 @@ import { UserProvider } from './components/Context/userContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <UserProvider>
-  <StrictMode>
-    <App />
-  </StrictMode>
+    <StrictMode>
+      <App />
+    </StrictMode>
   </UserProvider>
 )

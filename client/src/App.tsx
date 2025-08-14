@@ -8,13 +8,11 @@ import './App.css';
 import MapComponent from './components/MapComponent/MapComponent';
 import QuestsPage from './components/QuestsPage/QuestsPage';
 import MyQuests from './components/MyQuests/MyQuests'
-import { UserProvider } from './components/Context/userContext';
 
 
 export default function App() {
 
   return (
-  <UserProvider>
    <BrowserRouter>
      <Routes>
        <Route path="/" element={<LoginPage />} />
@@ -27,6 +25,5 @@ export default function App() {
        <Route path="/map" element={<MapComponent />} />
      </Routes>
    </BrowserRouter>
-   </UserProvider>
  );
 }
