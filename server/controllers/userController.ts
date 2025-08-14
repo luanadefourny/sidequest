@@ -108,6 +108,26 @@ async function loginUser (req: Request, res: Response): Promise<void> {
   }
 }
 
+async function logoutUser (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+
+  try {
+    const userToLogout = await User.findByIdAndUpdate(userId, { isCurrent: false }, { new: true });
+    if (!userToLogout) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(userToLogout);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to logout' });
+  }
+}
+
 //non-sensitive data only
 //TODO make separate endpoint for porfile picture upload in sprint 2 (for now just selecting from 10 profile picture options)
 async function editUserData (req: Request, res: Response): Promise<void> {
@@ -408,6 +428,7 @@ export {
   getUsers,
   registerUser,
   loginUser,
+  logoutUser,
   getUser,
   editUserData,
   editUserCredentials,
