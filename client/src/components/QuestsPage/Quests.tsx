@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import NavBar from "../Navbar/navbar";
 import axios from "axios";
-
+import { useEffect, useState } from "react";
+import { useUser } from "../Context/userContext";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
-import { useEffect, useState } from "react";
 
 interface Quest {
   id: number;
@@ -14,37 +14,45 @@ interface Quest {
 
 export default function QuestsPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
+  const [myQuests, setMyQuests] = useState<number[]>([]);
+  const { user } = useUser();
 
-useEffect(() => {
-  const fetchQuests = async () => {
-    try {
-      const response = await axios.get<Quest[]>("http://localhost:3000/quests")
-      setQuests(response.data)
-    } catch (error) {
-      console.error(error)
-    }
-  }; fetchQuests();
-}, [])
+  useEffect(() => {
+    const fetchQuests = async () => {
+      try {
+        const response = await axios.get<Quest[]>("http://localhost:3000/quests");
+        setQuests(response.data);
+      } catch (error) {
+        console.error("Failed to fetch quests:", error);
+      }
+    };
+    fetchQuests();
+  }, []);
 
-
-
-
-  // Toggle favorites
-
-
-
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchMyQuests = async () => {
+      try {
+        const response = await axios.get<number[]>(
+          `http://localhost:3000/users/${user.id}/my-quests`
+        );
+        setMyQuests(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user's quests:", error);
+      }
+    };
+    fetchMyQuests();
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
       <NavBar />
-
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
         Available Quests
       </h1>
       <p className="text-gray-600 text-center max-w-3xl mx-auto mb-10 text-lg leading-relaxed">
         Choose your next adventure and start your journey!
       </p>
-
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {quests.map((quest) => (
           <div
@@ -59,7 +67,6 @@ useEffect(() => {
                 {quest.description}
               </p>
             </div>
-
             <div className="flex items-center justify-between mt-auto space-x-4">
               <Link
                 to={`/quests/${quest.id}`}
@@ -67,18 +74,17 @@ useEffect(() => {
               >
                 View Quest
               </Link>
-
-              {/* Favorite Button */}
-              <FavouriteButton questId={quest.id}/>
-
-              {/* MyQuests Button */}
-              <MyQuestsButton questId={quest.id}/>
+              <FavouriteButton questId={quest.id} />
+              <MyQuestsButton
+                questId={quest.id}
+                myQuests={myQuests}
+                setMyQuests={setMyQuests}
+              />
             </div>
           </div>
         ))}
       </div>
-      <div className="mt-12 text-center">
-
+      <div className="mt-12 text-center space-x-4">
         <Link
           to="/favquestlist"
           className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"

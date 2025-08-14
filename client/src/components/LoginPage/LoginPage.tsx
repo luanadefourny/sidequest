@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useUser } from "../Context/userContext";
 
 export default function LoginPage() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
+  const {setUser} = useUser()
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,6 +21,8 @@ export default function LoginPage() {
       });
 
       console.log("Login successful", response.data);
+      setUser({id: response.data._id, username: response.data.username});
+      
       navigate("/homepage");
     } catch (err: any) {
       console.error("Login error:", err);
