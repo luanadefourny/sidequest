@@ -25,6 +25,7 @@ function loadGoogleMapsScript(onLoad: () => void) {
 
   const script = document.createElement('script');
   script.id = 'google-maps-script';
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker`;
   script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker,places`;
   script.async = true;
   script.onload = onLoad;
@@ -33,33 +34,32 @@ function loadGoogleMapsScript(onLoad: () => void) {
 
 export default function Map() {
 
-  const [showSearch, setShowSearch] = useState(false);
+  const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
     const container = document.getElementById('map');
-    const input = document.getElementById('pac-input') as HTMLInputElement | null;
+    const input = document.getElementById('pac-input') as HTMLInputElement;
     if (!container) return;
-    if (showSearch && input) {
-      loadGoogleMapsScript(() => {
-        initMap(container, input);
-      });
-    }
-  }, [showSearch]);
+
+    loadGoogleMapsScript(() => {
+      initMap(container);
+      initMap(container, input);
+    });
+  }, []);
 
   return (
     <div className="MapComponent-container relative">
       <IoIosSearch
-        className="text-3xl  text-white cursor-pointer absolute top-2 left-2 z-10"
-        onClick={() => setShowSearch((prev) => !prev)}
+        className="text-3xl text-white cursor-pointer absolute top-2 left-2 z-10"
+        onClick={() => setShowInput((prev) => !prev)}
       />
-      {showSearch && (
-        <input
-          id="pac-input"
-          type="text"
-          placeholder="Search location..."
-          className="absolute  text-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
-        />
-      )}
+      <input
+        id="pac-input"
+        type="text"
+        placeholder="Search places"
+        style={{ visibility: showInput ? "visible" : "hidden" }}
+        className="absolute text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
+      />
       <div id="map"></div>
     </div>
   );
