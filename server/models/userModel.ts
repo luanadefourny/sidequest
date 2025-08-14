@@ -6,7 +6,7 @@ export interface IUser extends Document {
   __v: number;
   username: string;
   email: string;
-  password: string; //TODO: can we define the regex rule here?
+  password: string;
   firstName: string;
   lastName: string;
   birthday: Date;

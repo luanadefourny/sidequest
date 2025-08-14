@@ -91,6 +91,11 @@ type QuestFilters = {
   limit?: number;
 };
 
+type ErrorBody = {
+  error?: string;
+  message?: string;
+}
+
 export type { 
   User, 
   PublicUserData,
@@ -101,4 +106,5 @@ export type {
   Credentials,
   QuestFilters, 
   MyQuest,
+  ErrorBody,
 }
