@@ -1,6 +1,7 @@
 import './MapComponent.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { initMap } from '../../services/mapService';
+import { IoIosSearch } from "react-icons/io";
 
 declare global {
   interface Window {
@@ -31,20 +32,35 @@ function loadGoogleMapsScript(onLoad: () => void) {
 }
 
 export default function Map() {
+
+  const [showSearch, setShowSearch] = useState(false);
+
   useEffect(() => {
     const container = document.getElementById('map');
-    const input = document.getElementById('pac-input') as HTMLInputElement;
+    const input = document.getElementById('pac-input') as HTMLInputElement | null;
     if (!container) return;
-
-    loadGoogleMapsScript(() => {
-      initMap(container, input);
-    });
-  }, []);
+    if (showSearch && input) {
+      loadGoogleMapsScript(() => {
+        initMap(container, input);
+      });
+    }
+  }, [showSearch]);
 
   return (
-    <div className="MapComponent-container">
+    <div className="MapComponent-container relative">
+      <IoIosSearch
+        className="text-3xl  text-white cursor-pointer absolute top-2 left-2 z-10"
+        onClick={() => setShowSearch((prev) => !prev)}
+      />
+      {showSearch && (
+        <input
+          id="pac-input"
+          type="text"
+          placeholder="Search location..."
+          className="absolute  text-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
+        />
+      )}
       <div id="map"></div>
-      <input id="pac-input" type="text" placeholder="Search places" />
     </div>
   );
 }
