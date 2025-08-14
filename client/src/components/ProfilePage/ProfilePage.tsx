@@ -1,5 +1,5 @@
 import React from 'react';
-import NavBar from '../Navbar/navbar';
+import NavBar from '../Navbar/Navbar';
 
 import type { User } from '../../types';
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "../Navbar/navbar";
-import FavouriteButton from "../FavouriteButton/favouriteButton";
+import NavBar from "../Navbar/Navbar";
+import FavouriteButton from "../FavouriteButton/FavouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import { useUser } from "../Context/userContext";
 import { getMyQuests } from "../../services/userService";
