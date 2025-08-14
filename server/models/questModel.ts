@@ -20,22 +20,20 @@ export interface IQuest extends Document {
 }
 
 const LocationSchema = new Schema({
-  location: {
-    type: {
+  type: {
       type: String,
       enum: ['Point'],
       required: true,
     },
-    coordinates: {
-      type: [Number],
-      required: true,
-      validate: {
-        validator: (v: number[]) => Array.isArray(v) && v.length === 2,
-        message: 'coordinates must be [longitude, latitude]'
-      }
+  coordinates: {
+    type: [Number],
+    required: true,
+    validate: {
+      validator: (v: number[]) => Array.isArray(v) && v.length === 2,
+      message: 'coordinates must be [longitude, latitude]'
     }
   }
-})
+});
 const QuestSchema = new Schema<IQuest>({
   name: { 
     type: String, 
@@ -89,7 +87,7 @@ const QuestSchema = new Schema<IQuest>({
 }, { timestamps: true });
 
 //indexes make querying fasterr
-QuestSchema.index({ 'location.location': '2dsphere' });
+QuestSchema.index({ location: '2dsphere' });
 QuestSchema.index({ startAt: 1, endAt: 1 });
 QuestSchema.index({ source: 1, sourceId: 1 }, { unique: false });
 QuestSchema.index({ name: 'text', description: 'text' });
