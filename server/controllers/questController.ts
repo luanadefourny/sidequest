@@ -13,16 +13,16 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       near,                           // 'lon,lat'
       radius,                         // meters
       limit,                          // max results to return (default will be 50)
-    } = req.query as Record< string, string | undefined>; //TODO using 'as' is bad practice
+    } = req.query;
 
     interface QuestFilter {
       type?: string;
-      ageRestricted?: string;
+      ageRestricted?: boolean;
       price?: { $gte?: number; $lte?: number };
       currency?: string;
       startAt?: { $gte?: Date };
       endAt?: { $lte?: Date };
-      'location.location'?: {
+      location?: {
         $near: {
           $geometry: { type: string; coordinates: [number, number] };
           $maxDistance: number;
@@ -32,21 +32,21 @@ async function getQuests (req: Request, res: Response): Promise<void> {
 
     const quest: QuestFilter = {};
 
-    if (type) quest.type = type;
-    if (ageRestricted === '0' || ageRestricted === '1') quest.ageRestricted = ageRestricted;
+    if (type && typeof type === 'string') quest.type = type;
+    if (ageRestricted === '0' || ageRestricted === '1') quest.ageRestricted = ageRestricted === '1';
     if (priceMin || priceMax) {
       quest.price = {};
       if (priceMin) quest.price.$gte = Number(priceMin);
       if (priceMax) quest.price.$lte = Number(priceMax);
     }
-    if (currency) quest.currency = currency.toUpperCase();
-    if (startAfter) quest.startAt = { ...(quest.startAt || {}), $gte: new Date(startAfter) };
-    if (endBefore) quest.endAt = { ...(quest.endAt || {}), $lte: new Date(endBefore) };
-    if (near) {
+    if (currency && typeof currency === 'string') quest.currency = currency.toUpperCase();
+    if (startAfter && typeof startAfter === 'string') quest.startAt = { ...(quest.startAt || {}), $gte: new Date(startAfter) };
+    if (endBefore && typeof endBefore === 'string') quest.endAt = { ...(quest.endAt || {}), $lte: new Date(endBefore) };
+    if (near && typeof near === 'string') {
       const [longitudeString, latitudeString] = near.split(',');
       const longitude = Number(longitudeString);
       const latitude = Number(latitudeString);
-      quest['location.location'] = {
+      quest.location = {
         $near: {
           $geometry: { type: 'Point', coordinates: [longitude, latitude] },
           $maxDistance: Number(radius ?? 3000)
