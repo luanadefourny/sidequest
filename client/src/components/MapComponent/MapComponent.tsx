@@ -38,11 +38,20 @@ export default function Map() {
   useEffect(() => {
     const container = document.getElementById('map');
     const input = document.getElementById('pac-input') as HTMLInputElement | null;
+
     if (!container) return;
-    if (showSearch && input) {
-      loadGoogleMapsScript(() => {
-        initMap(container, input);
-      });
+
+    loadGoogleMapsScript(() => {
+      initMap(container, input); // input may be null initially, handle that in your service
+    });
+  }, []); // Run only once on mount
+
+  useEffect(() => {
+    // If the map already exists, re-initialize autocomplete when input becomes visible
+    const input = document.getElementById('pac-input') as HTMLInputElement | null;
+    const container = document.getElementById('map');
+    if (showSearch && input && container) {
+      initMap(container, input); // This can just add autocomplete if map is already initialized
     }
   }, [showSearch]);
 
@@ -57,7 +66,7 @@ export default function Map() {
           id="pac-input"
           type="text"
           placeholder="Search location..."
-          className="absolute  text-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
+          className="absolute  text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
         />
       )}
       <div id="map"></div>
