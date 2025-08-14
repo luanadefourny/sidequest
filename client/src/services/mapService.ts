@@ -1,4 +1,4 @@
-//TODO fix this below to export coords
+//TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
 
 export function getMarkerPosition() {
@@ -21,6 +21,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
       center: position,
       mapId: import.meta.env.VITE_MAP_ID,
       mapTypeControl: false,
+      streetViewControl: false
   });
 
   let currentMarker: google.maps.marker.AdvancedMarkerElement | null = null;
@@ -121,15 +122,15 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
       const res = await fetch(`http://localhost:3000/quests?near=${longitude},${latitude}&radius=10000`);
       if (!res.ok) throw new Error("Failed to fetch mock data from DB");
       const data = await res.json();
-      
+
       const infoWindow = new google.maps.InfoWindow();
       
       data.forEach((entry: any) => {
-        const [lon, lat] = entry.location.location.coordinates;
+        const [lon, lat] = entry.location.coordinates;
         const name = entry.name || "Unnamed place";
         const type = entry.type || "No category found";
         const description = entry.description || "No address found";
-        
+
         const icon = document.createElement("img");
         icon.src = "./creep.jpg";
         icon.style.width = "20px";
@@ -159,8 +160,8 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
           });
         });
         
-        // Fit map to include the searched place + all OpenTripMap markers
-        map.fitBounds(bounds);
+      // Fit map to include the searched place + all OpenTripMap markers
+      map.fitBounds(bounds);
         
       } catch (error) {
         console.error("Error loading OpenTripMap data:", error);
