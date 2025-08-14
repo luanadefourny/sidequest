@@ -78,6 +78,12 @@ interface MyQuest {
   isFavorite: boolean;
 }
 
+interface FavQuest {
+  quest: string | Quest;
+  isFavorite: boolean;
+}
+
+
 type QuestFilters = {
   type?: 'event' | 'place' | 'activity';
   ageRestricted?: '0' | '1';
@@ -106,5 +112,6 @@ export type {
   Credentials,
   QuestFilters, 
   MyQuest,
+  FavQuest,
   ErrorBody,
 }
