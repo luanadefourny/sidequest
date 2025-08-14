@@ -1,11 +1,9 @@
-import NavBar from '../Navbar/Navbar';
 import { useUser } from '../Context/userContext';
 
 
 export default function ProfilePage() {
   const { user } = useUser();
   
-
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500">
@@ -16,7 +14,6 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-      <NavBar />
       <div className="flex flex-col sm:flex-row items-center gap-6">
         <img
           src={user.profilePicture}

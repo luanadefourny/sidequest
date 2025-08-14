@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import NavBar from "../Navbar/Navbar";
 import { useEffect, useState } from "react";
 import { useUser } from "../Context/userContext";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
@@ -36,7 +35,6 @@ export default function QuestsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
-      <NavBar />
 
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
         Available Quests

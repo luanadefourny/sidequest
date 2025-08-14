@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useUser } from "../Context/userContext";
 import { getMyQuests } from "../../services/userService";
 import type { MyQuest, Quest } from "../../types";
-import NavBar from "../Navbar/Navbar";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 
 export default function FavQuestList() {
@@ -37,7 +36,6 @@ export default function FavQuestList() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
-      <NavBar />
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center">
         My Favorite Quests
       </h1>
