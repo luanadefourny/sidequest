@@ -22,7 +22,7 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       currency?: string;
       startAt?: { $gte?: Date };
       endAt?: { $lte?: Date };
-      'location'?: {
+      location?: {
         $near: {
           $geometry: { type: string; coordinates: [number, number] };
           $maxDistance: number;
