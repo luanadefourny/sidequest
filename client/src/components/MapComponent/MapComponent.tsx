@@ -42,7 +42,6 @@ export default function Map() {
     if (!container) return;
 
     loadGoogleMapsScript(() => {
-      initMap(container);
       initMap(container, input);
     });
   }, []);
