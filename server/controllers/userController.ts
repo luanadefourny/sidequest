@@ -92,7 +92,6 @@ async function loginUser (req: Request, res: Response): Promise<void> {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-    console.log(user.password);
     //TODO: change to bcrypt compare
     if (user.password !== password) {
       res.status(401).json({ error: 'Password is incorrect' });
@@ -184,6 +183,21 @@ async function editUserCredentials (req: Request, res: Response): Promise<void> 
   }
 
   const { username, email } = parsedBody.data;
+
+  if (username || email) {
+    const conflict = await User.findOne({
+      $or: [
+        ...(username ? [{ username }] : []),
+        ...(email ? [{ email }] : []),
+      ],
+      _id: { $ne: userId },
+    });
+    if (conflict) {
+      const property = conflict.username === username ? 'username' : 'email';
+      res.status(409).json({ error: `${property} already exists` });
+      return;
+    }
+  }
 
   const credentialsToUpdate: {
     username?: string,
