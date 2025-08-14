@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { extractAxiosError } from '../helperFunctions';
 import { serverUrl } from "../constants";
 import type { 
   User, 
@@ -9,36 +10,27 @@ import type {
   PublicUserData,
   MyQuest, 
 } from '../types';
-import { Types } from 'mongoose'; //TODO remove
 
 const server = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
 });
 
-//TODO using 'as' is bad practice
-
 async function getUsers (): Promise<User[]> {
   try {
     const { data } = await server.get<User[]>(`/users`);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getUsers failed:${status} ${detail}`);
+    extractAxiosError(error, 'getUsers');
   }
 }
 
-async function getUser (userId: Types.ObjectId): Promise<PublicUserData> {
+async function getUser (userId: string): Promise<PublicUserData> {
   try {
     const { data } = await server.get<PublicUserData>(`/users/${userId}`);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getUser failed:${status} ${detail}`);
+    extractAxiosError(error, 'getUser');
   }
 }
 
@@ -47,10 +39,7 @@ async function registerUser (userData: RegisterUserData): Promise<User> {
   const { data } = await server.post<User>(`/users`, userData);
   return data;
  } catch (error) {
-  const e = error as AxiosError<{ error?: string; message?: string }>;
-  const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-  const status = e.response?.status ? ` ${e.response.status}` : '';
-  throw new Error(`registerUser failed:${status} ${detail}`);
+  extractAxiosError(error, 'registerUser');
  }
 }
 
@@ -59,108 +48,80 @@ async function loginUser (loginData: LoginUserData): Promise<User> {
     const { data } = await server.post<User>(`/login`, loginData);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`loginUser failed:${status} ${detail}`);
+    extractAxiosError(error, 'loginUser');
   }
 }
 
 // only for non-sensitive data like first/last name, profile picture, birthday
-async function editUserData (userId: Types.ObjectId, dataToEdit: EditUserData): Promise<User> {
+async function editUserData (userId: string, dataToEdit: EditUserData): Promise<User> {
   try {
     const { data } = await server.patch<User>(`/users/${userId}`, dataToEdit);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`editUserData failed:${status} ${detail}`);
+    extractAxiosError(error, 'editUserData');
   }
 }
 
-async function editUserCredentials (userId: Types.ObjectId, credentials: Credentials): Promise<User> {
+async function editUserCredentials (userId: string, credentials: Credentials): Promise<User> {
   try {
     const { data } = await server.patch<User>(`/users/${userId}/credentials`, credentials);
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`editUserCredentials failed:${status} ${detail}`);
+    extractAxiosError(error, 'editUserCredentials');
   }
 }
 
-async function editUserPassword (userId: Types.ObjectId, password: string): Promise<User> {
+async function editUserPassword (userId: string, password: string): Promise<User> {
   try {
     const { data } = await server.patch<User>(`/users/${userId}/password`, { newPassword: password });
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`editUserPassword failed:${status} ${detail}`);
+    extractAxiosError(error, 'editUserPassword');
   }
 }
 
-async function getMyQuests (userId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
+async function getMyQuests (userId: string, populate?: 0|1): Promise<MyQuest[]> {
   try {
     const { data } = await server.get<MyQuest[]>(`/users/${userId}/my-quests`, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getMyQuests failed:${status} ${detail}`);
+    extractAxiosError(error, 'getMyQuests');
   }
 }
 
-async function getMyQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest> {
+async function getMyQuest (userId: string, questId: string, populate?: 0|1): Promise<MyQuest> {
   try {
     const { data } = await server.get<MyQuest>(`/users/${userId}/my-quests/${questId}`, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`getMyQuest failed:${status} ${detail}`);
+    extractAxiosError(error, 'getMyQuest');
   }
 }
 
-async function addToMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
+async function addToMyQuests (userId: string, questId: string, populate?: 0|1): Promise<MyQuest[]> {
   try {
     const { data } = await server.post<MyQuest[]>(`/users/${userId}/my-quests/${questId}`, undefined, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`addToMyQuests failed:${status} ${detail}`);
+    extractAxiosError(error, 'addToMyQuests');
   }
 }
 
-async function removeFromMyQuests (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
+async function removeFromMyQuests (userId: string, questId: string, populate?: 0|1): Promise<MyQuest[]> {
   try {
     const { data, status } = await server.delete<MyQuest[]>(`/users/${userId}/my-quests/${questId}`, { params: populate !== undefined ? { populate } : {} });
     return status === 204 ? [] : data; //in case there is nothing to remove
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`removeFromMyQuests failed:${status} ${detail}`);
+    extractAxiosError(error, 'removeFromMyQuests');
   }
 }
 
-async function toggleFavoriteQuest (userId: Types.ObjectId, questId: Types.ObjectId, populate?: 0|1): Promise<MyQuest[]> {
+async function toggleFavoriteQuest (userId: string, questId: string, populate?: 0|1): Promise<MyQuest[]> {
   try {
     const { data } = await server.patch<MyQuest[]>(`/users/${userId}/my-quests/${questId}/favorite`, undefined, { params: populate !== undefined ? { populate } : {} });
     return data;
   } catch (error) {
-    const e = error as AxiosError<{ error?: string; message?: string }>;
-    const detail = e.response?.data?.error ?? e.response?.data?.message ?? e.message;
-    const status = e.response?.status ? ` ${e.response.status}` : '';
-    throw new Error(`toggleFavoriteQuest failed:${status} ${detail}`);
-
+    extractAxiosError(error, 'toggleFavoriteQuest');
   }
 }
 

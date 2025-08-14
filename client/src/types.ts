@@ -1,14 +1,10 @@
-import { Types } from 'mongoose';
-
-//TODO remove Types and make them strings
-
 type GeoPoint = {
   type: 'Point';
   coordinates: [number, number]; // [lon, lat]
 }
 
 type User = {
-  _id: Types.ObjectId;
+  _id: string;
   username: string;
   email: string;
   // password: string;
@@ -16,8 +12,8 @@ type User = {
   lastName: string;
   birthday: Date;
   isCurrent: boolean; //! to remove
-  following: Types.ObjectId[] | User[];
-  followers: Types.ObjectId[] | User[];
+  following: string[] | User[];
+  followers: string[] | User[];
   profilePicture: string;
   myQuests: MyQuest[];
   myLocations: {
@@ -36,7 +32,7 @@ type PublicUserData = {
 }
 
 type Quest = {
-  _id: Types.ObjectId;
+  _id: string;
   name: string;
   type: 'event' | 'place' | 'activity'; //! subject to change
   location: GeoPoint;
@@ -78,7 +74,7 @@ interface Credentials {
 }
 
 interface MyQuest {
-  quest: Types.ObjectId | Quest;
+  quest: string | Quest;
   isFavorite: boolean;
 }
 
