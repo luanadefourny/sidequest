@@ -91,7 +91,7 @@ const UserSchema = new mongoose.Schema<IUser>({
   password: {
     type: String,
     required: true,
-  //  select: true, //cannot be grabbed to return to the user
+    select: false, //cannot be grabbed to return to the user
   },
   firstName: {
     type: String,

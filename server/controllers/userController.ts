@@ -87,11 +87,12 @@ async function loginUser (req: Request, res: Response): Promise<void> {
   const { username, password } = parsedBody.data;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).select('+password');
     if(!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
+    console.log(user.password);
     //TODO: change to bcrypt compare
     if (user.password !== password) {
       res.status(401).json({ error: 'Password is incorrect' });
