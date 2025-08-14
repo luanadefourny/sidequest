@@ -77,21 +77,6 @@ export default function FavouritesPage() {
           })}
         </div>
       )}
-
-      <div className="mt-12 text-center flex justify-center gap-4">
-        <Link
-          to="/quests"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          Back to Quests
-        </Link>
-        <Link
-          to="/myquests"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          To My Quests
-        </Link>
-      </div>
     </div>
   );
 }

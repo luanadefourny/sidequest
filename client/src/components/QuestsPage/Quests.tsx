@@ -65,7 +65,7 @@ export default function QuestsPage() {
               </Link>
 
               {/* Favorite Button */}
-              
+
 
               {/* MyQuests Button */}
               <MyQuestsButton
@@ -76,21 +76,6 @@ export default function QuestsPage() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-12 text-center space-x-4">
-        <Link
-          to="/favquestlist"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          To Favourite Quests
-        </Link>
-        <Link
-          to="/myquests"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          To My Quests
-        </Link>
       </div>
     </div>
   );

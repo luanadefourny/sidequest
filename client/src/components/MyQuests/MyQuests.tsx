@@ -71,8 +71,8 @@ export default function MyQuestsPage() {
               </div>
 
               <div className="flex items-center justify-between mt-auto space-x-4">
-                <FavouriteButton 
-                questId={quest._id} 
+                <FavouriteButton
+                questId={quest._id}
                 />
                 <MyQuestsButton
                   questId={quest._id}
@@ -84,21 +84,6 @@ export default function MyQuestsPage() {
           ))}
         </div>
       )}
-
-      <div className="mt-12 text-center space-x-4">
-        <Link
-          to="/quests"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          Back to Quests
-        </Link>
-        <Link
-          to="/favquestlist"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          To Favourite Quests
-        </Link>
-      </div>
     </div>
   );
 }
