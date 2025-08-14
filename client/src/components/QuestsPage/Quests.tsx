@@ -65,7 +65,7 @@ export default function QuestsPage() {
               </Link>
 
               {/* Favorite Button */}
-              <FavouriteButton questId={quest._id} />
+              
 
               {/* MyQuests Button */}
               <MyQuestsButton
