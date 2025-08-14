@@ -14,7 +14,7 @@ import { Types } from 'mongoose';
 const server = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
-})
+});
 
 async function getUsers (): Promise<User[]> {
   try {

@@ -1,22 +1,26 @@
 import { Link } from "react-router-dom";
 import NavBar from "../Navbar/navbar";
+import axios from "axios";
 
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
+import { useEffect, useState } from "react";
 
-interface Quest {
-  id: number;
-  title: string;
-  description: string;
-}
 
-const quests: Quest[] = [
-  { id: 1, title: "Finding Nemo", description: "Don't get eaten by sharks." },
-  { id: 2, title: "Find the One Piece", description: "Defeat sea emperors" },
-  { id: 3, title: "Find the Dragonballs", description: "Defeat Goku" },
-];
 
 export default function QuestsPage() {
+const [quests, setQuests] = useState([]);
+
+useEffect(() => {
+  const fetchQuests = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/quests")
+      setQuests(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }; fetchQuests();
+}, [])
 
 
 
