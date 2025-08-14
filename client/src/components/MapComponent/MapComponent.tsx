@@ -1,5 +1,5 @@
 import './MapComponent.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { initMap } from '../../services/mapService';
 import { IoIosSearch } from "react-icons/io";
 
@@ -16,7 +16,6 @@ function loadGoogleMapsScript(onLoad: () => void) {
     if (window.google && window.google.maps) {
       onLoad();
     } else {
-      // Wait for the script to load
       const existingScript = document.getElementById('google-maps-script');
       existingScript!.addEventListener('load', onLoad);
     }
@@ -32,44 +31,37 @@ function loadGoogleMapsScript(onLoad: () => void) {
 }
 
 export default function Map() {
-
   const [showSearch, setShowSearch] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const container = document.getElementById('map');
-    const input = document.getElementById('pac-input') as HTMLInputElement | null;
-
-    if (!container) return;
-
+    if (!mapRef.current) return;
     loadGoogleMapsScript(() => {
-      initMap(container, input); // input may be null initially, handle that in your service
+      initMap(mapRef.current!, document.getElementById('pac-input') as HTMLInputElement | null);
     });
-  }, []); // Run only once on mount
+  }, []);
 
   useEffect(() => {
-    // If the map already exists, re-initialize autocomplete when input becomes visible
-    const input = document.getElementById('pac-input') as HTMLInputElement | null;
-    const container = document.getElementById('map');
-    if (showSearch && input && container) {
-      initMap(container, input); // This can just add autocomplete if map is already initialized
+    // Optionally, re-attach autocomplete if needed when toggling
+    if (showSearch && mapRef.current) {
+      initMap(mapRef.current, document.getElementById('pac-input') as HTMLInputElement | null);
     }
   }, [showSearch]);
 
   return (
     <div className="MapComponent-container relative">
       <IoIosSearch
-        className="text-3xl  text-white cursor-pointer absolute top-2 left-2 z-10"
+        className="text-3xl text-white cursor-pointer absolute top-2 left-2 z-10"
         onClick={() => setShowSearch((prev) => !prev)}
       />
-      {showSearch && (
-        <input
-          id="pac-input"
-          type="text"
-          placeholder="Search location..."
-          className="absolute  text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
-        />
-      )}
-      <div id="map"></div>
+      <input
+        id="pac-input"
+        type="text"
+        placeholder="Search location..."
+        style={{ display: showSearch ? "block" : "none" }}
+        className="absolute text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
+      />
+      <div id="map" ref={mapRef}></div>
     </div>
   );
 }
