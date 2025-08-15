@@ -24,6 +24,7 @@ API for users and quests. During design, keep HOST as localhost.
 
 **Quest Endpoints Overview**
 - GET /quests — list all quests
+- GET /quests/{questId} — get a quest by ID
 
 # Data Structures
 
@@ -53,6 +54,18 @@ API for users and quests. During design, keep HOST as localhost.
 ## MyQuest (object)
 + quest: `750f1a2b3c4d5e6f7a8b9c0d5` (string) - Quest id or embedded Quest if populated
 + isFavorite: false (boolean)
+
+## Quest (object)
++ _id: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
++ title: `Evening Kayak Trip` (string)
++ description: `Paddle along the coast at sunset.` (string)
++ type: `activity` (string)
++ ageRestricted: false (boolean)
++ price: 35 (number)
++ currency: `GBP` (string)
++ startAt: `2025-09-01T18:00:00.000Z` (string)
++ endAt: `2025-09-01T20:00:00.000Z` (string)
++ location: { type: `Point`, coordinates: [-1.404, 50.909] } (object)
 
 # Group Users
 
@@ -394,3 +407,63 @@ Toggle `isFavorite`. Quest must already be in myQuests.
 + Response 500 (application/json)
     + Attributes (object)
         + error: `Failed to favorite quest from myQuests`
+
+# Group Quests
+
+## List quests [GET /quests{?type,ageRestricted,priceMin,priceMax,currency,startAfter,endBefore,near,radius,limit}]
+Return quests filtered by optional query params.
+
++ Parameters
+    + type: `event` (optional, string)
+    + ageRestricted: `0` (optional, string)
+    + priceMin: `10` (optional, number)
+    + priceMax: `100` (optional, number)
+    + currency: `GBP` (optional, string)
+    + startAfter: `2025-09-01T00:00:00.000Z` (optional, string)
+    + endBefore: `2025-09-30T23:59:59.000Z` (optional, string)
+    + near: `-1.404,50.909` (optional, string)
+    + radius: `3000` (optional, number)
+    + limit: `20` (optional, number)
+
++ Response 200 (application/json)
+    + Attributes (array[Quest])
+    + Body
+            [
+              {
+                "_id": "750f1a2b3c4d5e6f7a8b9c0d5",
+                "title": "Evening Kayak Trip",
+                "description": "Paddle along the coast at sunset.",
+                "type": "activity",
+                "ageRestricted": false,
+                "price": 35,
+                "currency": "GBP",
+                "startAt": "2025-09-01T18:00:00.000Z",
+                "endAt": "2025-09-01T20:00:00.000Z",
+                "location": { "type": "Point", "coordinates": [-1.404, 50.909] }
+              }
+            ]
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch quests`
+
+## Get quest by id [GET /quests/{questId}]
+Return a single quest.
+
++ Parameters
+    + questId: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
+
++ Response 200 (application/json)
+    + Attributes (Quest)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `Quest not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch quest`
