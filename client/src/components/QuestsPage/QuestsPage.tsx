@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
-// import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { useUser } from "../Context/userContext";
 // import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 // import { getQuests, } from "../../services/questService";
 // import { getMyQuests } from "../../services/userService";
 import type { QuestsPageProps } from "../../types";
+import QuestModal from "../QuestModal/QuestModal";
 
 export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPageProps) {
+  const [showQuestModal, setShowQuestModal] = useState(false);
+  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+
   // const [quests, setQuests] = useState<Quest[]>([]);
   // const [myQuests, setMyQuests] = useState<string[]>([]);
   // const { user } = useUser();
@@ -34,6 +38,7 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
   // }, [user]);
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
 
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
@@ -55,12 +60,15 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
             </div>
 
             <div className="flex items-center justify-between mt-auto space-x-4">
-              <Link
-                to={`/quests/${quest._id}`}
-                className="flex-grow text-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
-              >
-                View Quest
-              </Link>
+            <button
+              className="flex-grow text-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+              onClick={() => {
+                setSelectedQuest(quest);
+                setShowQuestModal(true);
+              }}
+            >
+              View Quest
+            </button>
 
               {/* <FavouriteButton questId={quest._id}
                /> */}
@@ -75,5 +83,11 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
         ))}
       </div>
     </div>
+    <QuestModal
+    isVisible={showQuestModal}
+    onClose={() => setShowQuestModal(false)}
+    quest={selectedQuest}
+    />
+    </>
   );
 }
