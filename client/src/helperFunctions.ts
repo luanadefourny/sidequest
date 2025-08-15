@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { ErrorBody } from './types';
+import { PROFILE_PICS } from './constants';
 
 function extractAxiosError (error: unknown, context: string): never {
   if (axios.isAxiosError<ErrorBody>(error)) {
@@ -12,4 +13,8 @@ function extractAxiosError (error: unknown, context: string): never {
   throw new Error(`${context} failed: ${String(error)}`);
 }
 
-export { extractAxiosError };
+function pickRandomProfilePicture () {
+  return PROFILE_PICS[Math.floor(Math.random() * PROFILE_PICS.length)];
+}
+
+export { extractAxiosError, pickRandomProfilePicture };

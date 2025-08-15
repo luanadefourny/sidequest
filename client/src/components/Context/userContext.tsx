@@ -1,16 +1,45 @@
-import { createContext, useContext, useState, useMemo } from "react";
+import { createContext, useContext, useState, useMemo, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { User } from '../../types';
+import type { User, UserContextType } from '../../types';
+import { STORAGE_KEY } from "../../constants";
 
-type UserContextType = {
-  user: User | null;
-  setUser: (user: User | null) => void;
-};
+const isBrowser = typeof window !== 'undefined';
+
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const value = useMemo(() =>({ user, setUser }), [user]);
+  const [user, setUser] = useState<User | null>(() => {
+    if (!isBrowser) return null;
+    try {
+      const info = window.localStorage.getItem(STORAGE_KEY);
+      return info ? (JSON.parse(info)) : null;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (!isBrowser) return;
+    function onStorage (event: StorageEvent) {
+      if (event.key === STORAGE_KEY) setUser(event.newValue ? (JSON.parse(event.newValue)) : null);
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  useEffect(() => {
+    if (!isBrowser) return;
+    try {
+      if (user) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      else window.localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [user]);
+
+
+  const value = useMemo(() =>({ user, setUser, loggedIn: user !== null }), [user]);
   return <UserContext.Provider value={ value }>{ children }</UserContext.Provider>
 }
 

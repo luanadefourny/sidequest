@@ -3,6 +3,9 @@ import { useUser } from '../Context/userContext';
 
 export default function ProfilePage() {
   const { user } = useUser();
+  //! this fixed the rendering
+  const birthDate = user && (typeof user.birthday === 'string' ? new Date(user.birthday) : user.birthday);
+  console.log(user?.profilePicture);
   
   if (!user) {
     return (
@@ -26,7 +29,7 @@ export default function ProfilePage() {
           <div className="mt-2">
             <p className="text-sm text-gray-700"><strong>Name:</strong> {user.firstName} {user.lastName}</p>
             <p className="text-sm text-gray-700">
-              <strong>Age:</strong> {user.birthday.toLocaleDateString()}
+              <strong>Age:</strong> {birthDate?.toLocaleDateString()}
             </p>
             <p className="text-sm text-gray-700">
               <strong>Followers:</strong> {user.followers.length} | <strong>Following:</strong> {user.following.length}
