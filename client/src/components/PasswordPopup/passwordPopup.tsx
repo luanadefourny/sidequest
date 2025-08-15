@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function PasswordRequirements({ open, onClose, password }: { open: boolean, onClose: () => void, password: string }) {
   if (!open) return null;

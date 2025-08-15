@@ -2,7 +2,8 @@ import express, { Router } from 'express';
 import { 
   getUsers, 
   registerUser, 
-  loginUser, 
+  loginUser,
+  logoutUser, 
   getUser, 
   editUserData, 
   editUserCredentials,
@@ -22,6 +23,7 @@ router.get('/users/:userId', getUser); //user lookup
 
 router.post('/users', registerUser); //TODO change with auth
 router.post('/login', loginUser); //TODO change with auth
+router.patch('/users/:userId/logout', logoutUser);
 
 router.patch('/users/:userId', authenticateJWT, editUserData);
 router.patch('/users/:userId/credentials', authenticateJWT, editUserCredentials);

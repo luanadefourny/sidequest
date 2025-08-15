@@ -1,6 +1,12 @@
+import type { ReactNode } from "react";
+
 type GeoPoint = {
   type: 'Point';
   coordinates: [number, number]; // [lon, lat]
+}
+type Location = {
+  longitude: string;
+  latitude: string;
 }
 
 type User = {
@@ -25,10 +31,12 @@ type User = {
 }
 
 type PublicUserData = {
+  _id: string;
   username: string;
   firstName: string;
   lastName: string;
   profilePicture: string;
+  birthday: Date;
 }
 
 type Quest = {
@@ -54,6 +62,7 @@ interface RegisterUserData {
   firstName: string;
   lastName: string;
   birthday: Date;
+  profilePicture: string;
 }
 
 interface LoginUserData {
@@ -72,10 +81,14 @@ interface Credentials {
   username?: string;
   email?: string;
 }
-
 interface MyQuest {
   quest: string | Quest;
   isFavorite: boolean;
+}
+
+interface FavouriteButtonProps {
+  questId: string;
+  initialIsFavorite?: boolean; 
 }
 
 type QuestFilters = {
@@ -96,7 +109,42 @@ type ErrorBody = {
   message?: string;
 }
 
+type LayoutProps = {
+  children: ReactNode;
+}
+
+type UserContextType = {
+  user: User | null;
+  setUser: (user: User | null) => void;
+  loggedIn: boolean;
+};
+
+interface HomePageProps {
+  location: Location | null;
+  setLocation: React.Dispatch<React.SetStateAction<Location| null>>;
+}
+interface MapComponentProps {
+  setLocation: React.Dispatch<React.SetStateAction<Location| null>>;
+}
+interface QuestsPageProps {
+  quests: Quest[];
+  myQuests: MyQuest[];
+  setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
+}
+interface MyQuestsButtonProps {
+  questId: string;
+  myQuests: MyQuest[];
+  setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
+}
+interface MyQuestsPageProps {
+  myQuests: MyQuest[];
+  setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
+  myQuestsLoading: boolean;
+}
+
+
 export type { 
+  Location,
   User, 
   PublicUserData,
   Quest, 
@@ -106,5 +154,13 @@ export type {
   Credentials,
   QuestFilters, 
   MyQuest,
+  FavouriteButtonProps,
   ErrorBody,
+  LayoutProps,
+  UserContextType,
+  HomePageProps,
+  MapComponentProps,
+  QuestsPageProps,
+  MyQuestsButtonProps,
+  MyQuestsPageProps,
 }

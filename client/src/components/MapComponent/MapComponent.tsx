@@ -1,7 +1,8 @@
 import './MapComponent.css';
 import { useEffect, useState } from 'react';
-import { initMap } from '../../services/mapService';
+import { initMap, getMarkerPosition } from '../../services/mapService';
 import { IoIosSearch } from "react-icons/io";
+import type { MapComponentProps } from '../../types';
 
 declare global {
   interface Window {
@@ -32,7 +33,7 @@ function loadGoogleMapsScript(onLoad: () => void) {
   document.head.appendChild(script);
 }
 
-export default function Map() {
+export default function MapComponent({ setLocation }: MapComponentProps) {
 
   const [showInput, setShowInput] = useState(false);
 
@@ -43,8 +44,24 @@ export default function Map() {
 
     loadGoogleMapsScript(() => {
       initMap(container, input);
+      const position = getMarkerPosition();
+      if (position) {
+        const [lon, lat] = position.split(','); //TODO i'm an idiot and mihai should change how they are returned hehe
+        setLocation({ longitude: lon, latitude: lat});
+      }
     });
   }, []);
+
+  useEffect(() => {
+    function onMarkerChange (event: Event) {
+      const { lon, lat } = (event as CustomEvent<{ lon: number; lat: number }>).detail;
+      setLocation({ longitude: String(lon), latitude: String(lat) });
+    }
+
+    window.addEventListener('markerpositionchange', onMarkerChange);
+    return () => window.removeEventListener('markerpositionchange', onMarkerChange)
+
+  }, [setLocation]);
 
   return (
     <div className="MapComponent-container relative">

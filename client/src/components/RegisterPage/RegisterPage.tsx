@@ -3,12 +3,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/userService";
 import PasswordRequirements from "../PasswordPopup/passwordPopup";
-
+import { pickRandomProfilePicture } from "../../helperFunctions";
 
 export default function RegisterPage() {
- const navigate = useNavigate();
- const [showPasswordReqs, setShowPasswordReqs] = useState(false);
-
+  const navigate = useNavigate();
+  const [showPasswordReqs, setShowPasswordReqs] = useState(false);
+  
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -16,13 +16,14 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('')
-
+  
   // Form data state for the contact form
-
+  
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     try {
+      //TODO should we trim all these?
       await registerUser({
         firstName,
         lastName,
@@ -30,6 +31,7 @@ export default function RegisterPage() {
         email,
         username,
         password,
+        profilePicture: pickRandomProfilePicture(),
       });
       setFirstName('');
       setLastName('');
@@ -47,14 +49,14 @@ export default function RegisterPage() {
       }
     };
   }
-
-
- return (
-   <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+  
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
      <form
        onSubmit={handleSubmit}
        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
-     >
+       >
        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
 
        <label htmlFor="firstName" className="block mb-2 font-semibold text-gray-700">
@@ -64,11 +66,11 @@ export default function RegisterPage() {
          type="text"
          id="firstName"
          name="firstName"
-          value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
+         value={firstName}
+         onChange={(e) => setFirstName(e.target.value)}
          placeholder="Enter your first name"
          className="w-full mb-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-       />
+         />
 
        <label htmlFor="lastName" className="block mb-2 font-semibold text-gray-700">
          Last Name
@@ -78,10 +80,10 @@ export default function RegisterPage() {
          id="lastName"
          name="lastName"
          value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
+         onChange={(e) => setLastName(e.target.value)}
          placeholder="Enter your last name"
          className="w-full mb-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-       />
+         />
 
        <label htmlFor="birthday" className="block mb-2 font-semibold text-gray-700">
          Birthday
@@ -90,11 +92,11 @@ export default function RegisterPage() {
          type="date"
          id="birthday"
          name="birthday"
-          value={birthday}
-        onChange={(e) => setBirthday(e.target.value)}
+         value={birthday}
+         onChange={(e) => setBirthday(e.target.value)}
          placeholder="Enter your birthday"
          className="w-full mb-6 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-       />
+         />
 
        <label htmlFor="email" className="block mb-2 font-semibold text-gray-700">
          Email

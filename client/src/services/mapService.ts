@@ -5,6 +5,12 @@ export function getMarkerPosition() {
   return coordsHelper;
 }
 
+//! sends out location to mapcomponent
+function emitMarkerPosition(lon: number, lat: number) {
+  coordsHelper = `${lon},${lat}`;
+  window.dispatchEvent(new CustomEvent('markerpositionchange', { detail: { lon, lat } }));
+}
+
 async function loadMarkers(map: google.maps.Map, bounds: google.maps.LatLngBounds, latitude: number, longitude: number) {
   //! mock data call starts here
   try {
@@ -77,7 +83,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
   if (navigator.geolocation) {
     try {
       const coords = await new Promise<GeolocationCoordinates>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords), error => reject(error), { enableHighAccuracy: true, timeout: 5000 }
+        navigator.geolocation.getCurrentPosition(pos => resolve(pos.coords), error => reject(error), { enableHighAccuracy: true, timeout: 50000 }
         );
       });
       position = { lat: coords.latitude, lng: coords.longitude };
@@ -87,6 +93,9 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
   } else {
     console.log("Geolocation not supported");
   }
+
+  //! does the thing
+  emitMarkerPosition(position.lng, position.lat);
 
   // Request needed libraries.
   //@ts-ignore - this is used to ignore ts errors bellow this line (in our case google.maps throws a TS error)
@@ -124,7 +133,9 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
     const latitude = coords.lat();
     const longitude = coords.lng();
 
-    coordsHelper = `${longitude},${latitude}`;
+    // coordsHelper = `${longitude},${latitude}`;
+    //!does the thing
+    emitMarkerPosition(longitude, latitude);
 
     console.log(getMarkerPosition());
 

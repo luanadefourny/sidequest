@@ -53,6 +53,15 @@ async function loginUser (loginData: LoginUserData): Promise<User> {
   }
 }
 
+async function logoutUser (userId: string): Promise<User> {
+  try {
+    const { data } = await server.patch<User>(`/users/${userId}/logout`);
+    return data;
+  } catch (error) {
+    extractAxiosError(error, 'logoutUser');
+  }
+}
+
 // only for non-sensitive data like first/last name, profile picture, birthday
 async function editUserData (userId: string, dataToEdit: EditUserData): Promise<User> {
   try {
@@ -131,6 +140,7 @@ export {
   getUser, 
   registerUser, 
   loginUser, 
+  logoutUser, 
   editUserData,
   editUserCredentials,
   editUserPassword,

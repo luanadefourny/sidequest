@@ -2,33 +2,33 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../Context/userContext";
 import { loginUser } from "../../services/userService";
+import type { User } from '../../types';
 
 export default function LoginPage() {
+  const { setUser } = useUser();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setUser } = useUser();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
+    setError(null);
 
     try {
-      const user = await loginUser({
+      const user: User = await loginUser({
         username: username.trim(),
         password: password.trim(),
       });
 
-      if (!user) {
+      if (!user || !user._id) {
         setError("Login failed: No user data returned");
         return;
       }
 
       console.log("Login successful", user);
-      setUser({ id: user._id, username: user.username });
-
-      navigate("/homepage");
+      setUser(user);
+      navigate('/homepage')
     } catch (err: any) {
       console.error("Login error:", err);
       if (err.response?.data?.error) {

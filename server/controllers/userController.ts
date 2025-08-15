@@ -52,7 +52,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const { username, email, password, firstName, lastName, birthday } = parsedBody.data;
+  const { username, email, password, firstName, lastName, birthday, profilePicture } = parsedBody.data;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -71,6 +71,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
       firstName,
       lastName,
       birthday,
+      profilePicture,
     });
 
     res.status(201).json(newUser);
@@ -89,7 +90,7 @@ async function loginUser (req: Request, res: Response): Promise<void> {
   const { username, password } = parsedBody.data;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).select('+password');
     if(!user) {
       res.status(404).json({ error: 'User not found' });
       return;
@@ -110,6 +111,26 @@ async function loginUser (req: Request, res: Response): Promise<void> {
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: 'Failed to login' });
+  }
+}
+
+async function logoutUser (req: Request, res: Response): Promise<void> {
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'No user ID provided' });
+    return;
+  }
+
+  try {
+    const userToLogout = await User.findByIdAndUpdate(userId, { isCurrent: false }, { new: true });
+    if (!userToLogout) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(userToLogout);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to logout' });
   }
 }
 
@@ -169,6 +190,20 @@ async function editUserCredentials (req: Request, res: Response): Promise<void> 
   }
 
   const { username, email } = parsedBody.data;
+
+  if (username || email) {
+    const [usernameTaken, emailTaken] = await Promise.all([
+      username ? User.exists({ username, _id: { $ne: userId } }) : null,
+      email ? User.exists({ email, _id: { $ne: userId } }) : null,
+    ]);
+    if (usernameTaken || emailTaken) {
+      const propertiesTaken: ('username' | 'email')[] = [];
+      if (usernameTaken) propertiesTaken.push('username');
+      if (emailTaken) propertiesTaken.push('email');
+      res.status(409).json({ error: `${propertiesTaken.join(' and ')} already ${propertiesTaken.length === 1 ? 'exist' : 'exists'}` });
+      return;
+    }
+  }
 
   const credentialsToUpdate: {
     username?: string,
@@ -413,6 +448,7 @@ export {
   getUsers,
   registerUser,
   loginUser,
+  logoutUser,
   getUser,
   editUserData,
   editUserCredentials,

@@ -1,83 +1,84 @@
-import NavBar from "../Navbar/navbar";
-import { Link } from "react-router-dom";
+import { useUser } from "../Context/userContext";
+import type { MyQuestsPageProps } from "../../types";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
-import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
-import { useEffect, useState } from "react";
+import FavQuestModal from "../FavQuestModal/FavQuestModal";
+import { useState } from "react";
 
-interface Quest {
-  id: number;
-  title: string;
-  description: string;
-}
+export default function FavQuestList({ myQuests, setMyQuests, myQuestsLoading }: MyQuestsPageProps) {
+    const [showQuestModal, setShowQuestModal] = useState(false);
+    const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+  const { loggedIn } = useUser();
 
-const quests: Quest[] = [
-  { id: 1, title: "Finding Nemo", description: "Don't get eaten by sharks." },
-  { id: 2, title: "Find the One Piece", description: "Defeat sea emperors" },
-  { id: 3, title: "Find the Dragonballs", description: "Defeat Goku" },
-];
+  const favQuests = myQuests.filter((mq) => mq.isFavorite);
 
-export default function FavouritesPage() {
-  const [favorites, setFavorites] = useState<number[]>([]);
-
-  // Load saved favorites from localStorage on mount
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem("favorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
-
-  // Filter quests that are in favorites
-  const myFavQuestList = quests.filter((quest) => favorites.includes(quest.id));
+  if (!loggedIn) {
+    return (
+      <p className="text-center mt-10">
+        Please log in to view your favorite quests.
+      </p>
+    );
+  }
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
-      <NavBar />
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
-        My Favourite Quests
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center">
+        My Favorite Quests
       </h1>
-      {myFavQuestList.length === 0 ? (
-        <p className="text-center text-gray-700 text-lg">
-          You have no favourite quests added yet.{" "}
-          <Link to="/quests" className="text-blue-600 hover:underline">
-            Browse quests
-          </Link>
-        </p>
+
+      {myQuestsLoading ? (
+        <p className="text-center text-gray-600">Loading favorites...</p>
+      ) : favQuests.length === 0 ? (
+        <p className="text-center text-gray-600">No favorite quests yet.</p>
       ) : (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {myFavQuestList.map((quest) => (
-            <div
-              key={quest.id}
-              className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
-            >
-              <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                  {quest.title}
-                </h2>
-                <p className="text-gray-700 text-base leading-relaxed">
-                  {quest.description}
-                </p>
+          {favQuests.map((myQuest) => {
+            if (typeof myQuest.quest === 'string') return null;
+            return (
+              <div
+                key={myQuest.quest._id}
+                className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
+              >
+                <div className="mb-6">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                    {myQuest.quest.name}
+                  </h2>
+                  <p className="text-gray-700 text-base leading-relaxed">
+                    {myQuest.quest.description}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between mt-auto space-x-4">
+                <button
+                    className="flex-grow text-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+                    onClick={() => {
+                      setSelectedQuest(myQuest.quest);
+                      setShowQuestModal(true);
+                    }}
+                  >
+                    View Quest
+                  </button>
+
+                <div className="flex items-center justify-end mt-auto">
+                  <FavouriteButton
+                    questId={myQuest.quest._id}
+                    myQuests={myQuests}
+                    setMyQuests={setMyQuests}
+                  />
+                </div>
+                </div>
               </div>
-              <FavouriteButton questId={quest.id}/>
-              <MyQuestsButton questId={quest.id} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
-      <div className="mt-12 text-center">
-        <Link
-          to="/quests"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          Back to Quests
-        </Link>
-        <Link
-          to="/myquests"
-          className="inline-block px-8 py-3 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 transition font-semibold"
-        >
-          To My Quests
-        </Link>
-      </div>
     </div>
+    <FavQuestModal
+          isVisible={showQuestModal}
+          onClose={() => setShowQuestModal(false)}
+          quest={selectedQuest}
+          myQuests={myQuests}
+          setMyQuests={setMyQuests}
+        />
+    </>
   );
 }
