@@ -2,6 +2,7 @@ import mongoose from './db';
 import User from './models/userModel';
 import Quest from './models/questModel';
 import { faker } from '@faker-js/faker';
+import bcrypt from 'bcryptjs';
 
 // Deterministic so all teammates get the same data
 faker.seed(20250811);

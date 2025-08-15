@@ -3,6 +3,7 @@ import cors from 'cors';
 import userRouter from './routers/userRouter';
 import questRouter from './routers/questRouter';
 import apiRouter from './routers/apiRouter';
+import cookieParser from "cookie-parser";
 
 import path from 'path';
 import dotenv from 'dotenv';
@@ -13,8 +14,12 @@ const PORT: string | undefined = process.env.LOCAL_PORT;
 
 const app: Application = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // your frontend
+  credentials: true, // allow cookies
+}));
 app.use(express.json());
+app.use(cookieParser());
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);

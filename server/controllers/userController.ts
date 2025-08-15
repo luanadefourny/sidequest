@@ -9,7 +9,8 @@ import {
   editUserCredentialsSchema,
   editUserPasswordSchema,
 } from '../validation/userValidationSchemas';
-
+import bcrypt from "bcryptjs";
+import generateToken from '../utils/generateToken';
 
 async function getUsers (req: Request, res: Response): Promise<void> {
   try {
@@ -52,6 +53,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
   }
 
   const { username, email, password, firstName, lastName, birthday, profilePicture } = parsedBody.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     // check that the username and email provided doesn't already belong to a user
@@ -65,7 +67,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
     const newUser = await User.create({
       username,
       email,
-      password, //TODO: hash
+      password: hashedPassword, //TODO: hash
       firstName,
       lastName,
       birthday,
@@ -94,13 +96,17 @@ async function loginUser (req: Request, res: Response): Promise<void> {
       return;
     }
     //TODO: change to bcrypt compare
-    if (user.password !== password) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       res.status(401).json({ error: 'Password is incorrect' });
       return;
     }
     // everything has passed: login
     user.isCurrent = true;
     await user.save();
+
+    const token = generateToken(user._id.toString());
+    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'lax' });
 
     res.status(200).json(user);
   } catch (err) {
@@ -121,7 +127,7 @@ async function logoutUser (req: Request, res: Response): Promise<void> {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-
+    res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'lax' });
     res.status(200).json(userToLogout);
   } catch (err) {
     res.status(500).json({ error: 'Failed to logout' });
