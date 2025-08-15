@@ -127,7 +127,7 @@ async function logoutUser (req: Request, res: Response): Promise<void> {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-
+    res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'lax' });
     res.status(200).json(userToLogout);
   } catch (err) {
     res.status(500).json({ error: 'Failed to logout' });
