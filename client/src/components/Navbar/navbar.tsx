@@ -19,7 +19,6 @@ export default function NavBar() {
     try {
       await logoutUser(userId);
     } catch (err) {
-      // ignore or log
       console.error("Logout failed", err);
     } finally {
       setUser(null);
@@ -51,7 +50,6 @@ export default function NavBar() {
     };
   }, [menuOpen]);
 
-  // nice avatar: initials fallback
   const initials = user?.username
     ? user.username
         .split(" ")
