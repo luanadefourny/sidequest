@@ -9,6 +9,8 @@ faker.seed(20250811);
 
 // Flags
 const CLEAN = process.argv.includes('--clean'); // drop User & Quest before seeding
+const REHASH_PASSWORDS = process.argv.includes('--rehash-passwords');
+const SALT_ROUNDS = 10;
 
 // Config
 const USER_COUNT = 15;   // at least 2 without profilePicture
@@ -64,6 +66,31 @@ function makeLocalEventWindow(tzOffset: number) {
 
 async function run() {
   try {
+    // Optional in-place migration: hash existing plaintext passwords
+    if (REHASH_PASSWORDS && !CLEAN) {
+      const existing = await User.find({}).select('_id password');
+      const ops: any[] = [];
+      for (const u of existing) {
+        const pw: unknown = (u as any).password;
+        const str = typeof pw === 'string' ? pw : '';
+        const alreadyHashed = str.startsWith('$2'); // bcrypt hashes start with $2a/$2b/$2y
+        if (!alreadyHashed && str.length > 0) {
+          const hash = await bcrypt.hash(str, SALT_ROUNDS);
+          ops.push({ updateOne: { filter: { _id: u._id }, update: { $set: { password: hash } } } });
+        }
+      }
+      if (ops.length === 0) {
+        console.log('No plaintext passwords to rehash.');
+      } else {
+        await User.bulkWrite(ops);
+        console.log(`Rehashed ${ops.length} user password(s).`);
+      }
+      await mongoose.disconnect();
+      console.log('Rehash complete.');
+      return;
+    }
+
+
     if (CLEAN) {
       await Promise.all([User.deleteMany({}), Quest.deleteMany({})]);
       console.log('Cleaned User and Quest collections.');
@@ -88,8 +115,15 @@ async function run() {
       } as any;
     });
 
-    await User.insertMany(users);
-    console.log(`Inserted ${users.length} users.`);
+    // await User.insertMany(users);
+    // console.log(`Inserted ${users.length} users.`);
+    
+    // hash all seed user passwords
+    const usersHashed = await Promise.all(
+      users.map(async (u) => ({ ...u, password: await bcrypt.hash(u.password, SALT_ROUNDS) }))
+    );
+    await User.insertMany(usersHashed);
+    console.log(`Inserted ${usersHashed.length} users (passwords hashed).`);
 
     // ---- Quests ----
     const quests: any[] = [];
