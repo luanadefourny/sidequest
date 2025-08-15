@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Quest } from '../../types';
-import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import type { MyQuest } from '../../types';
+import FavouriteButton from "../FavouriteButton/favouriteButton";
 
 interface QuestModalProps {
   isVisible: boolean;
@@ -11,7 +11,7 @@ interface QuestModalProps {
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
 }
 
-export default function QuestModal({ isVisible, onClose, quest, myQuests, setMyQuests }: QuestModalProps) {
+export default function FavQuestModal({ isVisible, onClose, quest, myQuests, setMyQuests }: QuestModalProps) {
   if (!isVisible || !quest) return null;
 
   const handleClose = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -41,7 +41,7 @@ export default function QuestModal({ isVisible, onClose, quest, myQuests, setMyQ
           <h3 className="text-xl font-semibold mb-4">{quest.type}</h3>
           <p className="mb-2">{quest.description}</p>
           <p className="mb-2">Price: {quest.currency} {quest.price}</p>
-          <MyQuestsButton
+          <FavouriteButton
             questId={quest._id}
             myQuests={myQuests}
             setMyQuests={setMyQuests}

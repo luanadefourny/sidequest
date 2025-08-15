@@ -42,7 +42,6 @@ export default function MyQuestModal({ isVisible, onClose, quest, myQuests, setM
           <h3 className="text-xl font-semibold mb-4">{quest.type}</h3>
           <p className="mb-2">{quest.description}</p>
           <p className="mb-2">Price: {quest.currency} {quest.price}</p>
-          {/* Add more quest details here as needed */}
           <MyQuestsButton
             questId={quest._id}
             myQuests={myQuests}
