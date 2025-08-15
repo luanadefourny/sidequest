@@ -1,31 +1,26 @@
 import { RiAddLine, RiCheckboxCircleFill } from "react-icons/ri";
 import { useUser } from "../Context/userContext";
 import { addToMyQuests, removeFromMyQuests } from "../../services/userService";
-import type { MyQuest } from "../../types";
-
-interface MyQuestsButtonProps {
-  questId: string;
-  myQuests: string[];
-  setMyQuests: React.Dispatch<React.SetStateAction<string[]>>;
-}
+import type { MyQuestsButtonProps } from "../../types";
 
 export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQuestsButtonProps) {
   const { user } = useUser();
-  const isInMyQuests = myQuests.includes(questId);
+  const isInMyQuests = myQuests.some((quest) => (typeof quest.quest === 'string' ? quest.quest : quest.quest._id) === questId);
 
   const toggleMyQuest = async () => {
-    if (!user?.id) {
+    if (!user) {
       console.warn("No user logged in");
       return;
     }
 
     try {
+      let updated;
       if (isInMyQuests) {
-        const updated = await removeFromMyQuests(user.id, questId);
-        setMyQuests(updated?.map((q: MyQuest) => q.quest.toString()) || []);
+        updated = await removeFromMyQuests(user._id, questId, 1);
+        setMyQuests(updated || []);
       } else {
-        const updated = await addToMyQuests(user.id, questId);
-        setMyQuests(updated?.map((q: MyQuest) => q.quest.toString()) || []);
+        updated = await addToMyQuests(user._id, questId, 1);
+        setMyQuests(updated || []);
       }
     } catch (error) {
       console.error("Error updating quest:", error);
@@ -35,7 +30,7 @@ export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQue
   return (
     <button
       onClick={toggleMyQuest}
-      disabled={!user?.id}
+      disabled={!user?._id}
       className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition shadow-md ${
         isInMyQuests
           ? "border-green-500 text-green-600 bg-green-100 hover:bg-green-200"

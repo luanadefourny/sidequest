@@ -1,42 +1,40 @@
 import { Link } from "react-router-dom";
-import NavBar from "../Navbar/Navbar";
-import { useEffect, useState } from "react";
-import { useUser } from "../Context/userContext";
-import FavouriteButton from "../FavouriteButton/favouriteButton";
+// import { useEffect, useState } from "react";
+// import { useUser } from "../Context/userContext";
+// import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
-import { getQuests, } from "../../services/questService";
-import { getMyQuests } from "../../services/userService";
-import type { Quest, MyQuest } from "../../types";
+// import { getQuests, } from "../../services/questService";
+// import { getMyQuests } from "../../services/userService";
+import type { QuestsPageProps } from "../../types";
 
-export default function QuestsPage() {
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [myQuests, setMyQuests] = useState<string[]>([]);
-  const { user } = useUser();
+export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPageProps) {
+  // const [quests, setQuests] = useState<Quest[]>([]);
+  // const [myQuests, setMyQuests] = useState<string[]>([]);
+  // const { user } = useUser();
 
   // Fetch all quests
-  useEffect(() => {
-    const fetchQuests = async () => {
-      const data = await getQuests();
-      if (data) setQuests(data);
-    };
-    fetchQuests();
-  }, []);
+  // useEffect(() => {
+  //   const fetchQuests = async () => {
+  //     const data = await getQuests();
+  //     if (data) setQuests(data);
+  //   };
+  //   fetchQuests();
+  // }, []);
 
   // Fetch user's quests
-  useEffect(() => {
-    const fetchMyQuests = async () => {
-      if (!user?.id) return;
-      const data = await getMyQuests(user.id);
-      if (data) {
-        setMyQuests(data.map((q: MyQuest) => q.quest.toString()));
-      }
-    };
-    fetchMyQuests();
-  }, [user]);
+  // useEffect(() => {
+  //   const fetchMyQuests = async () => {
+  //     if (!user?.id) return;
+  //     const data = await getMyQuests(user.id);
+  //     if (data) {
+  //       setMyQuests(data.map((q: MyQuest) => q.quest.toString()));
+  //     }
+  //   };
+  //   fetchMyQuests();
+  // }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
-      <NavBar />
 
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
         Available Quests
@@ -64,8 +62,8 @@ export default function QuestsPage() {
                 View Quest
               </Link>
 
-              <FavouriteButton questId={quest._id}
-               />
+              {/* <FavouriteButton questId={quest._id}
+               /> */}
 
               <MyQuestsButton
                 questId={quest._id}

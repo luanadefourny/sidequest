@@ -1,14 +1,12 @@
-import React from 'react';
-import NavBar from '../Navbar/Navbar';
+import { useUser } from '../Context/userContext';
 
-import type { User } from '../../types';
 
-interface ProfileProps {
-  user: User | null;
-}
-
-const Profile: React.FC<ProfileProps> = ({ user }) => {
-
+export default function ProfilePage() {
+  const { user } = useUser();
+  //! this fixed the rendering
+  const birthDate = user && (typeof user.birthday === 'string' ? new Date(user.birthday) : user.birthday);
+  console.log(user?.profilePicture);
+  
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500">
@@ -19,7 +17,6 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-      <NavBar />
       <div className="flex flex-col sm:flex-row items-center gap-6">
         <img
           src={user.profilePicture}
@@ -32,7 +29,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           <div className="mt-2">
             <p className="text-sm text-gray-700"><strong>Name:</strong> {user.firstName} {user.lastName}</p>
             <p className="text-sm text-gray-700">
-              <strong>Age:</strong> {user.birthday.toLocaleDateString()}
+              <strong>Age:</strong> {birthDate?.toLocaleDateString()}
             </p>
             <p className="text-sm text-gray-700">
               <strong>Followers:</strong> {user.followers.length} | <strong>Following:</strong> {user.following.length}
@@ -57,5 +54,3 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
     </div>
   );
 };
-
-export default Profile;

@@ -5,25 +5,26 @@ import { useUser } from "../Context/userContext";
 import { logoutUser } from "../../services/userService";
 
 export default function NavBar() {
- const [menuOpen, setMenuOpen] = useState(false);
- const navigate = useNavigate();
- const { user, setUser } = useUser();
-
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, setUser } = useUser();
+  
   const handleLogout = async () => {
-    if (user?.id) {
-      await logoutUser(user.id);
+    setMenuOpen(false);
+    if (user?._id) {
+      await logoutUser(user._id);
       setUser(null);
+      navigate('/');
     }
-    navigate("/");
   };
 
  return (
    <nav className="navbar">
      <ul className="flex items-center space-x-6 bg-white p-4 rounded-lg shadow-md justify-between w-full">
        <li>
-         <a href="/homepage" className="text-blue-600 hover:text-blue-800 font-semibold">
-           <img src="/home.png" alt="Home" className="inline-block mr-2 h-7" />
-         </a>
+        <Link to="/homepage" className="text-blue-600 hover:text-blue-800 font-semibold">
+          <img src="/home.png" alt="Home" className="inline-block mr-2 h-7" />
+        </Link>
        </li>
        <li className="relative ml-auto">
          <button
@@ -39,10 +40,10 @@ export default function NavBar() {
          </button>
          {menuOpen && (
            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg z-10">
-              <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</Link>
-              <Link to="/quests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Available Quests</Link>
-              <Link to="/myquests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Quests</Link>
-              <Link to="/favquestlist" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favourite Quests</Link>
+              <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => setMenuOpen(false)} >Profile</Link>
+              {/* <Link to="/quests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Available Quests</Link> */}
+              <Link to="/myquests" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => setMenuOpen(false)} >My Quests</Link>
+              <Link to="/favquestlist" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={() => setMenuOpen(false)} >Favourite Quests</Link>
               <div
                 className="content-center flex justify-center px-2 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer"
                 onClick={handleLogout}
