@@ -84,9 +84,11 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
       </div>
     </div>
     <QuestModal
-    isVisible={showQuestModal}
-    onClose={() => setShowQuestModal(false)}
-    quest={selectedQuest}
+      isVisible={showQuestModal}
+      onClose={() => setShowQuestModal(false)}
+      quest={selectedQuest}
+      myQuests={myQuests}
+      setMyQuests={setMyQuests}
     />
     </>
   );

@@ -2,9 +2,14 @@ import { Link } from "react-router-dom";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import type { MyQuestsPageProps } from "../../types";
+import MyQuestModal from "../MyQuestModal/MyQuestModal";
+import { useState } from "react";
 
 export default function MyQuestsPage({ myQuests, setMyQuests, myQuestsLoading }: MyQuestsPageProps) {
+  const [showQuestModal, setShowQuestModal] = useState(false);
+  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
   return (
+    <>
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
 
       <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
@@ -35,12 +40,22 @@ export default function MyQuestsPage({ myQuests, setMyQuests, myQuestsLoading }:
                 </div>
 
                 <div className="flex items-center justify-between mt-auto space-x-4">
-                  <FavouriteButton
+
+                  <MyQuestsButton
                     questId={myQuest.quest._id}
                     myQuests={myQuests}
                     setMyQuests={setMyQuests}
                   />
-                  <MyQuestsButton
+                  <button
+                    className="flex-grow text-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+                    onClick={() => {
+                      setSelectedQuest(myQuest.quest);
+                      setShowQuestModal(true);
+                    }}
+                  >
+                    View Quest
+                  </button>
+                  <FavouriteButton
                     questId={myQuest.quest._id}
                     myQuests={myQuests}
                     setMyQuests={setMyQuests}
@@ -52,5 +67,13 @@ export default function MyQuestsPage({ myQuests, setMyQuests, myQuestsLoading }:
         </div>
       )}
     </div>
+    <MyQuestModal
+      isVisible={showQuestModal}
+      onClose={() => setShowQuestModal(false)}
+      quest={selectedQuest}
+      myQuests={myQuests}
+      setMyQuests={setMyQuests}
+    />
+</>
   );
 }
