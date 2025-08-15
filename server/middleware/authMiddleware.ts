@@ -9,20 +9,18 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const authenticateJWT = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1];
+  const token = req.cookies?.token;
 
   if (!token) {
     res.status(403).json({ error: "No token provided" });
     return;
   }
 
-  jwt.verify(token, process.env.JWT_SECRET as string, (err, user) => {
-    if (err) {
-      res.status(403).json({ error: "Invalid token" });
-      return;
-    }
-    req.user = user;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    req.user = decoded;
     next();
-  });
+  } catch (err) {
+    res.status(403).json({ error: "Invalid token" });
+  }
 };

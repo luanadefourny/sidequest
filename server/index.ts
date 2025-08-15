@@ -3,6 +3,7 @@ import cors from 'cors';
 import userRouter from './routers/userRouter';
 import questRouter from './routers/questRouter';
 import apiRouter from './routers/apiRouter';
+import cookieParser from "cookie-parser";
 
 import path from 'path';
 import dotenv from 'dotenv';
@@ -18,6 +19,7 @@ app.use(cors({
   credentials: true, // allow cookies
 }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
