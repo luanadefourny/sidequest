@@ -1,19 +1,15 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../Context/userContext";
 import { loginUser } from "../../services/userService";
 import type { User } from '../../types';
 
 export default function LoginPage() {
-  const { setUser, loggedIn } = useUser();
+  const { setUser } = useUser();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (loggedIn) navigate('/homepage');
-  // }, [loggedIn, navigate]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,7 +27,7 @@ export default function LoginPage() {
       }
 
       console.log("Login successful", user);
-      setUser(user); //TODO handle id calls
+      setUser(user);
       navigate('/homepage')
     } catch (err: any) {
       console.error("Login error:", err);

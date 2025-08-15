@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IoIosLogOut } from "react-icons/io";
 import { useUser } from "../Context/userContext";
@@ -7,13 +7,8 @@ import { logoutUser } from "../../services/userService";
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, setUser, loggedIn } = useUser();
-
-  // useEffect(() => {
-  //   setMenuOpen(false);
-  //   if (!loggedIn) navigate('/');
-  // }, [loggedIn, navigate]);
-
+  const { user, setUser } = useUser();
+  
   const handleLogout = async () => {
     setMenuOpen(false);
     if (user?._id) {

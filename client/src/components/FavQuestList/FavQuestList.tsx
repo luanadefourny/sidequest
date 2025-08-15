@@ -1,29 +1,9 @@
-import { useEffect } from "react";
 import { useUser } from "../Context/userContext";
-import { getMyQuests } from "../../services/userService";
 import type { MyQuestsPageProps } from "../../types";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 
 export default function FavQuestList({ myQuests, setMyQuests, myQuestsLoading }: MyQuestsPageProps) {
-  const { user, loggedIn } = useUser();
-
-  // useEffect(() => {
-  //   if (!loggedIn) {
-  //     setMyQuests([]);
-  //     return;
-  //   }
-
-  //   async function fetchPopulatedMyQuests() {
-  //     try {
-  //       const populatedQuests = await getMyQuests(user!._id, 1);
-  //       setMyQuests(populatedQuests ?? []);
-  //     } catch (error) {
-  //       setMyQuests([]);
-  //       console.log(error);
-  //     }
-  //   }
-  //   fetchPopulatedMyQuests();
-  // }, [loggedIn]);
+  const { loggedIn } = useUser();
 
   const favQuests = myQuests.filter((mq) => mq.isFavorite);
 

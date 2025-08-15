@@ -1,30 +1,9 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
-import { useUser } from "../Context/userContext";
-import { getMyQuests } from "../../services/userService";
 import FavouriteButton from "../FavouriteButton/favouriteButton";
 import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
 import type { MyQuestsPageProps } from "../../types";
 
 export default function MyQuestsPage({ myQuests, setMyQuests, myQuestsLoading }: MyQuestsPageProps) {
-  const { user, loggedIn } = useUser();
-
-  // useEffect(() => {
-  //   if (!loggedIn) return;
-  //   async function fetchPopulatedMyQuests() {
-  //     try {
-  //       const populatedQuests = await getMyQuests(user!._id, 1);
-  //       setMyQuests(populatedQuests ?? []);
-  //     } catch (error) {
-  //       setMyQuests([]);
-  //       console.log(error);
-  //     }
-  //   }
-
-  //   fetchPopulatedMyQuests();
-  // }, [loggedIn]);
-  console.log(myQuests);
-
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
 
