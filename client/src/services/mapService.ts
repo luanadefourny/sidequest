@@ -59,13 +59,13 @@ async function loadMarkers(map: google.maps.Map, bounds: google.maps.LatLngBound
       } else {
           // If no markers, center on fallback location
           map.setCenter({ lat: latitude, lng: longitude });
-          map.setZoom(17);
+          map.setZoom(15);
       }
         
       } catch (error) {
         console.error("Error loading OpenTripMap data:", error);
         map.setCenter({ lat: latitude, lng: longitude });
-        map.setZoom(17);
+        map.setZoom(15);
       }
     }
     //! mock data call ends here
