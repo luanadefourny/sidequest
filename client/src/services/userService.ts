@@ -14,6 +14,7 @@ import type {
 const server = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true
 });
 
 async function getUsers (): Promise<User[]> {
