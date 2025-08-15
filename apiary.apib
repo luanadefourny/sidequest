@@ -467,3 +467,90 @@ Return a single quest.
 + Response 500 (application/json)
     + Attributes (object)
         + error: `Failed to fetch quest`
+
+# Group Map Data
+
+## Get OpenTripMap features by radius [GET /api/opentripmap{?latitude,longitude,radius}]
+Return GeoJSON features from OpenTripMap within a radius.
+
++ Parameters
+    + latitude: `50.9090` (number, required)
+    + longitude: `-1.4040` (number, required)
+    + radius: `10000` (number, optional) - meters
+
++ Response 200 (application/json)
+    + Body
+            [
+              {
+                "type": "Feature",
+                "id": "N123",
+                "geometry": { "type": "Point", "coordinates": [ -1.404, 50.909 ] },
+                "properties": {
+                  "xid": "W123456",
+                  "name": "City Park",
+                  "kinds": "gardens_and_parks,sights"
+                }
+              }
+            ]
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing coordinates`
+
++ Response 502 (application/json)
+    + Attributes (object)
+        + error: `Something went wrong`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Some server error in opentripmap controller`
+
+## Get OpenTripMap place details [GET /api/opentripmap/details/{xid}]
+Return details for a single OpenTripMap place.
+
++ Parameters
+    + xid: `W123456` (string)
+
++ Response 200 (application/json)
+    + Body
+            {
+              "xid": "W123456",
+              "name": "City Park",
+              "address": { "city": "Southampton", "country": "United Kingdom" },
+              "preview": { "source": "https://images.example.com/city-park.jpg" },
+              "wikipedia_extracts": { "text": "A lovely public park..." }
+            }
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch OpenTripMap details`
+
+## Get SerpAPI events for a location [GET /api/serpapi{?latitude,longitude}]
+Return Google Events scraped by SerpAPI for the reverse‑geocoded location.
+
++ Parameters
+    + latitude: `50.9090` (number, required)
+    + longitude: `-1.4040` (number, required)
+
++ Response 200 (application/json)
+    + Body
+            [
+              {
+                "title": "Summer Street Market",
+                "when": "Sat, 20 Sep, 12:00 – 18:00",
+                "address": "High St, Southampton",
+                "link": "https://www.google.com/maps/event?..."
+              }
+            ]
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing coordinates`
+
++ Response 502 (application/json)
+    + Attributes (object)
+        + error: `Something went wrong`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Some server error in opentripmap controller`
