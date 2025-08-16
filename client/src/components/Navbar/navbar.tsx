@@ -135,6 +135,14 @@ export default function NavBar() {
                   >
                     Favourite Quests
                   </Link>
+                  <Link
+                    to="/editprofile"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Edit Profile
+                  </Link>
 
                   <div
                     role="menuitem"
