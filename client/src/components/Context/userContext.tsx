@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useMemo, useEffect } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+import { STORAGE_KEY } from '../../constants';
 import type { User, UserContextType } from '../../types';
-import { STORAGE_KEY } from "../../constants";
 
 const isBrowser = typeof window !== 'undefined';
 
@@ -12,7 +13,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (!isBrowser) return null;
     try {
       const info = window.localStorage.getItem(STORAGE_KEY);
-      return info ? (JSON.parse(info)) : null;
+      return info ? JSON.parse(info) : null;
     } catch (error) {
       console.log(error);
       return null;
@@ -21,8 +22,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isBrowser) return;
-    function onStorage (event: StorageEvent) {
-      if (event.key === STORAGE_KEY) setUser(event.newValue ? (JSON.parse(event.newValue)) : null);
+    function onStorage(event: StorageEvent) {
+      if (event.key === STORAGE_KEY) setUser(event.newValue ? JSON.parse(event.newValue) : null);
     }
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
@@ -38,14 +39,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-
-  const value = useMemo(() =>({ user, setUser, loggedIn: user !== null }), [user]);
-  return <UserContext.Provider value={ value }>{ children }</UserContext.Provider>
+  const value = useMemo(() => ({ user, setUser, loggedIn: user !== null }), [user]);
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useUser() {
   const context = useContext(UserContext);
-  if (!context) throw new Error("useUser must be used within a UserProvider");
+  if (!context) throw new Error('useUser must be used within a UserProvider');
   return context;
 }

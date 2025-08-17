@@ -1,18 +1,21 @@
 import { Request, Response } from 'express';
+
 import Quest from '../models/questModel';
 
-async function getQuests (req: Request, res: Response): Promise<void> {
+async function getQuests(req: Request, res: Response): Promise<void> {
   try {
     //optional query parameters for filtering on the backend
     const {
-      type,                           // 'event' | 'place' | 'activity'
-      ageRestricted,                  // '0' | '1'
-      priceMin, priceMax,             // numbers
-      currency,                       // 'GBP' | 'EUR' | ...
-      startAfter, endBefore,          // ISO dates
-      near,                           // 'lon,lat'
-      radius,                         // meters
-      limit,                          // max results to return (default will be 50)
+      type, // 'event' | 'place' | 'activity'
+      ageRestricted, // '0' | '1'
+      priceMin,
+      priceMax, // numbers
+      currency, // 'GBP' | 'EUR' | ...
+      startAfter,
+      endBefore, // ISO dates
+      near, // 'lon,lat'
+      radius, // meters
+      limit, // max results to return (default will be 50)
     } = req.query;
 
     interface QuestFilter {
@@ -40,8 +43,10 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       if (priceMax) quest.price.$lte = Number(priceMax);
     }
     if (currency && typeof currency === 'string') quest.currency = currency.toUpperCase();
-    if (startAfter && typeof startAfter === 'string') quest.startAt = { ...(quest.startAt || {}), $gte: new Date(startAfter) };
-    if (endBefore && typeof endBefore === 'string') quest.endAt = { ...(quest.endAt || {}), $lte: new Date(endBefore) };
+    if (startAfter && typeof startAfter === 'string')
+      quest.startAt = { ...(quest.startAt || {}), $gte: new Date(startAfter) };
+    if (endBefore && typeof endBefore === 'string')
+      quest.endAt = { ...(quest.endAt || {}), $lte: new Date(endBefore) };
     if (near && typeof near === 'string') {
       const [longitudeString, latitudeString] = near.split(',');
       const longitude = Number(longitudeString);
@@ -49,8 +54,8 @@ async function getQuests (req: Request, res: Response): Promise<void> {
       quest.location = {
         $near: {
           $geometry: { type: 'Point', coordinates: [longitude, latitude] },
-          $maxDistance: Number(radius ?? 3000)
-        }
+          $maxDistance: Number(radius ?? 3000),
+        },
       };
     }
 
@@ -69,13 +74,13 @@ async function getQuests (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function getQuest (req: Request, res: Response): Promise<void> {
+async function getQuest(req: Request, res: Response): Promise<void> {
   const { questId } = req.params;
   if (!questId) {
     res.status(400).json({ error: 'Missing questId parameter' });
     return;
   }
-  
+
   try {
     const quest = await Quest.findById(questId);
     if (!quest) {
@@ -88,7 +93,4 @@ async function getQuest (req: Request, res: Response): Promise<void> {
   }
 }
 
-export {
-  getQuests,
-  getQuest,
-}
+export { getQuest, getQuests };

@@ -1,5 +1,6 @@
+import { Document, Model, Schema, Types } from 'mongoose';
+
 import mongoose from '../db';
-import { Model, Types, Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -25,54 +26,60 @@ export interface IUser extends Document {
     location: {
       type: 'Point';
       coordinates: [number, number]; // [lon, lat]
-    }
+    };
   }[];
 }
 
-const MyQuestSchema = new Schema({
-  quest: {
-    type: Schema.ObjectId,
-    ref: 'Quest',
-    required: true,
-  },
-  isFavorite: {
-    type: Boolean,
-    default: false,
-  },
-}, { _id: false });
-
-const MyLocationSchema = new Schema({
-  label: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  name: {
-    type: String,
-    required: false,
-    trim: true,
-  },
-  address: {
-    type: String,
-    required: false,
-    trim: true,
-  },
-  location: {
-    type: {
-      type: String,
-      enum: ['Point'],
+const MyQuestSchema = new Schema(
+  {
+    quest: {
+      type: Schema.ObjectId,
+      ref: 'Quest',
       required: true,
     },
-    coordinates: {
-      type: [Number],
+    isFavorite: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: false },
+);
+
+const MyLocationSchema = new Schema(
+  {
+    label: {
+      type: String,
       required: true,
-      validate: {
-        validator: (v: number[]) => Array.isArray(v) && v.length === 2,
-        message: 'coordinates must be [longitude, latitude]'
-      }
-    }
-  }
-}, { _id: false });
+      trim: true,
+    },
+    name: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    address: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+        validate: {
+          validator: (v: number[]) => Array.isArray(v) && v.length === 2,
+          message: 'coordinates must be [longitude, latitude]',
+        },
+      },
+    },
+  },
+  { _id: false },
+);
 
 const UserSchema = new mongoose.Schema<IUser>({
   username: {
@@ -109,20 +116,24 @@ const UserSchema = new mongoose.Schema<IUser>({
   },
   isCurrent: {
     type: Boolean,
-    default: false
+    default: false,
   },
   following: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'User',
-    }],
+    type: [
+      {
+        type: Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
     default: [],
   },
   followers: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'User',
-    }],
+    type: [
+      {
+        type: Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
     default: [],
   },
   profilePicture: {
@@ -143,7 +154,11 @@ const UserSchema = new mongoose.Schema<IUser>({
 UserSchema.index({ 'myLocations.location': '2dsphere' });
 //doesn't let the password or __v get returned
 UserSchema.set('toJSON', {
-  transform(_doc: IUser, ret: Partial<IUser>) { delete ret.password; delete ret.__v; return ret; }
+  transform(_doc: IUser, ret: Partial<IUser>) {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  },
 });
 
 const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);

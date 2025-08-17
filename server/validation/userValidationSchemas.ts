@@ -3,7 +3,8 @@ import { z } from 'zod';
 const registerSchema = z.object({
   username: z.string().min(3).max(32),
   email: z.email(),
-  password: z.string()
+  password: z
+    .string()
     .min(8)
     .regex(/[A-Z]/, 'one uppercase')
     .regex(/[a-z]/, 'one lowercase')
@@ -18,7 +19,8 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   username: z.string().min(3).max(32),
-  password: z.string()
+  password: z
+    .string()
     .min(8)
     .regex(/[A-Z]/, 'one uppercase')
     .regex(/[a-z]/, 'one lowercase')
@@ -40,7 +42,8 @@ const editUserCredentialsSchema = z.object({
 });
 
 const editUserPasswordSchema = z.object({
-  newPassword: z.string()
+  newPassword: z
+    .string()
     .min(8)
     .regex(/[A-Z]/, 'one uppercase')
     .regex(/[a-z]/, 'one lowercase')
@@ -49,10 +52,10 @@ const editUserPasswordSchema = z.object({
     .max(24),
 });
 
-export { 
-  registerSchema, 
-  loginSchema, 
-  editUserDataSchema, 
-  editUserCredentialsSchema, 
-  editUserPasswordSchema, 
-}
+export {
+  editUserCredentialsSchema,
+  editUserDataSchema,
+  editUserPasswordSchema,
+  loginSchema,
+  registerSchema,
+};

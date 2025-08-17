@@ -1,8 +1,9 @@
-import mongoose from './db';
-import User from './models/userModel';
-import Quest from './models/questModel';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
+
+import mongoose from './db';
+import Quest from './models/questModel';
+import User from './models/userModel';
 
 // Deterministic so all teammates get the same data
 faker.seed(20250811);
@@ -13,7 +14,7 @@ const REHASH_PASSWORDS = process.argv.includes('--rehash-passwords');
 const SALT_ROUNDS = 10;
 
 // Config
-const USER_COUNT = 15;   // at least 2 without profilePicture
+const USER_COUNT = 15; // at least 2 without profilePicture
 const QUEST_COUNT = 100; // mix of event/place/activity
 
 // Frontend should serve from /public/profile-pics/*.jpg
@@ -32,10 +33,10 @@ const PROFILE_PICS = [
 
 // Target clusters with simple local-time offsets (summer time assumed)
 const CLUSTERS: Record<string, { lon: number; lat: number; tzOffset: number }> = {
-  brussels:     { lon: 4.3517,  lat: 50.8503, tzOffset: 2 }, // CEST
-  southampton:  { lon: -1.4043, lat: 50.9097, tzOffset: 1 }, // BST
-  shropshire:   { lon: -2.7160, lat: 52.7063, tzOffset: 1 }, // BST
-  durres:       { lon: 19.4462, lat: 41.3231, tzOffset: 2 }, // CEST
+  brussels: { lon: 4.3517, lat: 50.8503, tzOffset: 2 }, // CEST
+  southampton: { lon: -1.4043, lat: 50.9097, tzOffset: 1 }, // BST
+  shropshire: { lon: -2.716, lat: 52.7063, tzOffset: 1 }, // BST
+  durres: { lon: 19.4462, lat: 41.3231, tzOffset: 2 }, // CEST
 };
 
 const CLUSTER_KEYS = Object.keys(CLUSTERS);
@@ -55,12 +56,20 @@ function makeLocalEventWindow(tzOffset: number) {
   const localEndHour = Math.min(localStartHour + durationHours, 21);
 
   // Convert local to UTC by subtracting tzOffset
-  const start = new Date(Date.UTC(
-    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), localStartHour - tzOffset, 0, 0, 0
-  ));
-  const end = new Date(Date.UTC(
-    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), localEndHour - tzOffset, 0, 0, 0
-  ));
+  const start = new Date(
+    Date.UTC(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate(),
+      localStartHour - tzOffset,
+      0,
+      0,
+      0,
+    ),
+  );
+  const end = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), localEndHour - tzOffset, 0, 0, 0),
+  );
   return { start, end };
 }
 
@@ -90,7 +99,6 @@ async function run() {
       return;
     }
 
-
     if (CLEAN) {
       await Promise.all([User.deleteMany({}), Quest.deleteMany({})]);
       console.log('Cleaned User and Quest collections.');
@@ -117,10 +125,10 @@ async function run() {
 
     // await User.insertMany(users);
     // console.log(`Inserted ${users.length} users.`);
-    
+
     // hash all seed user passwords
     const usersHashed = await Promise.all(
-      users.map(async (u) => ({ ...u, password: await bcrypt.hash(u.password, SALT_ROUNDS) }))
+      users.map(async (u) => ({ ...u, password: await bcrypt.hash(u.password, SALT_ROUNDS) })),
     );
     await User.insertMany(usersHashed);
     console.log(`Inserted ${usersHashed.length} users (passwords hashed).`);
@@ -148,7 +156,7 @@ async function run() {
         type: qType,
         // Matches your current nested LocationSchema:
         // location: { location: { type: 'Point', coordinates: [lon, lat] } }
-      location: {
+        location: {
           type: 'Point',
           coordinates: [qLon, qLat],
         },

@@ -1,9 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-import { UserProvider } from './components/Context/userContext.tsx'
-import { BrowserRouter } from 'react-router-dom'
+import './index.css';
+
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+import App from './App.tsx';
+import { UserProvider } from './components/Context/userContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <UserProvider>
@@ -12,5 +14,5 @@ createRoot(document.getElementById('root')!).render(
         <App />
       </BrowserRouter>
     </StrictMode>
-  </UserProvider>
-)
+  </UserProvider>,
+);

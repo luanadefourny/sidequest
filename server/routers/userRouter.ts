@@ -1,18 +1,21 @@
 import express, { Router } from 'express';
-import { 
-  getUsers, 
-  registerUser, 
-  loginUser,
-  logoutUser, 
-  getUser, 
-  editUserData, 
-  editUserCredentials,
-  editUserPassword,
-  getMyQuests,
-  getMyQuest,
+
+import {
   addToMyQuests,
+  editUserCredentials,
+  editUserData,
+  editUserPassword,
+  getMyQuest,
+  getMyQuests,
+  getUser,
+  getUsers,
+  loginUser,
+  logoutUser,
+  profilePictureUpload,
+  registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  uploadProfilePicture,
 } from '../controllers/userController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
@@ -26,6 +29,12 @@ router.post('/login', loginUser); //TODO change with auth
 router.patch('/users/:userId/logout', logoutUser);
 
 router.patch('/users/:userId', authenticateJWT, editUserData);
+router.post(
+  '/uploads/profile-picture',
+  authenticateJWT,
+  profilePictureUpload.single('file'),
+  uploadProfilePicture,
+);
 router.patch('/users/:userId/credentials', authenticateJWT, editUserCredentials);
 router.patch('/users/:userId/password', authenticateJWT, editUserPassword);
 

@@ -1,13 +1,13 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 type GeoPoint = {
   type: 'Point';
   coordinates: [number, number]; // [lon, lat]
-}
+};
 type Location = {
   longitude: string;
   latitude: string;
-}
+};
 
 type User = {
   _id: string;
@@ -28,7 +28,7 @@ type User = {
     address?: string; //325 somethign road, SO15 1QE
     location: GeoPoint; //[lon, lat]
   }[];
-}
+};
 
 type PublicUserData = {
   _id: string;
@@ -37,7 +37,7 @@ type PublicUserData = {
   lastName: string;
   profilePicture: string;
   birthday: Date;
-}
+};
 
 type Quest = {
   _id: string;
@@ -53,7 +53,7 @@ type Quest = {
   description?: string;
   source?: string;
   sourceId?: string;
-}
+};
 
 interface RegisterUserData {
   username: string;
@@ -88,7 +88,7 @@ interface MyQuest {
 
 interface FavouriteButtonProps {
   questId: string;
-  initialIsFavorite?: boolean; 
+  initialIsFavorite?: boolean;
 }
 
 type QuestFilters = {
@@ -96,22 +96,22 @@ type QuestFilters = {
   ageRestricted?: '0' | '1';
   priceMin?: number | string;
   priceMax?: number | string;
-  currency?: string;               // e.g. 'GBP' | 'EUR'
-  startAfter?: string;             // ISO
-  endBefore?: string;              // ISO
-  near?: string;                   // "lon,lat"
-  radius?: number | string;        // meters
+  currency?: string; // e.g. 'GBP' | 'EUR'
+  startAfter?: string; // ISO
+  endBefore?: string; // ISO
+  near?: string; // "lon,lat"
+  radius?: number | string; // meters
   limit?: number;
 };
 
 type ErrorBody = {
   error?: string;
   message?: string;
-}
+};
 
 type LayoutProps = {
   children: ReactNode;
-}
+};
 
 type UserContextType = {
   user: User | null;
@@ -121,10 +121,10 @@ type UserContextType = {
 
 interface HomePageProps {
   location: Location | null;
-  setLocation: React.Dispatch<React.SetStateAction<Location| null>>;
+  setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
 }
 interface MapComponentProps {
-  setLocation: React.Dispatch<React.SetStateAction<Location| null>>;
+  setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
 }
 interface QuestsPageProps {
   quests: Quest[];
@@ -142,25 +142,24 @@ interface MyQuestsPageProps {
   myQuestsLoading: boolean;
 }
 
-
-export type { 
-  Location,
-  User, 
-  PublicUserData,
-  Quest, 
-  RegisterUserData, 
-  LoginUserData,
-  EditUserData, 
+export type {
   Credentials,
-  QuestFilters, 
-  MyQuest,
-  FavouriteButtonProps,
+  EditUserData,
   ErrorBody,
-  LayoutProps,
-  UserContextType,
+  FavouriteButtonProps,
   HomePageProps,
+  LayoutProps,
+  Location,
+  LoginUserData,
   MapComponentProps,
-  QuestsPageProps,
+  MyQuest,
   MyQuestsButtonProps,
   MyQuestsPageProps,
-}
+  PublicUserData,
+  Quest,
+  QuestFilters,
+  QuestsPageProps,
+  RegisterUserData,
+  User,
+  UserContextType,
+};

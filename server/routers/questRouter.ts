@@ -1,8 +1,6 @@
 import express, { Router } from 'express';
-import {
-  getQuests,
-  getQuest,
-} from '../controllers/questController';
+
+import { getQuest, getQuests } from '../controllers/questController';
 
 const router: Router = express.Router();
 

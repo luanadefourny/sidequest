@@ -1,8 +1,10 @@
 import './TestComponent.css';
+
 import { useEffect, useRef } from 'react';
+
 import { initMap } from '../../services/mapService';
 
-function TestComponent () {
+function TestComponent() {
   /*const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -11,10 +13,7 @@ function TestComponent () {
     }
   }, []);
   */
-  return (
-    <div className="testComponent-container">
-    </div>
-  );
+  return <div className="testComponent-container"></div>;
 }
 
 export default TestComponent;

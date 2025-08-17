@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY!;
 
-async function geocodeLocation(latitude: Number, longitude: Number) {
+async function geocodeLocation(latitude: number, longitude: number) {
   const GOOGLE_KEY = process.env.GOOGLE_MAPS_KEY;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_KEY}`;
   const res = await fetch(url);
@@ -18,7 +18,7 @@ export async function getSerpEvents(request: Request, response: Response) {
   const locationName = await geocodeLocation(Number(latitude), Number(longitude));
 
   if (!latitude || !longitude) {
-    return response.status(400).json({ error: "Missing coordinates"});
+    return response.status(400).json({ error: 'Missing coordinates' });
   }
 
   try {
@@ -27,13 +27,13 @@ export async function getSerpEvents(request: Request, response: Response) {
     const responseData = await fetch(url as string);
 
     if (!responseData.ok) {
-      return response.status(responseData.status).json({ error: "Something went wrong" });
+      return response.status(responseData.status).json({ error: 'Something went wrong' });
     }
 
     const parsedData = await responseData.json();
     return response.json(parsedData.events);
   } catch (error) {
-    response.status(500).json({ error: "Some server error in opentripmap controller"})
+    response.status(500).json({ error: 'Some server error in opentripmap controller' });
   }
 }
 

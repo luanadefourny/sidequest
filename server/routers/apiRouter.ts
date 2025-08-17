@@ -1,5 +1,9 @@
 import express, { Router } from 'express';
-import { getOpenTripMapEventImage, getOpenTripMapEvents } from '../controllers/opentripmapController';
+
+import {
+  getOpenTripMapEventImage,
+  getOpenTripMapEvents,
+} from '../controllers/opentripmapController';
 import { getSerpEvents } from '../controllers/serpapiController';
 
 const router: Router = express.Router();
