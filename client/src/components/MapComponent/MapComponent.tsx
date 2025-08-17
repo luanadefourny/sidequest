@@ -1,7 +1,9 @@
 import './MapComponent.css';
+
 import { useEffect, useState } from 'react';
-import { initMap, getMarkerPosition } from '../../services/mapService';
-import { IoIosSearch } from "react-icons/io";
+import { IoIosSearch } from 'react-icons/io';
+
+import { getMarkerPosition, initMap } from '../../services/mapService';
 import type { MapComponentProps } from '../../types';
 
 declare global {
@@ -34,7 +36,6 @@ function loadGoogleMapsScript(onLoad: () => void) {
 }
 
 export default function MapComponent({ setLocation }: MapComponentProps) {
-
   const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
@@ -47,20 +48,19 @@ export default function MapComponent({ setLocation }: MapComponentProps) {
       const position = getMarkerPosition();
       if (position) {
         const [lon, lat] = position.split(','); //TODO i'm an idiot and mihai should change how they are returned hehe
-        setLocation({ longitude: lon, latitude: lat});
+        setLocation({ longitude: lon, latitude: lat });
       }
     });
   }, []);
 
   useEffect(() => {
-    function onMarkerChange (event: Event) {
+    function onMarkerChange(event: Event) {
       const { lon, lat } = (event as CustomEvent<{ lon: number; lat: number }>).detail;
       setLocation({ longitude: String(lon), latitude: String(lat) });
     }
 
     window.addEventListener('markerpositionchange', onMarkerChange);
-    return () => window.removeEventListener('markerpositionchange', onMarkerChange)
-
+    return () => window.removeEventListener('markerpositionchange', onMarkerChange);
   }, [setLocation]);
 
   return (
@@ -73,7 +73,7 @@ export default function MapComponent({ setLocation }: MapComponentProps) {
         id="pac-input"
         type="text"
         placeholder="Search places"
-        style={{ visibility: showInput ? "visible" : "hidden" }}
+        style={{ visibility: showInput ? 'visible' : 'hidden' }}
         className="absolute text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow"
       />
       <div id="map"></div>

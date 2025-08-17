@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { IoIosLogOut } from "react-icons/io";
-import { useUser } from "../Context/userContext";
-import { logoutUser } from "../../services/userService";
+import { useEffect, useRef, useState } from 'react';
+import { IoIosLogOut } from 'react-icons/io';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { logoutUser } from '../../services/userService';
+import { useUser } from '../Context/userContext';
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,18 +12,16 @@ export default function NavBar() {
   const navigate = useNavigate();
   const { user, setUser } = useUser();
 
-  const userId = (user as any)?._id ?? (user as any)?.id ?? null;
-
   const handleLogout = async () => {
     setMenuOpen(false);
-    if (!userId) return;
+    if (!user) return;
     try {
-      await logoutUser(userId);
+      await logoutUser(user._id);
     } catch (err) {
-      console.error("Logout failed", err);
+      console.error('Logout failed', err);
     } finally {
       setUser(null);
-      navigate("/");
+      navigate('/');
     }
   };
 
@@ -40,24 +39,24 @@ export default function NavBar() {
       }
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === 'Escape') setMenuOpen(false);
     }
-    document.addEventListener("click", onDocClick);
-    document.addEventListener("keydown", onKey);
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener("click", onDocClick);
-      document.removeEventListener("keydown", onKey);
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onKey);
     };
   }, [menuOpen]);
 
-  const initials = user?.username
-    ? user.username
-        .split(" ")
+  const initials = user!.username
+    ? user!.username
+        .split(' ')
         .map((s: string) => s[0])
         .slice(0, 2)
-        .join("")
+        .join('')
         .toUpperCase()
-    : "U";
+    : 'U';
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
@@ -73,13 +72,13 @@ export default function NavBar() {
             </Link>
           </div>
 
-        
-
           {/* Right: Avatar / menu */}
           <div className="flex items-center gap-3">
             {/* show username on md+ (optional) */}
             {user?.username && (
-              <div className="hidden md:block text-sm text-gray-700 font-medium">{user.username}</div>
+              <div className="hidden md:block text-sm text-gray-700 font-medium">
+                {user.username}
+              </div>
             )}
 
             {/* Avatar button */}
@@ -90,14 +89,23 @@ export default function NavBar() {
                 aria-expanded={menuOpen}
                 aria-controls="nav-menu"
                 className="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition focus:outline-none focus:ring-2 focus:ring-blue-300"
-                title={user?.username ? `Account (${user.username})` : "Account"}
+                title={user?.username ? `Account (${user.username})` : 'Account'}
               >
                 <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold">
                   {initials}
                 </div>
 
-                <svg className="w-4 h-4 text-gray-600 hidden sm:inline" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
+                <svg
+                  className="w-4 h-4 text-gray-600 hidden sm:inline"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
 

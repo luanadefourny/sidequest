@@ -1,7 +1,8 @@
 import React from 'react';
+
 import type { Quest } from '../../types';
 import type { MyQuest } from '../../types';
-import FavouriteButton from "../FavouriteButton/favouriteButton";
+import FavouriteButton from '../FavouriteButton/favouriteButton';
 
 interface QuestModalProps {
   isVisible: boolean;
@@ -11,7 +12,13 @@ interface QuestModalProps {
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
 }
 
-export default function FavQuestModal({ isVisible, onClose, quest, myQuests, setMyQuests }: QuestModalProps) {
+export default function FavQuestModal({
+  isVisible,
+  onClose,
+  quest,
+  myQuests,
+  setMyQuests,
+}: QuestModalProps) {
   if (!isVisible || !quest) return null;
 
   const handleClose = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -29,23 +36,17 @@ export default function FavQuestModal({ isVisible, onClose, quest, myQuests, set
       onClick={handleClose}
     >
       <div className="relative w-[600px]">
-        <button
-          className="absolute -top-9 right-1 text-white text-3xl"
-          onClick={onClose}
-        >
+        <button className="absolute -top-9 right-1 text-white text-3xl" onClick={onClose}>
           ×
         </button>
         <div className="bg-white p-8 rounded-lg shadow-lg">
-
           <h2 className="text-2xl font-bold mb-4">{quest.name}</h2>
           <h3 className="text-xl font-semibold mb-4">{quest.type}</h3>
           <p className="mb-2">{quest.description}</p>
-          <p className="mb-2">Price: {quest.currency} {quest.price}</p>
-          <FavouriteButton
-            questId={quest._id}
-            myQuests={myQuests}
-            setMyQuests={setMyQuests}
-          />
+          <p className="mb-2">
+            Price: {quest.currency} {quest.price}
+          </p>
+          <FavouriteButton questId={quest._id} myQuests={myQuests} setMyQuests={setMyQuests} />
         </div>
       </div>
     </div>

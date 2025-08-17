@@ -1,19 +1,22 @@
 import axios from 'axios';
-import type { ErrorBody } from './types';
-import { PROFILE_PICS } from './constants';
 
-function extractAxiosError (error: unknown, context: string): never {
+import { PROFILE_PICS } from './constants';
+import type { ErrorBody } from './types';
+
+function extractAxiosError(error: unknown, context: string, fallback = 'Request failed'): never {
   if (axios.isAxiosError<ErrorBody>(error)) {
-    const s = error.response?.status;
-    const b = error.response?.data;
-    const detail = b?.error ?? b?.message ?? error.message ?? 'Unknown Axios error';
-    throw new Error(`${context} failed${s ? ` ${s}` : ''}: ${detail}`);
-  }
-  if (error instanceof Error) throw new Error(`${context} failed: ${error.message}`);
-  throw new Error(`${context} failed: ${String(error)}`);
+    const status = error.response?.status;
+    const body = error.response?.data;
+    const detail = body?.error ?? body?.message ?? error.message ?? fallback;
+    // Log detailed context for developers without exposing it to the UI
+    console.error(`[${context}]`, { status, detail, body });
+    throw new Error(detail);  }
+  const msg = error instanceof Error ? error.message : String(error);
+  console.error(`[${context}]`, msg);
+  throw new Error(fallback);
 }
 
-function pickRandomProfilePicture () {
+function pickRandomProfilePicture() {
   return PROFILE_PICS[Math.floor(Math.random() * PROFILE_PICS.length)];
 }
 

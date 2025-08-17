@@ -1,27 +1,48 @@
+import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
+import fs from 'fs';
 import { Types } from 'mongoose';
-import User from '../models/userModel';
-import Quest from '../models/questModel';
-import {
-  registerSchema,
-  loginSchema,
-  editUserDataSchema,
-  editUserCredentialsSchema,
-  editUserPasswordSchema,
-} from '../validation/userValidationSchemas';
-import bcrypt from "bcryptjs";
-import generateToken from '../utils/generateToken';
+import multer from 'multer';
+import path from 'path';
 
-async function getUsers (req: Request, res: Response): Promise<void> {
+import Quest from '../models/questModel';
+import User from '../models/userModel';
+import generateToken from '../utils/generateToken';
+import {
+  editUserCredentialsSchema,
+  editUserDataSchema,
+  editUserPasswordSchema,
+  loginSchema,
+  registerSchema,
+} from '../validation/userValidationSchemas';
+
+// Profile picture upload setup
+const PROFILE_PICTURE_DIR = path.join(process.cwd(), 'public', 'uploads', 'profile-pictures');
+fs.mkdirSync(PROFILE_PICTURE_DIR, { recursive: true });
+
+const profilePictureStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, PROFILE_PICTURE_DIR),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  },
+});
+
+const profilePictureUpload = multer({
+  storage: profilePictureStorage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});
+
+async function getUsers(req: Request, res: Response): Promise<void> {
   try {
     const users = await User.find({});
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch users' });
   }
-};
+}
 
-async function getUser (req: Request, res: Response): Promise<void> {
+async function getUser(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
     res.status(400).json({ error: 'Missing userId parameter' });
@@ -29,8 +50,7 @@ async function getUser (req: Request, res: Response): Promise<void> {
   }
 
   try {
-    const user = await User
-      .findById(userId)
+    const user = await User.findById(userId)
       .select('username firstName lastName profilePicture')
       .lean();
 
@@ -45,14 +65,15 @@ async function getUser (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function registerUser (req: Request, res: Response): Promise<void> {
+async function registerUser(req: Request, res: Response): Promise<void> {
   const parsedBody = registerSchema.safeParse(req.body);
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error });
     return;
   }
 
-  const { username, email, password, firstName, lastName, birthday, profilePicture } = parsedBody.data;
+  const { username, email, password, firstName, lastName, birthday, profilePicture } =
+    parsedBody.data;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -80,7 +101,7 @@ async function registerUser (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function loginUser (req: Request, res: Response): Promise<void> {
+async function loginUser(req: Request, res: Response): Promise<void> {
   const parsedBody = loginSchema.safeParse(req.body);
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error });
@@ -91,7 +112,7 @@ async function loginUser (req: Request, res: Response): Promise<void> {
 
   try {
     const user = await User.findOne({ username }).select('+password');
-    if(!user) {
+    if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
@@ -106,15 +127,18 @@ async function loginUser (req: Request, res: Response): Promise<void> {
     await user.save();
 
     const token = generateToken(user._id.toString());
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'lax' });
-
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: 'Failed to login' });
   }
 }
 
-async function logoutUser (req: Request, res: Response): Promise<void> {
+async function logoutUser(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
     res.status(400).json({ error: 'No user ID provided' });
@@ -136,7 +160,7 @@ async function logoutUser (req: Request, res: Response): Promise<void> {
 
 //non-sensitive data only
 //TODO make separate endpoint for porfile picture upload in sprint 2 (for now just selecting from 10 profile picture options)
-async function editUserData (req: Request, res: Response): Promise<void> {
+async function editUserData(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
     res.status(400).json({ error: 'No user ID provided' });
@@ -153,10 +177,10 @@ async function editUserData (req: Request, res: Response): Promise<void> {
   const { firstName, lastName, profilePicture, birthday } = parsedBody.data;
 
   const dataToUpdate: {
-    firstName?: string,
-    lastName?: string,
-    profilePicture?: string,
-    birthday?: Date
+    firstName?: string;
+    lastName?: string;
+    profilePicture?: string;
+    birthday?: Date;
   } = {};
   if (firstName !== undefined) dataToUpdate.firstName = firstName;
   if (lastName !== undefined) dataToUpdate.lastName = lastName;
@@ -176,7 +200,17 @@ async function editUserData (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function editUserCredentials (req: Request, res: Response): Promise<void> {
+async function uploadProfilePicture(req: Request, res: Response): Promise<void> {
+  const file = (req as any).file as Express.Multer.File | undefined;
+  if (!file) {
+    res.status(400).json({ error: 'No file' });
+    return;
+  }
+  const absolute = `${req.protocol}://${req.get('host')}/uploads/profile-pictures/${file.filename}`;
+  res.status(200).json({ url: absolute });
+}
+
+async function editUserCredentials(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
     res.status(400).json({ error: 'No user ID provided' });
@@ -200,14 +234,16 @@ async function editUserCredentials (req: Request, res: Response): Promise<void> 
       const propertiesTaken: ('username' | 'email')[] = [];
       if (usernameTaken) propertiesTaken.push('username');
       if (emailTaken) propertiesTaken.push('email');
-      res.status(409).json({ error: `${propertiesTaken.join(' and ')} already ${propertiesTaken.length === 1 ? 'exist' : 'exists'}` });
+      res.status(409).json({
+        error: `${propertiesTaken.join(' and ')} already ${propertiesTaken.length === 1 ? 'exist' : 'exists'}`,
+      });
       return;
     }
   }
 
   const credentialsToUpdate: {
-    username?: string,
-    email?: string
+    username?: string;
+    email?: string;
   } = {};
   if (username !== undefined) credentialsToUpdate.username = username;
   if (email !== undefined) credentialsToUpdate.email = email;
@@ -224,7 +260,7 @@ async function editUserCredentials (req: Request, res: Response): Promise<void> 
   }
 }
 
-async function editUserPassword (req: Request, res: Response): Promise<void> {
+async function editUserPassword(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
     res.status(400).json({ error: 'No user ID provided' });
@@ -240,7 +276,12 @@ async function editUserPassword (req: Request, res: Response): Promise<void> {
   const { newPassword } = parsedBody.data;
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(userId, { password: newPassword }, { new: true });
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true },
+    );
     if (!updatedUser) {
       res.status(404).json({ error: 'User not found' });
       return;
@@ -251,7 +292,7 @@ async function editUserPassword (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function getMyQuests (req: Request, res: Response): Promise<void> {
+async function getMyQuests(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
     res.status(400).json({ error: 'Missing userId parameter' });
@@ -281,7 +322,7 @@ async function getMyQuests (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function getMyQuest (req: Request, res: Response): Promise<void> {
+async function getMyQuest(req: Request, res: Response): Promise<void> {
   const { userId, questId } = req.params;
   if (!userId || !questId) {
     res.status(400).json({ error: 'Missing userId or questId parameter' });
@@ -296,7 +337,7 @@ async function getMyQuest (req: Request, res: Response): Promise<void> {
     }
 
     //check if quest is part of myQuests
-    const questIndex = user.myQuests.findIndex(myQuest => myQuest.quest.toString() === questId)
+    const questIndex = user.myQuests.findIndex((myQuest) => myQuest.quest.toString() === questId);
 
     if (questIndex === -1) {
       res.status(404).json({ error: 'No quest with that questId found for this user' });
@@ -313,7 +354,7 @@ async function getMyQuest (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function addToMyQuests (req: Request, res: Response): Promise<void> {
+async function addToMyQuests(req: Request, res: Response): Promise<void> {
   const { userId, questId } = req.params;
   if (!userId || !questId) {
     res.status(400).json({ error: 'Missing userId or questId parameter' });
@@ -334,7 +375,9 @@ async function addToMyQuests (req: Request, res: Response): Promise<void> {
     }
 
     //check if quest is already part of myQuests
-    const inMyQuests = userToUpdate.myQuests.some(myQuest => myQuest.quest.toString() === questId)
+    const inMyQuests = userToUpdate.myQuests.some(
+      (myQuest) => myQuest.quest.toString() === questId,
+    );
     if (inMyQuests) {
       //TODO remove code repetition
       if (req.query.populate === '1') {
@@ -360,7 +403,7 @@ async function addToMyQuests (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
+async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
   const { userId, questId } = req.params;
   if (!userId || !questId) {
     res.status(400).json({ error: 'Missing userId or questId parameter' });
@@ -382,7 +425,9 @@ async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
     }
 
     //check if quest is part of myQuests
-    const questIndex = userToUpdate.myQuests.findIndex(myQuest => myQuest.quest.toString() === questId)
+    const questIndex = userToUpdate.myQuests.findIndex(
+      (myQuest) => myQuest.quest.toString() === questId,
+    );
     //nothing to remove
     if (questIndex === -1) {
       res.status(204).send();
@@ -402,7 +447,7 @@ async function removeFromMyQuests (req: Request, res: Response): Promise<void> {
   }
 }
 
-async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> {
+async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
   const { userId, questId } = req.params;
   if (!userId || !questId) {
     res.status(400).json({ error: 'Missing userId or questId parameter' });
@@ -423,7 +468,9 @@ async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const questToFavorite = userToUpdate.myQuests.find(myQuest => myQuest.quest.toString() === questId);
+    const questToFavorite = userToUpdate.myQuests.find(
+      (myQuest) => myQuest.quest.toString() === questId,
+    );
     if (!questToFavorite) {
       res.status(404).json({ error: 'Quest not found in myQuests' });
       return;
@@ -432,7 +479,7 @@ async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> 
     //toggle
     questToFavorite.isFavorite = !questToFavorite.isFavorite;
 
-    await userToUpdate.save()
+    await userToUpdate.save();
 
     if (req.query.populate === '1') {
       await userToUpdate.populate('myQuests.quest');
@@ -445,17 +492,19 @@ async function toggleFavoriteQuest (req: Request, res: Response): Promise<void> 
 }
 
 export {
+  addToMyQuests,
+  editUserCredentials,
+  editUserData,
+  editUserPassword,
+  getMyQuest,
+  getMyQuests,
+  getUser,
   getUsers,
-  registerUser,
   loginUser,
   logoutUser,
-  getUser,
-  editUserData,
-  editUserCredentials,
-  editUserPassword,
-  getMyQuests,
-  getMyQuest, 
-  addToMyQuests,
+  profilePictureUpload,
+  registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  uploadProfilePicture,
 };

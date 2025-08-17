@@ -1,20 +1,21 @@
 import './App.css';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import HomePage from './components/HomePage/HomePage';
-import LoginPage from './components/LoginPage/LoginPage';
-import RegisterPage from './components/RegisterPage/RegisterPage';
-import ProfilePage from './components/ProfilePage/ProfilePage';
-import FavQuestList from './components/FavQuestList/FavQuestList';
-import MapComponent from './components/MapComponent/MapComponent';
-import QuestsPage from './components/QuestsPage/QuestsPage';
-import MyQuestsPage from './components/MyQuests/MyQuests'
-import Layout from './components/Layout/Layout';
+
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
+
 import { useUser } from './components/Context/userContext';
-import type { Quest, MyQuest, Location, QuestFilters } from './types';
-import { useEffect, useState, useLayoutEffect } from 'react';
+import FavQuestList from './components/FavQuestList/FavQuestList';
+import HomePage from './components/HomePage/HomePage';
+import Layout from './components/Layout/Layout';
+import LoginPage from './components/LoginPage/LoginPage';
+import MapComponent from './components/MapComponent/MapComponent';
+import MyQuestsPage from './components/MyQuests/MyQuests';
+import ProfilePage from './components/ProfilePage/ProfilePage';
+import QuestsPage from './components/QuestsPage/QuestsPage';
+import RegisterPage from './components/RegisterPage/RegisterPage';
 import { getQuests } from './services/questService';
 import { getMyQuests } from './services/userService';
-
+import type { Location, MyQuest, Quest, QuestFilters } from './types';
 
 export default function App() {
   const { user, loggedIn } = useUser();
@@ -36,7 +37,7 @@ export default function App() {
   const [location, setLocation] = useState<Location | null>(null);
 
   useEffect(() => {
-    async function fetchQuests () {
+    async function fetchQuests() {
       try {
         const filters: QuestFilters | undefined = location
           ? { near: `${location.longitude},${location.latitude}`, radius: 2500 }
@@ -59,62 +60,90 @@ export default function App() {
 
     // const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
     if (!needsMyQuests) {
-      setMyQuestsLoading(false)
+      setMyQuestsLoading(false);
       return;
     }
 
     let cancelled = false;
-    async function fetchMyQuests () {
+    async function fetchMyQuests() {
       try {
         const data = await getMyQuests(user!._id, 1);
         if (!cancelled) setMyQuests(data ?? []);
       } catch (error) {
-       if (!cancelled) setMyQuests([]);
+        if (!cancelled) setMyQuests([]);
         console.log("Failed to fetch user's quests: ", error);
       } finally {
         if (!cancelled) setMyQuestsLoading(false);
       }
     }
     fetchMyQuests();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [loggedIn, user?._id, pathname]);
 
   return (
     // <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/homepage" element={
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route
+        path="/homepage"
+        element={
           <Layout>
             <HomePage location={location} setLocation={setLocation} />
           </Layout>
-        } />
-        <Route path="/profile" element={
+        }
+      />
+      <Route
+        path="/profile"
+        element={
           <Layout>
             <ProfilePage />
           </Layout>
-        } />
-        <Route path="/myquests" element={
+        }
+      />
+      <Route
+        path="/myquests"
+        element={
           <Layout>
-            <MyQuestsPage myQuests={myQuests} setMyQuests={setMyQuests} myQuestsLoading={myQuestsLoading} />
+            <MyQuestsPage
+              myQuests={myQuests}
+              setMyQuests={setMyQuests}
+              myQuestsLoading={myQuestsLoading}
+            />
           </Layout>
-        } />
-        <Route path="/favquestlist" element={
+        }
+      />
+      <Route
+        path="/favquestlist"
+        element={
           <Layout>
-            <FavQuestList myQuests={myQuests} setMyQuests={setMyQuests } myQuestsLoading={myQuestsLoading}/>
+            <FavQuestList
+              myQuests={myQuests}
+              setMyQuests={setMyQuests}
+              myQuestsLoading={myQuestsLoading}
+            />
           </Layout>
-        } />
-        <Route path="/quests" element={
+        }
+      />
+      <Route
+        path="/quests"
+        element={
           <Layout>
             <QuestsPage quests={quests} myQuests={myQuests} setMyQuests={setMyQuests} />
           </Layout>
-        } />
-        <Route path="/map" element={
+        }
+      />
+      <Route
+        path="/map"
+        element={
           <Layout>
             <MapComponent setLocation={setLocation} />
           </Layout>
-        } />
-      </Routes>
-  //  </BrowserRouter>
- );
+        }
+      />
+    </Routes>
+    //  </BrowserRouter>
+  );
 }
