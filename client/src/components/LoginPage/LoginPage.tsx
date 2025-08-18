@@ -2,7 +2,6 @@ import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { loginUser } from '../../services/userService';
-import type { User } from '../../types';
 import { useUser } from '../Context/userContext';
 
 export default function LoginPage() {
@@ -17,7 +16,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const user: User = await loginUser({
+      const user = await loginUser({
         username: username.trim(),
         password: password.trim(),
       });
@@ -29,23 +28,27 @@ export default function LoginPage() {
 
       console.log('Login successful', user);
       setUser(user);
-      navigate('/homepage');
-    } catch (err: any) {
+      navigate('/homepage', { replace: true });
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Login failed');
-      }
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setError(message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-50 via-white to-purple-50 p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100"
+      >
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-6 text-center tracking-wide drop-shadow-sm">
+          Login to Sidequest
+        </h1>
 
-        {error && <p className="mb-4 text-red-600 text-center font-semibold">{error}</p>}
+        {error && (
+          <p className="mb-4 text-red-600 text-center font-medium">{error}</p>
+        )}
 
         <label htmlFor="username" className="block mb-2 font-semibold text-gray-700">
           Username
@@ -56,7 +59,7 @@ export default function LoginPage() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
-          className="w-full mb-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full mb-4 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         />
 
         <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">
@@ -68,19 +71,23 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="w-full mb-6 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full mb-6 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         />
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition"
+          className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow hover:scale-[1.02] transition-transform"
         >
-          Log In
+          Enter the Quest
         </button>
 
-        <div className="mt-4 text-center">
-          <Link to="/register" className="text-blue-600 hover:text-blue-800 font-semibold">
-            Don't have an account? Register here
+        <div className="mt-6 text-center">
+          <span className="text-gray-600 mr-1">New adventurer?</span>
+          <Link
+            to="/register"
+            className="text-indigo-600 font-semibold hover:underline"
+          >
+            Create an account
           </Link>
         </div>
       </form>

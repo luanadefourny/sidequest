@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # install root deps
+      - name: Install root deps
+        run: npm ci
+
+      # install server deps
+      - name: Install server deps
+        working-directory: server
+        run: npm ci
+
+      # install client deps
+      - name: Install client deps
+        working-directory: client
+        run: npm ci
+
+      # uncomment later when tests exist
+      # - name: Run tests
+      #   run: npm test

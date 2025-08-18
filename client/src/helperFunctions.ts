@@ -20,4 +20,8 @@ function pickRandomProfilePicture() {
   return PROFILE_PICS[Math.floor(Math.random() * PROFILE_PICS.length)];
 }
 
-export { extractAxiosError, pickRandomProfilePicture };
+function capitalizeFirstLetter(str: string) {
+  return str ? str[0].toUpperCase() + str.slice(1).toLowerCase() : '';
+}
+
+export { capitalizeFirstLetter, extractAxiosError, pickRandomProfilePicture };
