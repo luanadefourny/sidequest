@@ -1,0 +1,10 @@
+.MapComponent-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}

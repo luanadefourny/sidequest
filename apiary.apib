@@ -1,0 +1,556 @@
+FORMAT: 1A
+HOST: http://localhost:3000
+
+# SideQuest API
+API for users and quests. During design, keep HOST as localhost.
+
+**User Endpoints Overview**
+- GET /users — list all users (public fields only)
+- GET /users/{userId} — get a user's public profile
+
+- POST /users — register a new user
+- POST /login — login a user and mark `isCurrent: true`
+- PATCH /users/{userId}/logout — logout a user and mark `isCurrent: false`
+
+- PATCH /users/{userId} — edit non‑sensitive profile data
+- PATCH /users/{userId}/credentials — edit username/email
+- PATCH /users/{userId}/password — change password
+
+- GET /users/{userId}/my-quests{?populate} — list myQuests
+- GET /users/{userId}/my-quests/{questId}{?populate} — get one myQuest
+- POST /users/{userId}/my-quests/{questId}{?populate} — add quest to myQuests
+- DELETE /users/{userId}/my-quests/{questId}{?populate} — remove quest from myQuests
+- PATCH /users/{userId}/my-quests/{questId}/favorite{?populate} — toggle favorite (only if in myQuests)
+
+**Quest Endpoints Overview**
+- GET /quests — list all quests
+- GET /quests/{questId} — get a quest by ID
+
+# Data Structures
+
+## User (object)
++ _id: `64f1a2b3c4d5e6f7a8b9c0d1` (string)
++ username: `johndoe` (string)
++ email: `john@doe.com` (string)
++ firstName: `John` (string)
++ lastName: `Doe` (string)
++ birthday: `1997-05-21T00:00:00.000Z` (string)
++ isCurrent: true (boolean)
++ profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
++ myQuests (array[MyQuest])
+
+## RegisterUserData (object)
++ username (string, required)
++ email (string, required)
++ password (string, required)
++ firstName (string, required)
++ lastName (string, required)
++ birthday (string, required)
+
+## LoginUserData (object)
++ username (string, required)
++ password (string, required)
+
+## MyQuest (object)
++ quest: `750f1a2b3c4d5e6f7a8b9c0d5` (string) - Quest id or embedded Quest if populated
++ isFavorite: false (boolean)
+
+## Quest (object)
++ _id: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
++ title: `Evening Kayak Trip` (string)
++ description: `Paddle along the coast at sunset.` (string)
++ type: `activity` (string)
++ ageRestricted: false (boolean)
++ price: 35 (number)
++ currency: `GBP` (string)
++ startAt: `2025-09-01T18:00:00.000Z` (string)
++ endAt: `2025-09-01T20:00:00.000Z` (string)
++ location: { type: `Point`, coordinates: [-1.404, 50.909] } (object)
+
+# Group Users
+
+## List users [GET /users]
+Return all users with public fields only.
+
++ Response 200 (application/json)
+    + Attributes (array[User])
+    + Body
+            [
+              { "_id":"64f1...c0d1","username":"johndoe","email":"john@doe.com","firstName":"John","lastName":"Doe","birthday":"1997-05-21T00:00:00.000Z","isCurrent":false }
+            ]
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch users`
+
+## Get user by id [GET /users/{userId}]
+Return a user's public profile.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + _id: `64f1a2...` (string)
+        + username: `johndoe` (string)
+        + firstName: `John` (string)
+        + lastName: `Doe` (string)
+        + profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch user`
+
+## Register user [POST /users]
+Create a new user. Validates required fields and uniqueness.
+
++ Request (application/json)
+    + Attributes (RegisterUserData)
+
++ Response 201 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `username already exists`
+    + Body
+            { "error": "email already exists" }
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to register user`
+
+## Login user [POST /login]
+Login with `username` and `password`.
+
++ Request (application/json)
+    + Attributes (LoginUserData)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError`
+
++ Response 401 (application/json)
+    + Attributes (object)
+        + error: `Password is incorrect`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to login`
+
+## Logout user [PATCH /users/{userId}/logout]
+Logout a user and set `isCurrent` to false.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `No user ID provided`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to logout`
+
+## Edit user profile [PATCH /users/{userId}]
+Update non-sensitive fields: firstName, lastName, profilePicture, birthday.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + firstName: `Luana` (string, optional)
+        + lastName: `Defourny` (string, optional)
+        + profilePicture: `/profile-pics/profile-pic-4.jpg` (string, optional)
+        + birthday: `1997-05-21T00:00:00.000Z` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `No user ID provided`
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to update user`
+
+## Edit credentials [PATCH /users/{userId}/credentials]
+Change username and/or email.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + username: `newname` (string, optional)
+        + email: `new@email.com` (string, optional)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `No user ID provided`
+
++ Response 409 (application/json)
+    + Attributes (object)
+        + error: `username and email already exists`
+    + Body
+            { "error": "username already exist" }
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to update user credentials`
+
+## Edit password [PATCH /users/{userId}/password]
+Update password.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+
++ Request (application/json)
+    + Attributes (object)
+        + newPassword: `New@1234` (string, required)
+
++ Response 200 (application/json)
+    + Attributes (User)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `No user ID provided`
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `ZodError`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to update user password`
+
+## List myQuests [GET /users/{userId}/my-quests{?populate}]
+Return the `myQuests` array. Use `?populate=1` to embed quests.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + populate: `1` (optional, string)
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+    + Body
+            [
+              { "quest": "750f1a2b3c4d5e6f7a8b9c0d5", "isFavorite": false },
+              { "quest": "750f1a2b3c4d5e6f7a8b9c0d6", "isFavorite": true }
+            ]
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `No quests found for this user`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to get myQuests`
+
+## Get myQuest [GET /users/{userId}/my-quests/{questId}{?populate}]
+Return a single myQuest entry. `?populate=1` supported.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+    + populate: `1` (optional, string)
+
++ Response 200 (application/json)
+    + Attributes (MyQuest)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `No quest with that questId found for this user`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to get myQuests`
+
+## Add a quest to myQuests [POST /users/{userId}/my-quests/{questId}{?populate}]
+Idempotent add. Returns 201 if newly added, 200 if it already existed.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 201 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `Quest not found`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to add quest to myQuests`
+
+## Remove quest from myQuests [DELETE /users/{userId}/my-quests/{questId}{?populate}]
+Idempotent remove. Returns 204 if nothing to remove.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 204
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to remove quest from myQuests`
+
+## Toggle favorite on a myQuest [PATCH /users/{userId}/my-quests/{questId}/favorite{?populate}]
+Toggle `isFavorite`. Quest must already be in myQuests.
+
++ Parameters
+    + userId: `64f1a2b3c4...` (string)
+    + questId: `750f1a2...` (string)
+
++ Response 200 (application/json)
+    + Attributes (array[MyQuest])
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing userId or questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `User not found`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `Quest not found in myQuests`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to favorite quest from myQuests`
+
+# Group Quests
+
+## List quests [GET /quests{?type,ageRestricted,priceMin,priceMax,currency,startAfter,endBefore,near,radius,limit}]
+Return quests filtered by optional query params.
+
++ Parameters
+    + type: `event` (optional, string)
+    + ageRestricted: `0` (optional, string)
+    + priceMin: `10` (optional, number)
+    + priceMax: `100` (optional, number)
+    + currency: `GBP` (optional, string)
+    + startAfter: `2025-09-01T00:00:00.000Z` (optional, string)
+    + endBefore: `2025-09-30T23:59:59.000Z` (optional, string)
+    + near: `-1.404,50.909` (optional, string)
+    + radius: `3000` (optional, number)
+    + limit: `20` (optional, number)
+
++ Response 200 (application/json)
+    + Attributes (array[Quest])
+    + Body
+            [
+              {
+                "_id": "750f1a2b3c4d5e6f7a8b9c0d5",
+                "title": "Evening Kayak Trip",
+                "description": "Paddle along the coast at sunset.",
+                "type": "activity",
+                "ageRestricted": false,
+                "price": 35,
+                "currency": "GBP",
+                "startAt": "2025-09-01T18:00:00.000Z",
+                "endAt": "2025-09-01T20:00:00.000Z",
+                "location": { "type": "Point", "coordinates": [-1.404, 50.909] }
+              }
+            ]
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch quests`
+
+## Get quest by id [GET /quests/{questId}]
+Return a single quest.
+
++ Parameters
+    + questId: `750f1a2b3c4d5e6f7a8b9c0d5` (string)
+
++ Response 200 (application/json)
+    + Attributes (Quest)
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing questId parameter`
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: `Quest not found`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch quest`
+
+# Group Map Data
+
+## Get OpenTripMap features by radius [GET /api/opentripmap{?latitude,longitude,radius}]
+Return GeoJSON features from OpenTripMap within a radius.
+
++ Parameters
+    + latitude: `50.9090` (number, required)
+    + longitude: `-1.4040` (number, required)
+    + radius: `10000` (number, optional) - meters
+
++ Response 200 (application/json)
+    + Body
+            [
+              {
+                "type": "Feature",
+                "id": "N123",
+                "geometry": { "type": "Point", "coordinates": [ -1.404, 50.909 ] },
+                "properties": {
+                  "xid": "W123456",
+                  "name": "City Park",
+                  "kinds": "gardens_and_parks,sights"
+                }
+              }
+            ]
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing coordinates`
+
++ Response 502 (application/json)
+    + Attributes (object)
+        + error: `Something went wrong`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Some server error in opentripmap controller`
+
+## Get OpenTripMap place details [GET /api/opentripmap/details/{xid}]
+Return details for a single OpenTripMap place.
+
++ Parameters
+    + xid: `W123456` (string)
+
++ Response 200 (application/json)
+    + Body
+            {
+              "xid": "W123456",
+              "name": "City Park",
+              "address": { "city": "Southampton", "country": "United Kingdom" },
+              "preview": { "source": "https://images.example.com/city-park.jpg" },
+              "wikipedia_extracts": { "text": "A lovely public park..." }
+            }
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Failed to fetch OpenTripMap details`
+
+## Get SerpAPI events for a location [GET /api/serpapi{?latitude,longitude}]
+Return Google Events scraped by SerpAPI for the reverse‑geocoded location.
+
++ Parameters
+    + latitude: `50.9090` (number, required)
+    + longitude: `-1.4040` (number, required)
+
++ Response 200 (application/json)
+    + Body
+            [
+              {
+                "title": "Summer Street Market",
+                "when": "Sat, 20 Sep, 12:00 – 18:00",
+                "address": "High St, Southampton",
+                "link": "https://www.google.com/maps/event?..."
+              }
+            ]
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: `Missing coordinates`
+
++ Response 502 (application/json)
+    + Attributes (object)
+        + error: `Something went wrong`
+
++ Response 500 (application/json)
+    + Attributes (object)
+        + error: `Some server error in opentripmap controller`
