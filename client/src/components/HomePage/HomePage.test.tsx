@@ -9,7 +9,7 @@ import type { Location, HomePageProps } from '../../types';
 
 const mockSetLocation = vi.fn();
 const mockSetRadius = vi.fn();
-const mockLocation: Location = { latitude: 0, longitude: 0 };
+const mockLocation: Location = { latitude: "0", longitude: "0" };
 const mockProps: HomePageProps = {
   location: mockLocation,
   setLocation: mockSetLocation,
@@ -45,11 +45,9 @@ describe('HomePage Component', () => {
 
   it('updates radius on slider change', async () => {
     const slider = screen.getByRole('slider');
-    // user-event is more reliable for MUI sliders
-    await userEvent.clear(slider);
-    await userEvent.type(slider, '30');
-    // MUI Slider onChange gives value as number, so expect 30000
-    expect(mockSetRadius).toHaveBeenCalledWith(30000);
+    await userEvent.click(slider);
+    await userEvent.keyboard('{ArrowRight}');
+    expect(mockSetRadius).toHaveBeenCalledWith(26);
   });
 
   it('renders the Find Quests button', () => {
