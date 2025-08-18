@@ -66,7 +66,6 @@ export default function RegisterPage() {
       console.log('Login successful', user);
       setUser(user);
       
-      
       setFirstName('');
       setLastName('');
       setBirthday('');
