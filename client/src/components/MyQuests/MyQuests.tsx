@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import type { MyQuestsPageProps } from "../../types";
-import FavouriteButton from "../FavouriteButton/favouriteButton";
-import MyQuestModal from "../MyQuestModal/MyQuestModal";
-import MyQuestsButton from "../MyQuestsButton/MyQuestsButton";
+import type { MyQuestsPageProps } from '../../types';
+import FavouriteButton from '../FavouriteButton/favouriteButton';
+import MyQuestModal from '../MyQuestModal/MyQuestModal';
+import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 
 export default function MyQuestsPage({
   myQuests,
@@ -27,18 +27,15 @@ export default function MyQuestsPage({
           <p className="text-center text-gray-700 text-lg">Loading your quests...</p>
         ) : myQuests.length === 0 ? (
           <p className="text-center text-gray-700 text-lg">
-            You have no quests added yet.{" "}
-            <Link
-              to="/quests"
-              className="text-indigo-600 hover:underline font-semibold"
-            >
+            You have no quests added yet.{' '}
+            <Link to="/quests" className="text-indigo-600 hover:underline font-semibold">
               Browse quests
             </Link>
           </p>
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-6">
             {myQuests.map((myQuest) => {
-              if (typeof myQuest.quest === "string") return null;
+              if (typeof myQuest.quest === 'string') return null;
 
               return (
                 <article

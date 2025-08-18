@@ -25,7 +25,9 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
               className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
             >
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3 drop-shadow-sm">{quest.name}</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-3 drop-shadow-sm">
+                  {quest.name}
+                </h2>
                 <p className="text-gray-700 text-base leading-relaxed">{quest.description}</p>
               </div>
 
@@ -42,11 +44,7 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
 
                 {/* <FavouriteButton questId={quest._id} /> */}
 
-                <MyQuestsButton
-                  questId={quest._id}
-                  myQuests={myQuests}
-                  setMyQuests={setMyQuests}
-                />
+                <MyQuestsButton questId={quest._id} myQuests={myQuests} setMyQuests={setMyQuests} />
               </div>
             </div>
           ))}

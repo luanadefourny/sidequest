@@ -46,9 +46,7 @@ export default function LoginPage() {
           Login to Sidequest
         </h1>
 
-        {error && (
-          <p className="mb-4 text-red-600 text-center font-medium">{error}</p>
-        )}
+        {error && <p className="mb-4 text-red-600 text-center font-medium">{error}</p>}
 
         <label htmlFor="username" className="block mb-2 font-semibold text-gray-700">
           Username
@@ -83,10 +81,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <span className="text-gray-600 mr-1">New adventurer?</span>
-          <Link
-            to="/register"
-            className="text-indigo-600 font-semibold hover:underline"
-          >
+          <Link to="/register" className="text-indigo-600 font-semibold hover:underline">
             Create an account
           </Link>
         </div>
