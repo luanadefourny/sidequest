@@ -6,7 +6,7 @@ import MapComponent from '../MapComponent/MapComponent';
 export default function HomePage({ location, setLocation }: HomePageProps) {
   console.log(location); //TODO remove (and change homepage props)
 
-    return (
+  return (
     <div className="home-page">
       <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-b from-indigo-100 via-white to-gray-100 p-6 pt-12">
         {/* Hero Section */}
@@ -17,22 +17,20 @@ export default function HomePage({ location, setLocation }: HomePageProps) {
             className="h-24 w-auto mb-6 drop-shadow-xl hover:scale-105 transition-transform duration-300"
           />
           <h1 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight drop-shadow-sm">
-            Welcome to{" "}
+            Welcome to{' '}
             <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
               SideQuest
             </span>
             !
           </h1>
           <p className="text-lg text-gray-700 mb-2 leading-relaxed">
-            Discover{" "}
+            Discover{' '}
             <span className="font-semibold text-indigo-600 hover:underline">
               <Link to="/quests">local quests</Link>
-            </span>{" "}
+            </span>{' '}
             and adventures in your area.
           </p>
-          <p className="text-base text-gray-500">
-            Enter your location below to get started.
-          </p>
+          <p className="text-base text-gray-500">Enter your location below to get started.</p>
         </div>
 
         {/* Map container */}
