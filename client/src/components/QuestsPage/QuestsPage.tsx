@@ -1,42 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
-// import { getQuests, } from "../../services/questService";
-// import { getMyQuests } from "../../services/userService";
-import type { QuestsPageProps } from '../../types';
-// import { useUser } from "../Context/userContext";
-// import FavouriteButton from "../FavouriteButton/favouriteButton";
+import type { Quest, QuestsPageProps } from '../../types';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import QuestModal from '../QuestModal/QuestModal';
 
 export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPageProps) {
   const [showQuestModal, setShowQuestModal] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
-
-  // const [quests, setQuests] = useState<Quest[]>([]);
-  // const [myQuests, setMyQuests] = useState<string[]>([]);
-  // const { user } = useUser();
-
-  // Fetch all quests
-  // useEffect(() => {
-  //   const fetchQuests = async () => {
-  //     const data = await getQuests();
-  //     if (data) setQuests(data);
-  //   };
-  //   fetchQuests();
-  // }, []);
-
-  // Fetch user's quests
-  // useEffect(() => {
-  //   const fetchMyQuests = async () => {
-  //     if (!user?.id) return;
-  //     const data = await getMyQuests(user.id);
-  //     if (data) {
-  //       setMyQuests(data.map((q: MyQuest) => q.quest.toString()));
-  //     }
-  //   };
-  //   fetchMyQuests();
-  // }, [user]);
 
   return (
     <>

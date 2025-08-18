@@ -2,7 +2,6 @@ import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { loginUser } from '../../services/userService';
-import type { User } from '../../types';
 import { useUser } from '../Context/userContext';
 
 export default function LoginPage() {
@@ -17,7 +16,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const user: User = await loginUser({
+      const user = await loginUser({
         username: username.trim(),
         password: password.trim(),
       });
@@ -29,14 +28,11 @@ export default function LoginPage() {
 
       console.log('Login successful', user);
       setUser(user);
-      navigate('/homepage');
-    } catch (err: any) {
+      navigate('/homepage', { replace: true });
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Login failed');
-      }
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setError(message);
     }
   };
 
@@ -56,6 +52,7 @@ export default function LoginPage() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
+          required
           className="w-full mb-4 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
@@ -68,6 +65,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
+          required
           className="w-full mb-6 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
@@ -77,6 +75,7 @@ export default function LoginPage() {
         >
           Log In
         </button>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <div className="mt-4 text-center">
           <Link to="/register" className="text-blue-600 hover:text-blue-800 font-semibold">

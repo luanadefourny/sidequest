@@ -13,6 +13,7 @@ const PORT: string | undefined = process.env.LOCAL_PORT;
 
 const app: Application = express();
 
+app.use(cookieParser());
 app.use(
   cors({
     origin: 'http://localhost:5173',
@@ -20,7 +21,6 @@ app.use(
   }),
 );
 app.use(express.json());
-app.use(cookieParser());
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
