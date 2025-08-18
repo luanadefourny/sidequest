@@ -21,7 +21,7 @@ export default function App() {
   const { user, loggedIn } = useUser();
   const { pathname } = useLocation();
   const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
-  const [radius, setRadius] = useState<number>(25);
+  const [radius, setRadius] = useState<number>(2500);
 
   useLayoutEffect(() => {
     if (!loggedIn) {
