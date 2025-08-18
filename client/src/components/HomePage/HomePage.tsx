@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom';
 
 import type { HomePageProps } from '../../types';
 import MapComponent from '../MapComponent/MapComponent';
+import DistanceSlider from '../Slider/Slider';
 
-export default function HomePage({ location, setLocation }: HomePageProps) {
+export default function HomePage({ location, setLocation, radius, setRadius }: HomePageProps) {
   console.log(location); //TODO remove (and change homepage props)
 
   return (
@@ -25,6 +26,8 @@ export default function HomePage({ location, setLocation }: HomePageProps) {
             Enter your location to discover quests near you.
           </p>
         </div>
+
+        <DistanceSlider radius={radius} setRadius={setRadius} />
 
         {/* Map container */}
         <div className="w-full sm:w-[600px] h-[300px] sm:h-[480px] bg-white rounded-lg shadow-lg overflow-hidden mt-6">

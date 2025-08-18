@@ -21,6 +21,7 @@ export default function App() {
   const { user, loggedIn } = useUser();
   const { pathname } = useLocation();
   const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
+  const [radius, setRadius] = useState<number>(25);
 
   useLayoutEffect(() => {
     if (!loggedIn) {
@@ -40,7 +41,7 @@ export default function App() {
     async function fetchQuests() {
       try {
         const filters: QuestFilters | undefined = location
-          ? { near: `${location.longitude},${location.latitude}`, radius: 2500 }
+          ? { near: `${location.longitude},${location.latitude}`, radius }
           : undefined;
         const data = await getQuests(filters);
         if (data) setQuests(data);
@@ -91,7 +92,12 @@ export default function App() {
         path="/homepage"
         element={
           <Layout>
-            <HomePage location={location} setLocation={setLocation} />
+            <HomePage
+              location={location}
+              setLocation={setLocation}
+              radius={radius}
+              setRadius={setRadius}
+            />
           </Layout>
         }
       />
