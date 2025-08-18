@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 import express, { Application } from 'express';
 import path from 'path';
 
+dotenv.config({ path: path.resolve(__dirname, './.env') });
 import apiRouter from './routers/apiRouter';
 import questRouter from './routers/questRouter';
 import userRouter from './routers/userRouter';
-dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 const PORT: string | undefined = process.env.LOCAL_PORT;
 
