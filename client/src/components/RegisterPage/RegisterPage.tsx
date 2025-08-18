@@ -30,17 +30,6 @@ export default function RegisterPage() {
     password.length >= 8;     // minimum length
   
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const allRequiredFilled = Boolean(
-    firstName.trim() &&
-    lastName.trim() &&
-    birthday &&
-    email.trim() &&
-    username.trim() &&
-    password &&
-    confirmPassword
-  );
-  const formValid = allRequiredFilled && emailValid && meetsPasswordRequirements && passwordsMatch;
-
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,10 +41,6 @@ export default function RegisterPage() {
     }
     if (!meetsPasswordRequirements) {
       setError('Password does not meet requirements');
-      return;
-    }
-    if (!formValid) {
-      // field-level messages render below each input
       return;
     }
     try {
