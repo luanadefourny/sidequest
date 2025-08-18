@@ -17,6 +17,7 @@ async function loadMarkers(
   bounds: google.maps.LatLngBounds,
   latitude: number,
   longitude: number,
+  radius: number
 ) {
 
   //! Opentripmap call starts here - DON'T DELETE IT PLEASE
@@ -24,7 +25,7 @@ async function loadMarkers(
       const { AdvancedMarkerElement } = (await google.maps.importLibrary(
         'marker',
       )) as google.maps.MarkerLibrary;
-      const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=10000`);
+      const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
       if (!res.ok) throw new Error("Failed to fetch OpenTripMap data");
       const data = await res.json();
       apiData = data;
@@ -37,7 +38,6 @@ async function loadMarkers(
         const [lon, lat] = feature.geometry.coordinates;
         const name = feature.properties.name || "Unnamed place";
         const kinds = feature.properties.kinds || "No category found";
-        const address = feature.properties.address || "No address found";
 
         const icon = document.createElement("img");
         icon.src = "./creep.jpg";
@@ -63,7 +63,7 @@ async function loadMarkers(
 
           infoWindow.setContent(`
             <div style="font-size:14px">
-            ${details.preview?.source ? `<img src="${details.preview.source}" style="max-height:500px; width:auto; height:auto;"/>` : ""}
+            ${details.preview?.source ? `<img src="${details.preview.source}" style="max-height:200px; width:auto; height:auto;"/>` : ""}
             <strong>${name}</strong><br/>
             <em>${kinds}</em><br/>
             ${address}
@@ -210,7 +210,8 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   });
 
   const bounds = new google.maps.LatLngBounds();
-  await loadMarkers(map, bounds, position.lat, position.lng);
+  console.log('Radius here: ', radius);
+  await loadMarkers(map, bounds, position.lat, position.lng, radius);
 
   const autocomplete = new Autocomplete(input);
   autocomplete.bindTo('bounds', map);
@@ -244,7 +245,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     // Create a LatLngBounds object to include all markers
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(place.geometry.location);
-    await loadMarkers(map, bounds, latitude, longitude);
+    await loadMarkers(map, bounds, latitude, longitude, radius);
 
     //! Opentripmap call starts here - DON'T DELETE IT PLEASE
     // try {
