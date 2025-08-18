@@ -40,7 +40,7 @@ export default function HomePage({ location, setLocation, radius, setRadius }: H
 
         {/* Map container */}
         <div className="w-full sm:w-[600px] h-[320px] sm:h-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 mt-6 transition-transform hover:scale-[1.02] hover:shadow-3xl duration-300">
-          <MapComponent setLocation={setLocation} />
+          <MapComponent setLocation={setLocation} radius={radius} />
         </div>
 
         {/* Button */}

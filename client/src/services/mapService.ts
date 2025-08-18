@@ -160,7 +160,7 @@ async function loadMarkers(
 // }
 //! mock data call ends here
 
-export async function initMap(container: HTMLElement, input: HTMLInputElement): Promise<void> {
+export async function initMap(container: HTMLElement, input: HTMLInputElement, radius: number): Promise<void> {
   // The location of Grand Place
   let position = { lat: 50.84676, lng: 4.35278 };
 

@@ -35,7 +35,7 @@ function loadGoogleMapsScript(onLoad: () => void) {
   document.head.appendChild(script);
 }
 
-export default function MapComponent({ setLocation }: MapComponentProps) {
+export default function MapComponent({ setLocation, radius }: MapComponentProps) {
   const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
@@ -44,14 +44,14 @@ export default function MapComponent({ setLocation }: MapComponentProps) {
     if (!container) return;
 
     loadGoogleMapsScript(() => {
-      initMap(container, input);
+      initMap(container, input, radius); // Pass radius here!
       const position = getMarkerPosition();
       if (position) {
-        const [lon, lat] = position.split(','); //TODO i'm an idiot and mihai should change how they are returned hehe
+        const [lon, lat] = position.split(',');
         setLocation({ longitude: lon, latitude: lat });
       }
     });
-  }, []);
+  }, [radius, setLocation]);
 
   useEffect(() => {
     function onMarkerChange(event: Event) {

@@ -126,7 +126,8 @@ interface HomePageProps {
   setRadius: React.Dispatch<React.SetStateAction<number>>;
 }
 interface MapComponentProps {
-  setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
+  setLocation: (loc: { longitude: string; latitude: string }) => void;
+  radius: number;
 }
 interface QuestsPageProps {
   quests: Quest[];

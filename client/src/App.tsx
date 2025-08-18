@@ -145,7 +145,7 @@ export default function App() {
         path="/map"
         element={
           <Layout>
-            <MapComponent setLocation={setLocation} />
+            <MapComponent setLocation={setLocation}radius={radius}/>
           </Layout>
         }
       />
