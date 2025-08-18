@@ -2,14 +2,15 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { pickRandomProfilePicture } from '../../helperFunctions';
-import { registerUser } from '../../services/userService';
+import { capitalizeFirstLetter, pickRandomProfilePicture } from '../../helperFunctions';
+import { loginUser, registerUser } from '../../services/userService';
+import { useUser } from '../Context/userContext';
 import PasswordRequirements from '../PasswordPopup/passwordPopup';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { setUser } = useUser();
   const [showPasswordReqs, setShowPasswordReqs] = useState(false);
-  // const [passwordReqFocus, setPasswordReqFocus] = useState<'password' | 'confirm' | null>(null);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -29,17 +30,6 @@ export default function RegisterPage() {
     password.length >= 8;     // minimum length
   
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const allRequiredFilled = Boolean(
-    firstName.trim() &&
-    lastName.trim() &&
-    birthday &&
-    email.trim() &&
-    username.trim() &&
-    password &&
-    confirmPassword
-  );
-  const formValid = allRequiredFilled && emailValid && meetsPasswordRequirements && passwordsMatch;
-
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,20 +43,29 @@ export default function RegisterPage() {
       setError('Password does not meet requirements');
       return;
     }
-    if (!formValid) {
-      // field-level messages render below each input
-      return;
-    }
     try {
       await registerUser({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName: capitalizeFirstLetter(firstName.trim()),
+        lastName: capitalizeFirstLetter(lastName.trim()),
         birthday: new Date(birthday),
         email: email.trim(),
         username: username.trim(),
         password: password.trim(),
         profilePicture: pickRandomProfilePicture(),
       });
+
+      //login user as well
+      const user = await loginUser({
+        username: username.trim(),
+        password: password.trim(),
+      })
+      if (!user || !user._id) {
+        setError('Login failed: No user data returned');
+        return;
+      }
+      console.log('Login successful', user);
+      setUser(user);
+      
       setFirstName('');
       setLastName('');
       setBirthday('');
@@ -75,7 +74,7 @@ export default function RegisterPage() {
       setPassword('');
       setConfirmPassword('');
       alert('Registered successfully!');
-      navigate('/');
+      navigate('/homepage', { replace: true });
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

@@ -38,6 +38,7 @@ async function getUsers(req: Request, res: Response): Promise<void> {
     const users = await User.find({});
     res.status(200).json(users);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 }
@@ -48,19 +49,20 @@ async function getUser(req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: 'Missing userId parameter' });
     return;
   }
-
+  
   try {
     const user = await User.findById(userId)
-      .select('username firstName lastName profilePicture')
-      .lean();
-
+    .select('username firstName lastName profilePicture')
+    .lean();
+    
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-
+    
     res.status(200).json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to fetch user' });
   }
 }
@@ -71,11 +73,11 @@ async function registerUser(req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: parsedBody.error });
     return;
   }
-
+  
   const { username, email, password, firstName, lastName, birthday, profilePicture } =
-    parsedBody.data;
+  parsedBody.data;
   const hashedPassword = await bcrypt.hash(password, 10);
-
+  
   try {
     // check that the username and email provided doesn't already belong to a user
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
@@ -84,19 +86,20 @@ async function registerUser(req: Request, res: Response): Promise<void> {
       res.status(400).json({ error: `${property} already exists` });
       return;
     }
-
+    
     const newUser = await User.create({
       username,
       email,
-      password: hashedPassword, //TODO: hash
+      password: hashedPassword,
       firstName,
       lastName,
       birthday,
       profilePicture,
     });
-
+    
     res.status(201).json(newUser);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to register user' });
   }
 }
@@ -107,16 +110,15 @@ async function loginUser(req: Request, res: Response): Promise<void> {
     res.status(400).json({ error: parsedBody.error });
     return;
   }
-
+  
   const { username, password } = parsedBody.data;
-
+  
   try {
     const user = await User.findOne({ username }).select('+password');
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-    //TODO: change to bcrypt compare
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       res.status(401).json({ error: 'Password is incorrect' });
@@ -125,15 +127,17 @@ async function loginUser(req: Request, res: Response): Promise<void> {
     // everything has passed: login
     user.isCurrent = true;
     await user.save();
-
+    
     const token = generateToken(user._id.toString());
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
     });
     res.status(200).json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to login' });
   }
 }
@@ -151,9 +155,15 @@ async function logoutUser(req: Request, res: Response): Promise<void> {
       res.status(404).json({ error: 'User not found' });
       return;
     }
-    res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'lax' });
+    res.clearCookie('token', { 
+      httpOnly: true, 
+      secure: true, 
+      sameSite: 'lax',
+      path: '/',
+    });
     res.status(200).json(userToLogout);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to logout' });
   }
 }
@@ -196,12 +206,13 @@ async function editUserData(req: Request, res: Response): Promise<void> {
     }
     res.status(200).json(updatedUser);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to update user' });
   }
 }
 
 async function uploadProfilePicture(req: Request, res: Response): Promise<void> {
-  const file = (req as any).file as Express.Multer.File | undefined;
+  const file = (req).file as Express.Multer.File | undefined;
   if (!file) {
     res.status(400).json({ error: 'No file' });
     return;
@@ -256,6 +267,7 @@ async function editUserCredentials(req: Request, res: Response): Promise<void> {
     }
     res.status(200).json(updatedUser);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to update user credentials' });
   }
 }
@@ -288,6 +300,7 @@ async function editUserPassword(req: Request, res: Response): Promise<void> {
     }
     res.status(200).json(updatedUser);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to update user password' });
   }
 }
@@ -318,6 +331,7 @@ async function getMyQuests(req: Request, res: Response): Promise<void> {
 
     res.status(200).json(user.myQuests);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to get myQuests' });
   }
 }
@@ -350,6 +364,7 @@ async function getMyQuest(req: Request, res: Response): Promise<void> {
 
     res.status(200).json(user.myQuests[questIndex]);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to get myQuests' });
   }
 }
@@ -398,7 +413,8 @@ async function addToMyQuests(req: Request, res: Response): Promise<void> {
     }
 
     res.status(201).json(userToUpdate.myQuests);
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to add quest to myQuests' });
   }
 }
@@ -442,7 +458,8 @@ async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
     }
 
     res.status(200).json(userToUpdate.myQuests);
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to remove quest from myQuests' });
   }
 }
@@ -486,7 +503,8 @@ async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
     }
 
     res.status(200).json(userToUpdate.myQuests);
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to favorite quest from myQuests' });
   }
 }
