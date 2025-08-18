@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useMemo, useState } from 'react';
 import { FiCamera, FiSettings } from 'react-icons/fi';
-import { Link, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import { PROFILE_PICS } from '../../constants';
 import {
@@ -302,7 +302,7 @@ export default function ProfilePage() {
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 text-sm">
                 <p className="text-gray-500">Favorites</p>
                 <p className="text-lg font-semibold text-gray-800">
-                  {user.myQuests ? user.myQuests.filter((mq: any) => mq.isFavorite).length : 0}
+                  {user.myQuests ? user.myQuests.filter((mq) => mq.isFavorite).length : 0}
                 </p>
               </div>
             </div>
