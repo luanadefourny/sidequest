@@ -2,7 +2,7 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { pickRandomProfilePicture } from '../../helperFunctions';
+import { capitalizeFirstLetter, pickRandomProfilePicture } from '../../helperFunctions';
 import { loginUser, registerUser } from '../../services/userService';
 import { useUser } from '../Context/userContext';
 import PasswordRequirements from '../PasswordPopup/passwordPopup';
@@ -45,8 +45,8 @@ export default function RegisterPage() {
     }
     try {
       await registerUser({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName: capitalizeFirstLetter(firstName.trim()),
+        lastName: capitalizeFirstLetter(lastName.trim()),
         birthday: new Date(birthday),
         email: email.trim(),
         username: username.trim(),
