@@ -253,7 +253,7 @@ export default function ProfilePage() {
                 </p>
                 <p className="text-sm text-gray-700">
                   <strong>Birthdate:</strong>{' '}
-                  {birthDate ? birthDate.toLocaleDateString("en-GE") : 'Not provided'}
+                  {birthDate ? birthDate.toLocaleDateString("en-gb") : 'Not provided'}
                 </p>
                 <p className="text-sm text-gray-700">
                   <strong>Age:</strong> {getAge(birthDate) ?? '—'}
