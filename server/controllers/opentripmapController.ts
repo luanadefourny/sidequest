@@ -23,6 +23,7 @@ export async function getOpenTripMapEvents(request: Request, response: Response)
     const parsedData = await responseData.json();
     return response.json(parsedData.features);
   } catch (error) {
+    console.log(error);
     response.status(500).json({ error: 'Some server error in opentripmap controller' });
   }
 }

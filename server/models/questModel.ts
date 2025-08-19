@@ -1,4 +1,4 @@
-import { Document, Model, Schema, Types } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 
 import mongoose from '../db';
 

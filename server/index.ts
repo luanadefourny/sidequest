@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import express, { Application } from 'express';
 import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, './.env') });
+dotenv.config();
 import apiRouter from './routers/apiRouter';
 import questRouter from './routers/questRouter';
 import userRouter from './routers/userRouter';

@@ -1,8 +1,9 @@
-import { getApiData } from './apiService';
+import type { OpenTripMapPlace } from '../types';
+import { getPlaceDetails,getPlaces } from './openTripMapApiService';
 
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
-let apiData: any[] = [];
+// let apiData: any[] = [];
 let currentMap: google.maps.Map | null = null;
 let currentRadius = 1000; //meters
 let loadSeq = 0;
@@ -35,19 +36,17 @@ async function loadMarkers(
       const { AdvancedMarkerElement } = (await google.maps.importLibrary(
         'marker',
       )) as google.maps.MarkerLibrary;
-      const data = await getApiData(latitude, longitude, radius);
+      const places: OpenTripMapPlace[] = await getPlaces(latitude, longitude, radius);
 
       if (seq !== loadSeq) return;
       
-      apiData = data;
+      // apiData = places;
 
       const infoWindow = new google.maps.InfoWindow();
 
-      data.forEach((feature: any) => {
-        console.log('Feature: ',feature);
-        const [lon, lat] = feature.geometry.coordinates;
-        const name = feature.properties.name || "Unnamed place";
-        const kinds = feature.properties.kinds || "No category found";
+      places.forEach((place) => {
+        console.log('Place: ',place);
+        const { coords: { lat, lng }, name, kinds, xid } = place;
 
         const icon = document.createElement("img");
         icon.src = "./creep.jpg";
@@ -56,33 +55,32 @@ async function loadMarkers(
 
         const marker = new AdvancedMarkerElement({
           map,
-          position: { lat, lng: lon },
+          position: { lat, lng },
           title: name,
           content: icon,
         });
+        mapMarkers.push(marker);
 
         // Include OpenTripMap markers in bounds
-        bounds.extend({ lat, lng: lon });
+        bounds.extend({ lat, lng });
 
-        marker.addListener("click", async () => {
-          const res = await fetch(`/api/opentripmap/details/${feature.properties.xid}`);
-          const details = await res.json();
-          console.log(details); //!here
-          const address = details.address ? `${details.address.road || ''} ${details.address.house_number || ''}, ${details.address.city || ''}, ${details.address.country || ''}` : 'No address available';
-
-    //       //TODO get a fallback image to plug in as default if we have no details.preview.source
+        marker.addListener('click', async () => {
+          const details = await getPlaceDetails(xid);
+          const address = details?.address ?? 'No address available';
+          const img = details?.preview ? `<img src="${details.preview}" style="max-height:200px;width:auto;height:auto;" alt=""/>` : '';
+    //TODO get a fallback image to plug in as default if we have no details.preview.source
 
           infoWindow.setContent(`
             <div style="font-size:14px">
-            ${details.preview?.source ? `<img src="${details.preview.source}" style="max-height:200px; width:auto; height:auto;"/>` : ""}
-            <strong>${name}</strong><br/>
-            <em>${kinds}</em><br/>
-            ${address}
+              ${img}
+              <strong>${name}</strong><br/>
+              <em>${kinds.join(', ') || 'No category found'}</em><br/>
+              ${address}
             </div>
-            `);
-            infoWindow.open(map, marker);
-          });
+          `);
+          infoWindow.open(map, marker);
         });
+      });
 
     //     // Fit map to include the searched place + all OpenTripMap markers
     if (!bounds.isEmpty()) {
@@ -101,10 +99,10 @@ async function loadMarkers(
     map.setZoom(15);
   }
 }
-    //! Opentripmap call ends here
+//! Opentripmap call ends here
 
 
-  //! mock data call starts here
+//! mock data call starts here
 //   try {
 //     const { AdvancedMarkerElement } = (await google.maps.importLibrary(
 //       'marker',

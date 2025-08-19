@@ -150,6 +150,22 @@ interface MyQuestsPageProps {
   myQuestsLoading: boolean;
 }
 
+type OpenTripMapPlace = {
+  id: string;
+  xid: string;
+  name: string;
+  kinds: string[];
+  coords: { lat: number, lng: number };
+  url?: string;
+  source: 'opentripmap';
+}
+
+type OpenTripMapDetails = {
+  address?: string;
+  preview?: string;
+  raw?: any;
+}
+
 export type {
   AuthResponse,
   Credentials,
@@ -164,6 +180,8 @@ export type {
   MyQuest,
   MyQuestsButtonProps,
   MyQuestsPageProps,
+  OpenTripMapDetails,
+  OpenTripMapPlace,
   PublicUserData,
   Quest,
   QuestFilters,

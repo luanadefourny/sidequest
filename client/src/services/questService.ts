@@ -15,9 +15,27 @@ server.interceptors.request.use((config) => {
   return config;
 });
 
+//! mock data version
+// async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
+//   try {
+//     const { data } = await server.get<Quest[]>(`/quests`, { params: filters });
+//     return data;
+//   } catch (error) {
+//     extractAxiosError(error, 'getQuests');
+//   }
+// }
+
+//! live version for api
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
-    const { data } = await server.get<Quest[]>(`/quests`, { params: filters });
+    const params: Record<string, string> = {};
+    if ((filters as any).near)   params.near   = String((filters as any).near);   // "lon,lat"
+    if ((filters as any).radius) params.radius = String((filters as any).radius); // meters
+    if ((filters as any).limit)  params.limit  = String((filters as any).limit);
+    if ((filters as any).kinds)  params.kinds  = String((filters as any).kinds);
+
+    const { data } = await server.get<Quest[]>('/api/quests/live', { params });
+    console.log('getquests service data: ', data);
     return data;
   } catch (error) {
     extractAxiosError(error, 'getQuests');

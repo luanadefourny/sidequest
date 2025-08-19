@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 
 import Quest from '../models/questModel';
 
+const OPENTRIPMAP_KEY = process.env.OPENTRIPMAP_KEY;
+
 async function getQuests(req: Request, res: Response): Promise<void> {
   try {
     //optional query parameters for filtering on the backend
@@ -70,6 +72,7 @@ async function getQuests(req: Request, res: Response): Promise<void> {
 
     res.status(200).json(quests);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to fetch quests' });
   }
 }
@@ -89,8 +92,82 @@ async function getQuest(req: Request, res: Response): Promise<void> {
     }
     res.status(200).json(quest);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: 'Failed to fetch quest' });
   }
 }
 
-export { getQuest, getQuests };
+async function getQuestsLive (req: Request, res: Response): Promise<void> {
+  try {
+    if (!OPENTRIPMAP_KEY) {
+      res.status(500).json({ error: "OPENTRIPMAP_KEY missing" });
+      return;
+    }
+
+    const { near, radius, limit, kinds } = req.query;
+    if (!near || typeof near !== "string") {
+      res.status(400).json({ error: "near required as 'lon,lat'" });
+      return;
+    }
+    const [lonStr, latStr] = near.split(",");
+    const lon = Number(lonStr);
+    const lat = Number(latStr);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      res.status(400).json({ error: "invalid coordinates" });
+      return;
+    }
+
+    const radiusM = Math.min(Math.max(1, Math.floor(Number(radius ?? 5000))), 50000);
+    const max = (() => {
+      const n = Number(limit);
+      return Number.isFinite(n) ? Math.max(1, Math.min(n, 100)) : 50;
+    })();
+
+    const kindsParam =
+      typeof kinds === "string" && kinds.trim()
+        ? `&kinds=${encodeURIComponent(kinds)}`
+        : "";
+
+    const url =
+      `https://api.opentripmap.com/0.1/en/places/radius?` +
+      `radius=${radiusM}&lon=${lon}&lat=${lat}${kindsParam}&limit=${max}&apikey=${OPENTRIPMAP_KEY}`;
+
+    const r = await fetch(url);
+    if (!r.ok) {
+      res.status(r.status).json({ error: `opentripmap ${r.status}` });
+      return;
+    }
+    const json = await r.json();
+    const features: any[] = Array.isArray(json?.features) ? json.features : [];
+
+    const items = features
+      .filter((f: any) => Array.isArray(f?.geometry?.coordinates) && f.geometry.coordinates.length === 2)
+      .map((f: any) => {
+        const [flon, flat] = f.geometry.coordinates as [number, number];
+        const p = f.properties ?? {};
+        const wikipedia = typeof p.wikipedia === "string" ? `https://${p.wikipedia}` : undefined;
+        const wikidata = typeof p.wikidata === "string" ? `https://www.wikidata.org/wiki/${p.wikidata}` : undefined;
+        return {
+          name: String(p.name ?? "Unknown"),
+          type: "place",
+          location: { type: "Point", coordinates: [Number(flon), Number(flat)] },
+          ageRestricted: false,
+          price: undefined,
+          currency: undefined,
+          startAt: undefined,
+          endAt: undefined,
+          description: undefined,
+          url: wikipedia || wikidata,
+          source: "opentripmap",
+          sourceId: String(p.xid ?? p.id ?? `${flon},${flat}`),
+        };
+      });
+
+    res.status(200).json(items);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Failed to fetch live quests" });
+  }
+}
+
+export { getQuest, getQuests, getQuestsLive };
