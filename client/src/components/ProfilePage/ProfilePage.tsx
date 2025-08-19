@@ -241,13 +241,25 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Avatar */}
             {user.profilePicture ? (
-              <img
-                src={user.profilePicture}
-                alt={`${user.firstName ?? user.username}'s profile`}
-                className="w-32 h-32 rounded-full object-cover border border-gray-200 shadow-sm"
-              />
+              <div className="relative">
+                <img
+                  src={user.profilePicture || '/default-avatar.png'}
+                  alt={`${user.firstName}'s profile`}
+                  className="w-32 h-32 rounded-full object-cover border border-gray-300"
+                />
+                <button
+                  aria-label="Edit profile picture"
+                  onClick={() => {
+                    setProfilePicture(user.profilePicture ?? '');
+                    setMode('editProfilePicture');
+                  }}
+                  className="absolute bottom-1 right-1 p-2 rounded-full bg-white shadow border hover:bg-gray-50"
+                >
+                  <FiCamera />
+                </button>
+              </div>
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-green-500 to-emerald-500 flex items-center justify-center text-white text-3xl font-semibold border border-gray-200 shadow-sm">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-semibold border border-gray-200 shadow-sm">
                 {initials}
               </div>
             )}
@@ -560,22 +572,7 @@ export default function ProfilePage() {
             </div>
           </form>
         )}
-
-        {/* QUESTS & FAVORITES STATS */}
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="p-4 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-100 text-sm">
-            <p className="text-gray-500">Quests added</p>
-            <p className="text-lg font-semibold text-gray-800">
-              {user.myQuests?.length ?? 0}
-            </p>
-          </div>
-          <div className="p-4 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-100 text-sm">
-            <p className="text-gray-500">Favorites</p>
-            <p className="text-lg font-semibold text-gray-800">
-              {user.myQuests?.filter((mq: any) => mq.isFavorite).length ?? 0}
-            </p>
-          </div>
-        </div>
+        
       </div>
     </div>
   );
