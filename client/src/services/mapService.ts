@@ -1,3 +1,5 @@
+import { getApiData } from './apiService';
+
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
 let apiData: any[] = [];
@@ -33,18 +35,15 @@ async function loadMarkers(
       const { AdvancedMarkerElement } = (await google.maps.importLibrary(
         'marker',
       )) as google.maps.MarkerLibrary;
-      const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
-      if (!res.ok) throw new Error("Failed to fetch OpenTripMap data");
-      const data = await res.json();
+      const data = await getApiData(latitude, longitude, radius);
 
       if (seq !== loadSeq) return;
       
       apiData = data;
-      console.log(apiData);
 
       const infoWindow = new google.maps.InfoWindow();
 
-       data.forEach((feature: any) => {
+      data.forEach((feature: any) => {
         console.log('Feature: ',feature);
         const [lon, lat] = feature.geometry.coordinates;
         const name = feature.properties.name || "Unnamed place";
@@ -68,7 +67,7 @@ async function loadMarkers(
         marker.addListener("click", async () => {
           const res = await fetch(`/api/opentripmap/details/${feature.properties.xid}`);
           const details = await res.json();
-          console.log(details);
+          console.log(details); //!here
           const address = details.address ? `${details.address.road || ''} ${details.address.house_number || ''}, ${details.address.city || ''}, ${details.address.country || ''}` : 'No address available';
 
     //       //TODO get a fallback image to plug in as default if we have no details.preview.source
