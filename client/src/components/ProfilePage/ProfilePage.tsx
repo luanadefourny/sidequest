@@ -47,13 +47,11 @@ export default function ProfilePage() {
   );
 
   // MyQuests and Fav
-  const [myQuests, setMyQuests] = useState(user.myQuests || [])
+  const [myQuests, setMyQuests] = useState(user.myQuests || []);
 
   useEffect(() => {
     setMyQuests(user.myQuests || []);
   }, [user]);
-
-
 
   // Creds
   const [username, setUsername] = useState(user.username);
@@ -83,7 +81,8 @@ export default function ProfilePage() {
 
   const credsValid =
     username.trim().length >= 3 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const passwordValid = newPassword.trim().length >= 8 && newPassword === confirmPassword;
+  const passwordValid =
+    newPassword.trim().length >= 8 && newPassword === confirmPassword;
 
   function resetMessages() {
     setMsg(null);
@@ -214,7 +213,9 @@ export default function ProfilePage() {
       const { url } = await uploadProfilePicture(f);
       setProfilePicture(url);
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : "Profile picture upload failed");
+      setMsg(
+        err instanceof Error ? err.message : "Profile picture upload failed"
+      );
       console.error(err);
     } finally {
       URL.revokeObjectURL(preview);
@@ -225,7 +226,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-gray-100 p-6 sm:p-10">
-      <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
+      <div className="max-w-3xl mx-auto p-6 bg-white/95 backdrop-blur-sm shadow-md rounded-lg mt-10">
         {msg && (
           <div
             role="status"
@@ -240,25 +241,13 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Avatar */}
             {user.profilePicture ? (
-              <div className="relative">
-                <img
-                  src={user.profilePicture || '/default-avatar.png'}
-                  alt={`${user.firstName}'s profile`}
-                  className="w-32 h-32 rounded-full object-cover border border-gray-300"
-                />
-                <button
-                  aria-label="Edit profile picture"
-                  onClick={() => {
-                    setProfilePicture(user.profilePicture ?? '');
-                    setMode('editProfilePicture');
-                  }}
-                  className="absolute bottom-1 right-1 p-2 rounded-full bg-white shadow border hover:bg-gray-50"
-                >
-                  <FiCamera />
-                </button>
-              </div>
+              <img
+                src={user.profilePicture}
+                alt={`${user.firstName ?? user.username}'s profile`}
+                className="w-32 h-32 rounded-full object-cover border border-gray-200 shadow-sm"
+              />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-semibold border border-gray-200 shadow-sm">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-green-500 to-emerald-500 flex items-center justify-center text-white text-3xl font-semibold border border-gray-200 shadow-sm">
                 {initials}
               </div>
             )}
@@ -271,24 +260,11 @@ export default function ProfilePage() {
                 </h2>
                 <button
                   type="button"
-                  onClick={() => setMode('editProfile')}
-                  className='inline-flex items-center justify-center h-8 min-w-[72px] px-3 text-sm leading-none bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition'
+                  onClick={() => setMode("editProfile")}
+                  className="px-3 py-1 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition"
                   title="Edit profile"
                 >
                   Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFirstName(user.firstName ?? '');
-                    setLastName(user.lastName ?? '');
-                    setBirthday(toDateInputValue(user.birthday ?? null));
-                    setMode('editCreds');
-                  }}
-                  className='inline-flex items-center justify-center h-8 min-w-[72px] px-3 text-sm leading-none bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition'
-                  title="Edit credentials"
-                >
-                  <FiSettings className="center w-4 h-4" />
                 </button>
               </div>
 
@@ -296,9 +272,7 @@ export default function ProfilePage() {
 
               <div className="mt-3">
                 <p className="text-sm text-gray-700">
-                  <strong>Name:</strong> {user.firstName ?? "-"}{" "}
-                 
-                  {user.lastName ?? ""}
+                  <strong>Name:</strong> {user.firstName ?? "-"} {user.lastName ?? ""}
                 </p>
                 <p className="text-sm text-gray-700">
                   <strong>Birthdate:</strong>{" "}
@@ -324,7 +298,7 @@ export default function ProfilePage() {
                     setBirthday(toDateInputValue(user.birthday ?? null));
                     setMode("editProfile");
                   }}
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium hover:from-green-700"
                 >
                   Edit user profile
                 </button>
@@ -333,7 +307,7 @@ export default function ProfilePage() {
                   title="Edit settings"
                   type="button"
                   onClick={() => setMode("editCreds")}
-                  className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+                  className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-300"
                 >
                   <FiSettings className="inline" />
                 </button>
@@ -383,7 +357,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Save"}
               </button>
@@ -426,7 +400,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving || !credsValid}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Save"}
               </button>
@@ -489,7 +463,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving || !passwordValid}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Save"}
               </button>
@@ -549,9 +523,9 @@ export default function ProfilePage() {
                     key={src}
                     type="button"
                     onClick={() => setProfilePicture(src)}
-                    className={`rounded-full p-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`rounded-full p-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
                       (profilePicture || user.profilePicture) === src
-                        ? "ring-2 ring-blue-500"
+                        ? "ring-2 ring-emerald-400"
                         : ""
                     }`}
                     aria-pressed={(profilePicture || user.profilePicture) === src}
@@ -572,7 +546,7 @@ export default function ProfilePage() {
                 disabled={
                   saving || uploading || !profilePicture || profilePicture.startsWith("blob:")
                 }
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 disabled:opacity-50"
               >
                 {saving ? "Save…" : "Save"}
               </button>
@@ -586,7 +560,22 @@ export default function ProfilePage() {
             </div>
           </form>
         )}
-      
+
+        {/* QUESTS & FAVORITES STATS */}
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <div className="p-4 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-100 text-sm">
+            <p className="text-gray-500">Quests added</p>
+            <p className="text-lg font-semibold text-gray-800">
+              {user.myQuests?.length ?? 0}
+            </p>
+          </div>
+          <div className="p-4 bg-white/90 backdrop-blur-sm rounded-lg border border-gray-100 text-sm">
+            <p className="text-gray-500">Favorites</p>
+            <p className="text-lg font-semibold text-gray-800">
+              {user.myQuests?.filter((mq: any) => mq.isFavorite).length ?? 0}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
