@@ -5,7 +5,7 @@ import type { MyQuestsButtonProps } from '../../types';
 import { useUser } from '../Context/userContext';
 
 export default function FavouriteButton({ questId, myQuests, setMyQuests }: MyQuestsButtonProps) {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
   const quest = myQuests.find((myQuest) => {
     return (typeof myQuest.quest === 'string' ? myQuest.quest : myQuest.quest._id) === questId;
@@ -21,7 +21,11 @@ export default function FavouriteButton({ questId, myQuests, setMyQuests }: MyQu
     try {
       const updated = await toggleFavoriteQuest(user._id, questId, 1);
       if (updated) setMyQuests(updated);
-    } catch (error) {
+      setMyQuests(updated || []);
+      setUser({...user, myQuests: updated || []})
+
+    } 
+    catch (error) {
       console.error('Error favoriting quest: ', error);
     }
   }
