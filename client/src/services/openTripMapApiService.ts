@@ -57,7 +57,7 @@ async function getPlaceDetails (xid?: string): Promise<OpenTripMapDetails | null
 
   try {
     const { data } = await api.get(`/details/${xid}`);
-    console.log('getPlaceDetails data: ', data);
+    // console.log('getPlaceDetails data: ', data);
     const address = data?.address
       ? `${data.address.road || ''} ${data.address.house_number || ''}, ${data.address.city || ''}, ${data.address.country || ''}`.trim()
       : undefined;

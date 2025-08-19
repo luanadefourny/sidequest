@@ -45,7 +45,7 @@ async function loadMarkers(
       const infoWindow = new google.maps.InfoWindow();
 
       places.forEach((place) => {
-        console.log('Place: ',place);
+        // console.log('Place: ',place);
         const { coords: { lat, lng }, name, kinds, xid } = place;
 
         const icon = document.createElement("img");
