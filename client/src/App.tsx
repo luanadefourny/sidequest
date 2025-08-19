@@ -38,19 +38,24 @@ export default function App() {
   const [location, setLocation] = useState<Location | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchQuests() {
       try {
         const filters: QuestFilters | undefined = location
           ? { near: `${location.longitude},${location.latitude}`, radius }
           : undefined;
+
+        if (!location && radius !== 1000) return;
+
         const data = await getQuests(filters);
-        if (data) setQuests(data);
+        if (!cancelled && data) setQuests(data);
       } catch (error) {
-        console.log('Failed to fetch quests: ', error);
+        if (!cancelled) console.log('Failed to fetch quests: ', error);
       }
     }
     fetchQuests();
-  }, [location, radius]);
+    return () => { cancelled = true; };
+  }, [location?.longitude, location?.latitude, radius]);
 
   useEffect(() => {
     if (!loggedIn) {

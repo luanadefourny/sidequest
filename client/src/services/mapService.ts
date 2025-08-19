@@ -1,6 +1,10 @@
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
 let apiData: any[] = [];
+let currentMap: google.maps.Map | null = null;
+let currentRadius = 1000; //meters
+let loadSeq = 0;
+let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
 export function getMarkerPosition() {
   return coordsHelper;
@@ -20,6 +24,10 @@ async function loadMarkers(
   radius: number
 ) {
 
+    const seq = ++loadSeq;
+    // clear previous markers
+    mapMarkers.forEach(m => (m.map = null));
+    mapMarkers = [];
   //! Opentripmap call starts here - DON'T DELETE IT PLEASE
     try {
       const { AdvancedMarkerElement } = (await google.maps.importLibrary(
@@ -28,6 +36,9 @@ async function loadMarkers(
       const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
       if (!res.ok) throw new Error("Failed to fetch OpenTripMap data");
       const data = await res.json();
+
+      if (seq !== loadSeq) return;
+      
       apiData = data;
       console.log(apiData);
 
@@ -57,6 +68,7 @@ async function loadMarkers(
         marker.addListener("click", async () => {
           const res = await fetch(`/api/opentripmap/details/${feature.properties.xid}`);
           const details = await res.json();
+          console.log(details);
           const address = details.address ? `${details.address.road || ''} ${details.address.house_number || ''}, ${details.address.city || ''}, ${details.address.country || ''}` : 'No address available';
 
     //       //TODO get a fallback image to plug in as default if we have no details.preview.source
@@ -201,6 +213,8 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     streetViewControl: false,
   });
 
+  currentMap = map;
+
   let currentMarker: google.maps.marker.AdvancedMarkerElement | null = null;
 
   currentMarker = new AdvancedMarkerElement({
@@ -211,7 +225,8 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
 
   const bounds = new google.maps.LatLngBounds();
   console.log('Radius here: ', radius);
-  await loadMarkers(map, bounds, position.lat, position.lng, radius);
+  currentRadius = radius;
+  await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
 
   const autocomplete = new Autocomplete(input);
   autocomplete.bindTo('bounds', map);
@@ -307,3 +322,19 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     //! Opentripmap call ends here
   });
 }
+
+window.addEventListener('radiuschange', async (e: Event) => {
+  try {
+    if (!currentMap || !coordsHelper) return;
+    const { radius } = (e as CustomEvent<{ radius: number }>).detail;
+    currentRadius = radius;
+    const [lonStr, latStr] = coordsHelper.split(',');
+    const lon = parseFloat(lonStr);
+    const lat = parseFloat(latStr);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+    const bounds = new google.maps.LatLngBounds();
+    await loadMarkers(currentMap, bounds, lat, lon, currentRadius);
+  } catch (err) {
+    console.error('Failed to reload markers on radius change', err);
+  }
+});
