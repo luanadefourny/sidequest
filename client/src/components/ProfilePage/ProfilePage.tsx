@@ -236,7 +236,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* VIEW MODE */}
+        {/* VIEW MODE eee*/}
         {mode === "view" && (
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Avatar */}
