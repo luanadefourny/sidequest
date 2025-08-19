@@ -54,8 +54,9 @@ async function registerUser(userData: RegisterUserData): Promise<User> {
 
 async function loginUser(loginData: LoginUserData): Promise<AuthResponse> {
   try {
-    const { data: res } = await server.post<AuthResponse>(`/login`, loginData);
-    return res;
+    const { data } = await server.post<AuthResponse>(`/login`, loginData);
+    console.log('login service: ', data);
+    return data;
   } catch (error) {
     extractAxiosError(error, 'loginUser');
   }
