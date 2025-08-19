@@ -21,6 +21,7 @@ export default function App() {
   const { user, loggedIn } = useUser();
   const { pathname } = useLocation();
   const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
+  const [radius, setRadius] = useState<number>(1000);
 
   useLayoutEffect(() => {
     if (!loggedIn) {
@@ -37,19 +38,24 @@ export default function App() {
   const [location, setLocation] = useState<Location | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchQuests() {
       try {
         const filters: QuestFilters | undefined = location
-          ? { near: `${location.longitude},${location.latitude}`, radius: 2500 }
+          ? { near: `${location.longitude},${location.latitude}`, radius }
           : undefined;
+
+        if (!location && radius !== 1000) return;
+
         const data = await getQuests(filters);
-        if (data) setQuests(data);
+        if (!cancelled && data) setQuests(data);
       } catch (error) {
-        console.log('Failed to fetch quests: ', error);
+        if (!cancelled) console.log('Failed to fetch quests: ', error);
       }
     }
     fetchQuests();
-  }, [location]);
+    return () => { cancelled = true; };
+  }, [location?.longitude, location?.latitude, radius]);
 
   useEffect(() => {
     if (!loggedIn) {
@@ -91,7 +97,12 @@ export default function App() {
         path="/homepage"
         element={
           <Layout>
-            <HomePage location={location} setLocation={setLocation} />
+            <HomePage
+              location={location}
+              setLocation={setLocation}
+              radius={radius}
+              setRadius={setRadius}
+            />
           </Layout>
         }
       />
@@ -139,7 +150,7 @@ export default function App() {
         path="/map"
         element={
           <Layout>
-            <MapComponent setLocation={setLocation} />
+            <MapComponent setLocation={setLocation} radius={radius}/>
           </Layout>
         }
       />

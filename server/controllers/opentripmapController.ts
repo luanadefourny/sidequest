@@ -4,14 +4,16 @@ const OPENTRIPMAP_KEY = process.env.OPENTRIPMAP_KEY!;
 
 export async function getOpenTripMapEvents(request: Request, response: Response) {
   const { latitude, longitude, radius } = request.query;
+  console.log(radius);
 
   if (!latitude || !longitude) {
     return response.status(400).json({ error: 'Missing coordinates' });
   }
 
   try {
+    console.log(radius);
     const url = `https://api.opentripmap.com/0.1/en/places/radius?radius=${radius}&lon=${longitude}&lat=${latitude}&apikey=${OPENTRIPMAP_KEY}`;
-
+    console.log(url);
     const responseData = await fetch(url as string);
 
     if (!responseData.ok) {

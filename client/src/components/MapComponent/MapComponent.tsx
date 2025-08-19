@@ -1,7 +1,8 @@
 import './MapComponent.css';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef,useState } from 'react';
 import { IoIosSearch } from 'react-icons/io';
+import { RiCustomerService2Fill } from 'react-icons/ri';
 
 import { getMarkerPosition, initMap } from '../../services/mapService';
 import type { MapComponentProps } from '../../types';
@@ -35,23 +36,31 @@ function loadGoogleMapsScript(onLoad: () => void) {
   document.head.appendChild(script);
 }
 
-export default function MapComponent({ setLocation }: MapComponentProps) {
+export default function MapComponent({ setLocation, radius }: MapComponentProps) {
   const [showInput, setShowInput] = useState(false);
+  const initedRef = useRef(false);
 
   useEffect(() => {
+    if (initedRef.current) return;
+    initedRef.current = true;
+
     const container = document.getElementById('map');
     const input = document.getElementById('pac-input') as HTMLInputElement;
     if (!container) return;
 
     loadGoogleMapsScript(() => {
-      initMap(container, input);
+      initMap(container, input, radius); // Pass radius here!
       const position = getMarkerPosition();
       if (position) {
-        const [lon, lat] = position.split(','); //TODO i'm an idiot and mihai should change how they are returned hehe
+        const [lon, lat] = position.split(',');
         setLocation({ longitude: lon, latitude: lat });
       }
     });
-  }, []);
+  }, [setLocation]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('radiuschange', { detail: { radius } }));
+  }, [radius]);
 
   useEffect(() => {
     function onMarkerChange(event: Event) {
