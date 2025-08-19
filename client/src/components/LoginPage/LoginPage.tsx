@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const user = await loginUser({
+      const { user, token } = await loginUser({
         username: username.trim(),
         password: password.trim(),
       });
@@ -28,6 +28,7 @@ export default function LoginPage() {
 
       console.log('Login successful', user);
       setUser(user);
+      localStorage.setItem('auth-token', token);
       navigate('/homepage', { replace: true });
     } catch (err: unknown) {
       console.error('Login error:', err);

@@ -54,7 +54,7 @@ export default function RegisterPage() {
       });
 
       // Login user immediately after registering
-      const user = await loginUser({
+      const { user, token } = await loginUser({
         username: username.trim(),
         password: password.trim(),
       });
@@ -65,6 +65,7 @@ export default function RegisterPage() {
       }
 
       setUser(user);
+      localStorage.setItem('auth-token', token);
 
       // Reset form
       setFirstName('');

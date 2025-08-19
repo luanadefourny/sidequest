@@ -21,6 +21,7 @@ export default function NavBar() {
       console.error('Logout failed', err);
     } finally {
       setUser(null);
+      localStorage.removeItem('auth-token');
       navigate('/');
     }
   };

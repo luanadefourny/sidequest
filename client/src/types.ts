@@ -30,6 +30,11 @@ type User = {
   }[];
 };
 
+type AuthResponse = {
+  user: User;
+  token: string;
+}
+
 type PublicUserData = {
   _id: string;
   username: string;
@@ -146,6 +151,7 @@ interface MyQuestsPageProps {
 }
 
 export type {
+  AuthResponse,
   Credentials,
   EditUserData,
   ErrorBody,
