@@ -1,50 +1,59 @@
-import { Link } from 'react-router-dom';
-
-import type { HomePageProps } from '../../types';
-import MapComponent from '../MapComponent/MapComponent';
-import DistanceSlider from '../Slider/Slider';
+import { Link } from "react-router-dom";
+import background from "../../../public/background.jpg";
+import type { HomePageProps } from "../../types";
+import MapComponent from "../MapComponent/MapComponent";
+import DistanceSlider from "../Slider/Slider";
 
 export default function HomePage({ location, setLocation, radius, setRadius }: HomePageProps) {
-  console.log(location); //TODO remove (and change homepage props)
-
   return (
     <div className="home-page">
-      <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-b from-indigo-100 via-white to-gray-100 p-6 pt-12">
-        {/* Hero Section */}
-        <div className="flex flex-col items-center justify-center p-8 mt-6 mx-auto max-w-2xl text-center animate-fadeIn">
+      {/* Background with overlay */}
+      <div
+        className="relative min-h-screen flex flex-col items-center justify-start bg-cover bg-center bg-no-repeat px-6 pt-12"
+        style={{ backgroundImage: `url(${background})`}}
+        
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/20 to-white/60 backdrop-blur-[2px]" />
+
+        {/* Content above overlay */}
+        <div className="relative z-10 flex flex-col items-center justify-center p-8 mt-8 mx-auto max-w-2xl text-center animate-fadeIn">
           <img
             src="/sidequest-logo.png"
             alt="SideQuest Logo"
-            className="h-24 w-auto mb-6 drop-shadow-xl hover:scale-105 transition-transform duration-300"
+            className="h-28 w-auto mb-6 drop-shadow-2xl hover:scale-110 transition-transform duration-500"
           />
-          <h1 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight drop-shadow-sm">
-            Welcome to{' '}
-            <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
-              SideQuest
-            </span>
-            !
+
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 drop-shadow-sm mb-4">
+            Welcome to <span className="text-green-600">SideQuest</span>
           </h1>
-          <p className="text-lg text-gray-700 mb-2 leading-relaxed">
-            Discover{' '}
-            <span className="font-semibold text-indigo-600 hover:underline">
+
+          <p className="text-lg text-gray-700 mb-3 leading-relaxed font-medium">
+            Discover{" "}
+            <span className="font-semibold text-green-600 hover:underline transition-colors">
               <Link to="/quests">local quests</Link>
-            </span>{' '}
+            </span>{" "}
             and adventures in your area.
           </p>
-          <p className="text-base text-gray-500">Enter your location below to get started.</p>
+          <p className="text-base text-gray-600 font-medium">
+            Enter your location below to get started.
+          </p>
         </div>
 
-        <DistanceSlider radius={radius} setRadius={setRadius} />
+        {/* Distance Slider */}
+        <div className="relative z-10 mt-4">
+          <DistanceSlider radius={radius} setRadius={setRadius} />
+        </div>
 
         {/* Map container */}
-        <div className="w-full sm:w-[600px] h-[320px] sm:h-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 mt-6 transition-transform hover:scale-[1.02] hover:shadow-3xl duration-300">
+        <div className="relative z-10 w-full sm:w-[750px] h-[320px] sm:h-[700px] bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-gray-200 mt-8 transform transition-all hover:scale-[1.02] hover:shadow-3xl duration-500">
           <MapComponent setLocation={setLocation} radius={radius} />
         </div>
 
         {/* Button */}
-        <div className="mt-10 animate-slideUp">
+        <div className="relative z-10 mt-12 animate-slideUp">
           <Link to="/quests">
-            <button className="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
+            <button className="px-12 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white font-semibold text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:from-green-700 hover:to-teal-700 transition-all duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-[1.03]">
               🚀 Begin Your Adventure
             </button>
           </Link>
