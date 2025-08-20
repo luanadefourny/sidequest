@@ -5,10 +5,39 @@ import type { Quest, QuestsPageProps } from '../../types';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import QuestModal from '../QuestModal/QuestModal';
 
-
 export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPageProps) {
   const [showQuestModal, setShowQuestModal] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+
+  function pickRandomFrom(list: Quest[]) {
+    if (!list || list.length === 0) return null;
+    const idx = Math.floor(Math.random() * list.length);
+    return list[idx] ?? null;
+  }
+
+  function handleRandomAny() {
+    const q = pickRandomFrom(quests);
+    if (!q) {
+      alert('No quests available');
+      return;
+    }
+    setSelectedQuest(q);
+    setShowQuestModal(true);
+  }
+
+  function handleRandomNormal() {
+    const normalList = quests.filter((t: any) => {
+      const d = (t as any).difficulty ?? (t as any).level ?? '';
+      return typeof d === 'string' ? d.toLowerCase() === 'normal' : false;
+    });
+    const q = pickRandomFrom(normalList);
+    if (!q) {
+      alert('No normal quests available');
+      return;
+    }
+    setSelectedQuest(q);
+    setShowQuestModal(true);
+  }
 
   return (
     <>
@@ -19,9 +48,20 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
         <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide drop-shadow-md">
           Available Quests
         </h1>
-        <p className="text-gray-600 text-center max-w-3xl mx-auto mb-10 text-lg leading-relaxed">
+        <p className="text-gray-600 text-center max-w-3xl mx-auto mb-6 text-lg leading-relaxed">
           Choose your next adventure and start your journey!
         </p>
+
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <button
+            onClick={handleRandomAny}
+            className="px-4 py-2 bg-gradient-to-r from-black to-black text-white font-semibold rounded-lg shadow-md hover:from-gray-700 hover:to-gray-600 transition-transform duration-150 transform hover:-translate-y-0.5"
+            aria-label="Pick a random quest"
+          >
+            🎲 Random Quest
+          </button>
+         
+        </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-6">
           {quests.map((quest) => (
