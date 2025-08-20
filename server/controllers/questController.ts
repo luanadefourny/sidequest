@@ -178,7 +178,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
       return;
     }
     const json = await r.json();
-    
+
     const features: any[] = Array.isArray(json?.features) ? json.features : [];
 
     const items: QuestDTO[] = features
@@ -335,9 +335,6 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     }
 
     res.status(200).json(merged);
-
-
-    // res.status(200).json(items);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Failed to fetch live quests" });

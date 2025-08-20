@@ -47,7 +47,7 @@ type PublicUserData = {
 type Quest = {
   _id: string;
   name: string;
-  type: 'event' | 'place' | 'activity'; //! subject to change
+  type: 'event' | 'place'; //! subject to change
   location: GeoPoint;
   ageRestricted: boolean;
   price?: number;
@@ -58,6 +58,7 @@ type Quest = {
   description?: string;
   source?: string;
   sourceId?: string;
+  clientId?: string;
 };
 
 interface RegisterUserData {
@@ -97,7 +98,7 @@ interface FavouriteButtonProps {
 }
 
 type QuestFilters = {
-  type?: 'event' | 'place' | 'activity';
+  type?: 'event' | 'place';
   ageRestricted?: '0' | '1';
   priceMin?: number | string;
   priceMax?: number | string;
@@ -169,7 +170,7 @@ type OpenTripMapDetails = {
 type QuestDTO = {
   _id?: string;
   name: string;
-  type: 'event' | 'place' | 'activity';
+  type: 'event' | 'place';
   location: { type: 'Point'; coordinates: [number, number] };
   ageRestricted: boolean;
   price?: number;
@@ -180,6 +181,7 @@ type QuestDTO = {
   description?: string;
   source?: string;
   sourceId?: string;
+  clientId?: string;
 };
 
 export type {
