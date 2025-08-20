@@ -7,6 +7,7 @@ import FavouriteButton from '../FavouriteButton/favouriteButton';
 import FavQuestModal from '../FavQuestModal/FavQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import MyQuests from '../../assets/MyQuests.jpg';
+import type { Quest } from '../../types';
 
 export default function FavQuestList({
   myQuests,
