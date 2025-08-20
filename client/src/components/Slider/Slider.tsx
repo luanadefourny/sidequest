@@ -54,7 +54,7 @@ export default function DistanceSlider({ radius, setRadius }: DistanceSliderProp
         <Slider
           aria-label="Distance in km"
           value={uIRadius}
-          min={0}
+          min={1}
           max={MAX_RADIUS_KM}
           step={1}
           marks={marks}

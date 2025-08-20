@@ -6,7 +6,7 @@ import { useUser } from '../Context/userContext';
 import FavouriteButton from '../FavouriteButton/favouriteButton';
 import FavQuestModal from '../FavQuestModal/FavQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
-import MyQuests from '../../../public/MyQuests.jpg';
+import MyQuests from '../../assets/MyQuests.jpg';
 
 export default function FavQuestList({
   myQuests,

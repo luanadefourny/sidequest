@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import QuestPage from '../../../public/QuestsPage.jpg';
+import QuestPage from '../../assets/QuestsPage.jpg';
 import type { Quest, QuestsPageProps } from '../../types';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import QuestModal from '../QuestModal/QuestModal';
