@@ -31,4 +31,8 @@ async function getTicketmasterEvents(params: {
   }
 }
 
-export { getTicketmasterEvents };
+async function getEventDetails () {
+
+}
+
+export { getEventDetails, getTicketmasterEvents };
