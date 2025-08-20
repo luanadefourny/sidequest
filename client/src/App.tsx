@@ -41,11 +41,9 @@ export default function App() {
     let cancelled = false;
     async function fetchQuests() {
       try {
-        const filters: QuestFilters | undefined = location
-          ? { near: `${location.longitude},${location.latitude}`, radius }
-          : undefined;
+        if (!location) return;
 
-        if (!location && radius !== 1000) return;
+        const filters: QuestFilters = { near: `${location.longitude},${location.latitude}`, radius };
 
         const data = await getQuests(filters);
         if (!cancelled && data) setQuests(data);

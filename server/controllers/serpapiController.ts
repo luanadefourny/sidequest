@@ -15,12 +15,12 @@ async function geocodeLocation(latitude: number, longitude: number) {
 
 export async function getSerpEvents(request: Request, response: Response) {
   const { latitude, longitude } = request.query;
-  const locationName = await geocodeLocation(Number(latitude), Number(longitude));
-
+  
   if (!latitude || !longitude) {
     return response.status(400).json({ error: 'Missing coordinates' });
   }
-
+  const locationName = await geocodeLocation(Number(latitude), Number(longitude));
+  
   try {
     const url = `https://serpapi.com/search.json?engine=google_events&q=Events&location=${encodeURIComponent(locationName)}&hl=en&htichips=date:month&api_key=${SERPAPI_KEY}`;
 
@@ -33,6 +33,7 @@ export async function getSerpEvents(request: Request, response: Response) {
     const parsedData = await responseData.json();
     return response.json(parsedData.events);
   } catch (error) {
+    console.log(error);
     response.status(500).json({ error: 'Some server error in opentripmap controller' });
   }
 }
