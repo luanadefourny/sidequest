@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+
 import background from "../../assets/background.jpg";
 import type { HomePageProps } from "../../types";
 import MapComponent from "../MapComponent/MapComponent";

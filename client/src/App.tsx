@@ -5,6 +5,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import { useUser } from './components/Context/userContext';
 import FavQuestList from './components/FavQuestList/FavQuestList';
+import FindUsers from './components/FindUsers/FindUsers';
 import HomePage from './components/HomePage/HomePage';
 import Layout from './components/Layout/Layout';
 import LoginPage from './components/LoginPage/LoginPage';
@@ -16,7 +17,6 @@ import RegisterPage from './components/RegisterPage/RegisterPage';
 import { getQuests } from './services/questService';
 import { getMyQuests } from './services/userService';
 import type { Location, MyQuest, Quest, QuestFilters } from './types';
-import FindUsers from './components/FindUsers/FindUsers';
 
 export default function App() {
   const { user, loggedIn } = useUser();
@@ -63,7 +63,6 @@ export default function App() {
       return;
     }
 
-    // const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
     if (!needsMyQuests) {
       setMyQuestsLoading(false);
       return;
@@ -88,7 +87,6 @@ export default function App() {
   }, [loggedIn, user?._id, pathname]);
 
   return (
-    // <BrowserRouter>
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
@@ -162,7 +160,5 @@ export default function App() {
       }
       />
     </Routes>
-    
-    //  </BrowserRouter>
   );
 }

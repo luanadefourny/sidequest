@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 const OPENTRIPMAP_KEY = process.env.OPENTRIPMAP_KEY!;
 
 export async function getOpenTripMapEvents(request: Request, response: Response) {
+  console.log('in getopentripmapevents');
   const { latitude, longitude, radius, kinds } = request.query;
   console.log(radius);
 
@@ -22,7 +23,7 @@ export async function getOpenTripMapEvents(request: Request, response: Response)
     if (typeof kinds === 'string' && kinds.trim()) params.set('kinds', kinds);
 
     const url = `https://api.opentripmap.com/0.1/en/places/radius?${params.toString()}`;
-    // console.log(url);
+    console.log(url);
     const responseData = await fetch(url);
 
     if (!responseData.ok) {
