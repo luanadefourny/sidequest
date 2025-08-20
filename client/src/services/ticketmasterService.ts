@@ -31,20 +31,17 @@ async function getTicketmasterEvents(params: {
   }
 }
 
-async function getEventDetails () {
-  if (!xid) return null;
-  
-    try {
-      const { data } = await api.get(`/details/${xid}`);
-      // console.log('getPlaceDetails data: ', data);
-      const address = data?.address
-        ? `${data.address.road || ''} ${data.address.house_number || ''}, ${data.address.city || ''}, ${data.address.country || ''}`.trim()
-        : undefined;
-      const preview = data?.preview?.source as string | undefined;
-      return { address, preview, raw: data }; 
-    } catch (error) {
-      extractAxiosError(error, 'getPlaceDetails');
-    }
+async function getEventDetails (id: string) {
+  try {
+    const { data } = await api.get(`/api/ticketmaster/${encodeURIComponent(id)}`);
+    return data as {
+      id: string; name: string; url?: string; info?: string;
+      venueName?: string; address?: string; city?: string; country?: string;
+      image?: string; start?: string; price?: number; currency?: string;
+    };
+  } catch (error) {
+    extractAxiosError(error, 'getEventDetails');
+  }
 }
 
 export { getEventDetails, getTicketmasterEvents };

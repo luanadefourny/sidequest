@@ -1,11 +1,9 @@
 import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import fs from 'fs';
-import { Types } from 'mongoose';
 import multer from 'multer';
 import path from 'path';
 
-import Quest from '../models/questModel';
 import User from '../models/userModel';
 import generateToken from '../utils/generateToken';
 import {
@@ -342,13 +340,9 @@ async function getMyQuests(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    if (!user.myQuests || user.myQuests.length === 0) {
-      res.status(404).json({ error: 'No quests found for this user' });
+    if (!Array.isArray(user.myQuests) || user.myQuests.length === 0) {
+      res.status(200).json([]);
       return;
-    }
-
-    if (req.query.populate === '1') {
-      await user.populate('myQuests.quest');
     }
 
     res.status(200).json(user.myQuests);
@@ -373,16 +367,17 @@ async function getMyQuest(req: Request, res: Response): Promise<void> {
     }
 
     //check if quest is part of myQuests
-    const questIndex = user.myQuests.findIndex((myQuest) => myQuest.quest.toString() === questId);
-
+    const questIndex = user.myQuests.findIndex(
+      (myQuest: any) => myQuest.quest && (myQuest.quest as any)._id === questId
+    );
     if (questIndex === -1) {
       res.status(404).json({ error: 'No quest with that questId found for this user' });
       return;
     }
 
-    if (req.query.populate === '1') {
-      await user.populate('myQuests.quest');
-    }
+    // if (req.query.populate === '1') {
+    //   await user.populate('myQuests.quest');
+    // }
 
     res.status(200).json(user.myQuests[questIndex]);
   } catch (err) {
@@ -392,47 +387,41 @@ async function getMyQuest(req: Request, res: Response): Promise<void> {
 }
 
 async function addToMyQuests(req: Request, res: Response): Promise<void> {
-  const { userId, questId } = req.params;
-  if (!userId || !questId) {
-    res.status(400).json({ error: 'Missing userId or questId parameter' });
+
+  const { userId } = req.params;
+  if (!userId) {
+    res.status(400).json({ error: 'Missing userId' });
     return;
   }
 
   try {
-    const quest = await Quest.findById(questId);
-    if (!quest) {
-      res.status(404).json({ error: 'Quest not found' });
-      return;
-    }
-
     const userToUpdate = await User.findById(userId);
     if (!userToUpdate) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
+    const questToAdd = (req.body as any);
+    if (!questToAdd) {
+      res.status(400).json({ error: 'Missing quest data' });
+      return;
+    }
 
-    //check if quest is already part of myQuests
-    const inMyQuests = userToUpdate.myQuests.some(
-      (myQuest) => myQuest.quest.toString() === questId,
-    );
-    if (inMyQuests) {
-      //TODO remove code repetition
-      if (req.query.populate === '1') {
-        await userToUpdate.populate('myQuests.quest');
-      }
+    const questExists = userToUpdate.myQuests.some(
+      (myQuest) => myQuest.quest && myQuest.quest._id === questToAdd._id
+    )
+
+    // if already in my quests, return the array as is
+    if (questExists) {
       res.status(200).json(userToUpdate.myQuests);
       return;
     }
 
     userToUpdate.myQuests.push({
-      quest: new Types.ObjectId(questId),
+      quest: questToAdd,
       isFavorite: false,
     });
 
     await userToUpdate.save();
-    if (req.query.populate === '1') {
-      await userToUpdate.populate('myQuests.quest');
-    }
 
     res.status(201).json(userToUpdate.myQuests);
   } catch (err) {
@@ -449,13 +438,6 @@ async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    //TODO what if a quest disappears from api but is still saved to a user?
-    // const quest = await Quest.findById(questId);
-    // if (!quest) {
-    //   res.status(404).json({ error: 'Quest not found' });
-    //   return;
-    // }
-
     const userToUpdate = await User.findById(userId);
     if (!userToUpdate) {
       res.status(404).json({ error: 'User not found' });
@@ -464,7 +446,8 @@ async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
 
     //check if quest is part of myQuests
     const questIndex = userToUpdate.myQuests.findIndex(
-      (myQuest) => myQuest.quest.toString() === questId,
+      (myQuest) => myQuest.quest && myQuest.quest._id === questId,
+      // (myQuest) => myQuest.quest.toString() === questId,
     );
     //nothing to remove
     if (questIndex === -1) {
@@ -494,13 +477,6 @@ async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    //TODO what if a quest disappears from api but is still saved to a user?
-    // const quest = await Quest.findById(questId);
-    // if (!quest) {
-    //   res.status(404).json({ error: 'Quest not found' });
-    //   return;
-    // }
-
     const userToUpdate = await User.findById(userId);
     if (!userToUpdate) {
       res.status(404).json({ error: 'User not found' });
@@ -508,7 +484,7 @@ async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
     }
 
     const questToFavorite = userToUpdate.myQuests.find(
-      (myQuest) => myQuest.quest.toString() === questId,
+      (myQuest) => myQuest.quest && myQuest.quest._id === questId,
     );
     if (!questToFavorite) {
       res.status(404).json({ error: 'Quest not found in myQuests' });
@@ -519,10 +495,6 @@ async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
     questToFavorite.isFavorite = !questToFavorite.isFavorite;
 
     await userToUpdate.save();
-
-    if (req.query.populate === '1') {
-      await userToUpdate.populate('myQuests.quest');
-    }
 
     res.status(200).json(userToUpdate.myQuests);
   } catch (err) {
@@ -538,7 +510,6 @@ async function followUser (req: Request, res: Response): Promise<void> {
     return;
   }
 
-  // actor comes from auth middleware
   const actorId = (req as any).userId || (req as any).user?.id || (req as any).auth?.userId;
   if (!actorId) {
     res.status(401).json({ error: 'Missing auth user' });
@@ -597,7 +568,6 @@ async function unfollowUser (req: Request, res: Response): Promise<void> {
       User.updateOne({ _id: targetUserId }, { $pull: { followers: actorId } }),
     ]);
 
-    // idempotent: 204 whether or not a relation existed
     res.status(204).send();
   } catch (err) {
     console.log(err);

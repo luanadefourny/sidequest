@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import MyQuests from "../../assets/MyQuests.jpg"
 import type { MyQuestsPageProps } from '../../types';
+import type { Quest } from '../../types';
 import FavouriteButton from '../FavouriteButton/favouriteButton';
 import MyQuestModal from '../MyQuestModal/MyQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
-import MyQuests from "../../assets/MyQuests.jpg"
-import type { Quest } from '../../types';
 
 
 export default function MyQuestsPage({
@@ -73,7 +73,7 @@ export default function MyQuestsPage({
 
                     <div className="flex items-center gap-3 mt-6">
                       <MyQuestsButton
-                        questId={myQuest.quest._id}
+                        quest={myQuest.quest}
                         myQuests={myQuests}
                         setMyQuests={setMyQuests}
                       />
@@ -89,7 +89,7 @@ export default function MyQuestsPage({
                       </button>
 
                       <FavouriteButton
-                        questId={myQuest.quest._id}
+                        quest={myQuest.quest}
                         myQuests={myQuests}
                         setMyQuests={setMyQuests}
                       />

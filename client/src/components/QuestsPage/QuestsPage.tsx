@@ -37,7 +37,7 @@ export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPage
               </div>
 
               <div className="flex items-center gap-3 mt-6">
-                <MyQuestsButton questId={quest._id} myQuests={myQuests} setMyQuests={setMyQuests} />
+                <MyQuestsButton quest={quest} myQuests={myQuests} setMyQuests={setMyQuests} />
 
                 <button
                   className="flex-1 text-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:from-green-700 hover:to-emerald-700 transition-transform duration-150 transform hover:-translate-y-0.5"
