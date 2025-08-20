@@ -59,6 +59,8 @@ type Quest = {
   source?: string;
   sourceId?: string;
   clientId?: string;
+  venueName?: string;
+  image?: string;
 };
 
 interface RegisterUserData {
@@ -182,6 +184,8 @@ type QuestDTO = {
   source?: string;
   sourceId?: string;
   clientId?: string;
+  venueName?: string;
+  image?: string;
 };
 
 export type {
