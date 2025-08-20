@@ -5,6 +5,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import { useUser } from './components/Context/userContext';
 import FavQuestList from './components/FavQuestList/FavQuestList';
+import FindUsers from './components/FindUsers/FindUsers';
 import HomePage from './components/HomePage/HomePage';
 import Layout from './components/Layout/Layout';
 import LoginPage from './components/LoginPage/LoginPage';
@@ -149,6 +150,14 @@ export default function App() {
             <MapComponent setLocation={setLocation} radius={radius}/>
           </Layout>
         }
+      />
+      <Route
+      path="/find-users"
+      element={
+        <Layout>
+          <FindUsers />
+        </Layout>
+      }
       />
     </Routes>
   );

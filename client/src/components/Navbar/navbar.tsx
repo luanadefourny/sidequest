@@ -140,6 +140,14 @@ export default function NavBar() {
                   >
                     My Quests
                   </Link>
+                  <Link
+                    to="/find-users"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors font-extrabold"
+                  >
+                    Find Users
+                  </Link>
 
                   <Link
                     to="/favquestlist"

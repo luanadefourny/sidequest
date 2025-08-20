@@ -6,6 +6,7 @@ import FavouriteButton from '../FavouriteButton/favouriteButton';
 import MyQuestModal from '../MyQuestModal/MyQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import MyQuests from "../../assets/MyQuests.jpg"
+import type { Quest } from '../../types';
 
 
 export default function MyQuestsPage({
