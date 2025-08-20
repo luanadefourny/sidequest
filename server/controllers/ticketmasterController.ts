@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
+ 
 import { Request, Response } from 'express';
 
 const TICKETMASTER_KEY = process.env.TICKETMASTER_KEY!;
@@ -146,4 +146,41 @@ async function getTicketmasterEvents (req: Request, res: Response) {
   }
 }
 
-export { getTicketmasterEvents };
+async function getTicketmasterEventDetails (req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'Missing event id' });
+
+    const url = `https://app.ticketmaster.com/discovery/v2/events/${encodeURIComponent(id)}.json?apikey=${TICKETMASTER_KEY}`;
+    const r = await fetch(url);
+    if (!r.ok) return res.status(r.status).json({ error: `ticketmaster ${r.status}`, body: await r.text() });
+
+    const ev: any = await r.json();
+    const venue = ev?._embedded?.venues?.[0];
+    const images: any[] = Array.isArray(ev?.images) ? ev.images : [];
+    const primaryImage = images.find((i: any) => typeof i?.url === 'string')?.url;
+
+    res.json({
+      id: String(ev?.id ?? id),
+      name: String(ev?.name ?? 'Event'),
+      url: typeof ev?.url === 'string' ? ev.url : undefined,
+      info: typeof ev?.info === 'string' ? ev.info : (typeof ev?.pleaseNote === 'string' ? ev.pleaseNote : undefined),
+      venueName: typeof venue?.name === 'string' ? venue.name : undefined,
+      address: venue?.address?.line1,
+      city: venue?.city?.name,
+      country: venue?.country?.name,
+      image: primaryImage,
+      start: ev?.dates?.start?.dateTime ?? ev?.dates?.start?.localDate,
+      price: Array.isArray(ev?.priceRanges) && ev.priceRanges[0]?.min,
+      currency: Array.isArray(ev?.priceRanges) && ev.priceRanges[0]?.currency,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch TM event details' });
+  }
+}
+
+export { 
+  getTicketmasterEventDetails,
+  getTicketmasterEvents,
+};

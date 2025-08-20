@@ -2,6 +2,7 @@ import { HARD_LIMIT } from '../constants';
 import type { Quest } from '../types';
 import { getPlaceDetails } from './openTripMapApiService';
 import { getQuests } from './questService';
+import { getEventDetails } from './ticketmasterService';
 
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
@@ -79,16 +80,45 @@ async function loadMarkers(
         marker.addListener('click', async () => {
           let bodyHtml = '';
 
-          if (quest.source === 'opentripmap' && typeof quest.sourceId === 'string' && quest.sourceId) {
-            // Enrich OTM places with image/address
+          // 1) Ticketmaster events: fetch details server-side
+          if (
+            quest.type === 'event' &&
+            quest.source === 'ticketmaster' &&
+            typeof quest.sourceId === 'string' &&
+            quest.sourceId
+          ) {
+            try {
+              const d = await getEventDetails(quest.sourceId);
+              const img = d?.image ? `<img src="${d.image}" style="max-height:200px;width:auto;height:auto;" alt=""/>` : '';
+              const venue = d?.venueName ? `<div><strong>${d.venueName}</strong></div>` : '';
+              const addr = [d?.address, d?.city, d?.country].filter(Boolean).join(', ');
+              const addrHtml = addr ? `<div>${addr}</div>` : '';
+              const info = d?.info ? `<div>${d.info}</div>` : '';
+              const start = d?.start ? `<div>${new Date(d.start).toLocaleString()}</div>` : '';
+              const price = d?.price && d?.currency ? `<div>From ${d.price} ${d.currency}</div>` : '';
+              const link = d?.url ? `<a href="${d.url}" target="_blank" rel="noopener">More info</a>` : '';
+              bodyHtml = `${img}${venue}${addrHtml}${start}${info}${price}${link}`;
+            } catch (e) {
+              console.error('Failed to fetch TM details', e);
+              // fallback to quest fields if details call fails
+              const img = quest.image ? `<img src="${quest.image}" style="max-height:200px;width:auto;height:auto;" alt=""/>` : '';
+              const venue = quest.venueName ? `<div><strong>${quest.venueName}</strong></div>` : '';
+              const desc = quest.description ? `<div>${quest.description}</div>` : '';
+              const link = quest.url ? `<a href="${quest.url}" target="_blank" rel="noopener">More info</a>` : '';
+              bodyHtml = `${img}${venue}${desc}${link}`;
+            }
+          }
+          // 2) OpenTripMap places: enrich with image/address
+          else if (quest.source === 'opentripmap' && typeof quest.sourceId === 'string' && quest.sourceId) {
             const details = await getPlaceDetails(quest.sourceId);
             const address = details?.address ?? '';
             const img = details?.preview
               ? `<img src="${details.preview}" style="max-height:200px;width:auto;height:auto;" alt=""/>`
               : '';
             bodyHtml = `${img}${address ? `<br/>${address}` : ''}`;
-          } else {
-            // Events or non-OTM places
+          }
+          // 3) Fallback for anything else
+          else {
             const img = quest.image ? `<img src="${quest.image}" style="max-height:200px;width:auto;height:auto;" alt=""/>` : '';
             const venue = quest.venueName ? `<div><strong>${quest.venueName}</strong></div>` : '';
             const desc = quest.description ? `<div>${quest.description}</div>` : '';
@@ -249,6 +279,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   const bounds = new google.maps.LatLngBounds();
   console.log('Radius here: ', radius);
   currentRadius = radius;
+  // Plot markers for both events and places on initial load
   await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
 
   const autocomplete = new Autocomplete(input);
