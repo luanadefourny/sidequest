@@ -3,6 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants';
 import { extractAxiosError } from '../helperFunctions';
 import type { Quest, QuestDTO, QuestFilters } from '../types';
+import { inflate } from 'zlib';
 
 const server = axios.create({
   baseURL: serverUrl,
@@ -29,7 +30,17 @@ server.interceptors.request.use((config) => {
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const params: Record<string, string> = {};
-    if ((filters as any).near)   params.near   = String((filters as any).near);   // "lon,lat"
+    const near = filters.near;
+
+    if (near) {
+      params.near = String(near);
+      const [longitudeStr, latitudeStr] = near.split(',');
+      const longitude = Number(longitudeStr);
+      const latitude = Number(latitudeStr);
+      const inFrance = Number.isFinite(latitude) && Number.isFinite(longitude) && latitude >= 41 && latitude <= 51.5 && longitude >= -5.5 && longitude <= 9.7;
+      if (inFrance) params.countryCode = 'FR';
+    }
+
     if ((filters as any).radius) params.radius = String((filters as any).radius); // meters
     if ((filters as any).limit)  params.limit  = String((filters as any).limit);
     if ((filters as any).kinds)  params.kinds  = String((filters as any).kinds);
