@@ -9,11 +9,13 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       const { user, token } = await loginUser({
@@ -26,63 +28,85 @@ export default function LoginPage() {
         return;
       }
 
-      console.log('Login successful', user);
       setUser(user);
       localStorage.setItem('auth-token', token);
       navigate('/homepage', { replace: true });
     } catch (err: unknown) {
-      console.error('Login error:', err);
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-50 via-white to-purple-50 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-50 via-white to-gray-100 p-6">
+      {/* Card */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100"
+        className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-sm border border-gray-100 p-8 rounded-3xl shadow-2xl"
       >
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-6 text-center tracking-wide drop-shadow-sm">
-          Login to Sidequest
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <img
+            src="/sidequest-logo.png"
+            alt="SideQuest"
+            className="h-20 w-auto drop-shadow-xl transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4 text-center tracking-tight">
+          Welcome back
         </h1>
 
-        {error && <p className="mb-4 text-red-600 text-center font-medium">{error}</p>}
+        <p className="text-center text-sm text-gray-600 mb-6">
+          Enter your credentials to continue your SideQuest journey.
+        </p>
 
-        <label htmlFor="username" className="block mb-2 font-semibold text-gray-700">
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-center">
+            {error}
+          </div>
+        )}
+
+        <label htmlFor="username" className="block mb-2 font-medium text-gray-700">
           Username
         </label>
         <input
-          type="text"
           id="username"
+          type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
-          className="w-full mb-4 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className="w-full mb-4 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
+          disabled={loading}
         />
 
-        <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">
+        <label htmlFor="password" className="block mb-2 font-medium text-gray-700">
           Password
         </label>
         <input
-          type="password"
           id="password"
+          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="w-full mb-6 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className="w-full mb-6 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
+          disabled={loading}
+          autoComplete="current-password"
         />
 
         <button
           type="submit"
-          className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow hover:scale-[1.02] transition-transform"
+          disabled={loading}
+          className="w-full py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Enter the Quest
+          {loading ? 'Signing in…' : 'Enter the Quest'}
         </button>
 
         <div className="mt-6 text-center">
           <span className="text-gray-600 mr-1">New adventurer?</span>
-          <Link to="/register" className="text-indigo-600 font-semibold hover:underline">
+          <Link to="/register" className="text-green-600 font-semibold hover:underline">
             Create an account
           </Link>
         </div>
