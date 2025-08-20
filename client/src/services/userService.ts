@@ -207,11 +207,28 @@ async function toggleFavoriteQuest(
   }
 }
 
+async function followUser (targetUserId: string): Promise<void> {
+  try {
+    await server.post(`/users/${targetUserId}/follow`);
+  } catch (error) {
+    extractAxiosError(error, 'followUser');
+  }
+}
+
+async function unfollowUser (targetUserId: string): Promise<void> {
+  try {
+    await server.delete(`/users/${targetUserId}/follow`);
+  } catch (error) {
+    extractAxiosError(error, 'unfollowUser');
+  }
+}
+
 export {
   addToMyQuests,
   editUserCredentials,
   editUserData,
   editUserPassword,
+  followUser,
   getMyQuest,
   getMyQuests,
   getUser,
@@ -221,5 +238,6 @@ export {
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  unfollowUser,
   uploadProfilePicture,
 };

@@ -509,11 +509,86 @@ async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
   }
 }
 
+async function followUser (req: Request, res: Response): Promise<void> {
+  const { targetUserId } = req.params as { targetUserId?: string };
+  if (!targetUserId) {
+    res.status(400).json({ error: 'Missing targetUserId parameter' });
+    return;
+  }
+
+  // actor comes from auth middleware
+  const actorId = (req as any).userId || (req as any).user?.id || (req as any).auth?.userId;
+  if (!actorId) {
+    res.status(401).json({ error: 'Missing auth user' });
+    return;
+  }
+  if (actorId === targetUserId) {
+    res.status(400).json({ error: 'You cannot follow yourself' });
+    return;
+  }
+
+  try {
+    const targetExists = await User.exists({ _id: targetUserId });
+    if (!targetExists) {
+      res.status(404).json({ error: 'Target user not found' });
+      return;
+    }
+
+    await Promise.all([
+      User.updateOne({ _id: actorId }, { $addToSet: { following: targetUserId } }),
+      User.updateOne({ _id: targetUserId }, { $addToSet: { followers: actorId } }),
+    ]);
+
+    res.status(204).send();
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: 'Failed to follow user' });
+  }
+}
+
+async function unfollowUser (req: Request, res: Response): Promise<void> {
+  const { targetUserId } = req.params as { targetUserId?: string };
+  if (!targetUserId) {
+    res.status(400).json({ error: 'Missing targetUserId parameter' });
+    return;
+  }
+
+  const actorId = (req as any).userId || (req as any).user?.id || (req as any).auth?.userId;
+  if (!actorId) {
+    res.status(401).json({ error: 'Missing auth user' });
+    return;
+  }
+  if (actorId === targetUserId) {
+    res.status(400).json({ error: 'You cannot unfollow yourself' });
+    return;
+  }
+
+  try {
+    const targetExists = await User.exists({ _id: targetUserId });
+    if (!targetExists) {
+      res.status(404).json({ error: 'Target user not found' });
+      return;
+    }
+
+    await Promise.all([
+      User.updateOne({ _id: actorId }, { $pull: { following: targetUserId } }),
+      User.updateOne({ _id: targetUserId }, { $pull: { followers: actorId } }),
+    ]);
+
+    // idempotent: 204 whether or not a relation existed
+    res.status(204).send();
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: 'Failed to unfollow user' });
+  }
+}
+
 export {
   addToMyQuests,
   editUserCredentials,
   editUserData,
   editUserPassword,
+  followUser,
   getMyQuest,
   getMyQuests,
   getUser,
@@ -524,5 +599,6 @@ export {
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  unfollowUser,
   uploadProfilePicture,
 };
