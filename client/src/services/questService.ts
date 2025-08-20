@@ -29,14 +29,34 @@ server.interceptors.request.use((config) => {
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const params: Record<string, string> = {};
-    if ((filters as any).near)   params.near   = String((filters as any).near);   // "lon,lat"
-    if ((filters as any).radius) params.radius = String((filters as any).radius); // meters
+    if ((filters as any).near)   params.near   = String((filters as any).near);
+    if ((filters as any).radius) params.radius = String((filters as any).radius);
     if ((filters as any).limit)  params.limit  = String((filters as any).limit);
     if ((filters as any).kinds)  params.kinds  = String((filters as any).kinds);
 
-    const { data } = await server.get<Quest[]>('/api/quests/live', { params });
-    console.log('getquests service data: ', data);
-    return data;
+    const { data } = await server.get<QuestDTO[]>('/api/quests/live', { params });
+
+    const withIds: Quest[] = (data ?? []).map((quest) => {
+      const fallbackId = `${quest.source ?? 'ext'}:${quest.sourceId ?? quest.name}:${quest.location.coordinates.join(',')}`;
+      return {
+        _id: quest.clientId ?? fallbackId,
+        name: quest.name,
+        type: quest.type,
+        location: quest.location,
+        ageRestricted: quest.ageRestricted,
+        price: quest.price,
+        currency: quest.currency,
+        url: quest.url,
+        startAt: quest.startAt,
+        endAt: quest.endAt,
+        description: quest.description,
+        source: quest.source,
+        sourceId: quest.sourceId,
+        clientId: quest.clientId,
+      };
+    });
+
+    return withIds;
   } catch (error) {
     extractAxiosError(error, 'getQuests');
   }
