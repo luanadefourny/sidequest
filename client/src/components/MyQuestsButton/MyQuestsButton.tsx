@@ -19,10 +19,10 @@ export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQue
     try {
       let updated;
       if (isInMyQuests) {
-        updated = await removeFromMyQuests(user._id, questId, 1);
+        updated = await removeFromMyQuests(user._id, questId);
         setMyQuests(updated || []);
       } else {
-        updated = await addToMyQuests(user._id, questId, 1);
+        updated = await addToMyQuests(user._id, questId);
         setMyQuests(updated || []);
       }
       

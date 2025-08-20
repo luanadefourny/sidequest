@@ -54,7 +54,7 @@ async function loadMarkers(
       const infoWindow = new google.maps.InfoWindow();
 
       quests.forEach((quest) => {
-        // console.log('Place: ',place);
+        console.log('Place: ',quest);
         // const { coords: { lat, lng }, name, kinds, xid } = place;
         const [lon, lat] = quest.location.coordinates;
         const questLongitude = Number(lon);

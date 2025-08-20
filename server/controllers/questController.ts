@@ -17,9 +17,9 @@ const INCLUDE_KINDS = [
   'waterfalls',
   'view_points',
   'sport',
-  'foods',
 ];
 const EXCLUDE_KINDS = [
+  'foods',
   'accomodations',
   'adult',
   'urban_environment',
@@ -29,6 +29,7 @@ const EXCLUDE_KINDS = [
   'banks',
   'shops',
   'transport',
+  'other_buildings_and_structures',
 ];
 
 // helpers for Ticketmaster proximity
