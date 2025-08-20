@@ -21,8 +21,6 @@ export default function FindUsers() {
   const [loading, setLoading] = useState(false);
   const [btnLoadingId, setBtnLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // modal state
   const [selectedUser, setSelectedUser] = useState<LocalUser | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -80,7 +78,39 @@ export default function FindUsers() {
       }
 
       setResults((prev) =>
-        prev.map((u) => (u._id === targetId ? { ...u, isFollowing: !currentlyFollowing } : u))
+        prev.map((u) => {
+          if (u._id !== targetId) return u;
+          const followersArr = Array.isArray((u as any).followers) ? [...(u as any).followers] : [];
+          const currentUserId = user._id;
+          const newFollowers = currentlyFollowing
+            ? followersArr.filter((f: any) => (typeof f === "string" ? f !== currentUserId : f._id !== currentUserId))
+            : followersArr.some((f: any) => (typeof f === "string" ? f === currentUserId : f._id === currentUserId))
+            ? followersArr
+            : [...followersArr, currentUserId];
+          return {
+            ...u,
+            isFollowing: !currentlyFollowing,
+            followers: newFollowers,
+          };
+        })
+      );
+
+      setSelectedUser((prev) =>
+        prev && prev._id === targetId
+          ? {
+              ...prev,
+              isFollowing: !currentlyFollowing,
+              followers: (() => {
+                const followersArr = Array.isArray((prev as any).followers) ? [...(prev as any).followers] : [];
+                const currentUserId = user._id;
+                return currentlyFollowing
+                  ? followersArr.filter((f: any) => (typeof f === "string" ? f !== currentUserId : f._id !== currentUserId))
+                  : followersArr.some((f: any) => (typeof f === "string" ? f === currentUserId : f._id === currentUserId))
+                  ? followersArr
+                  : [...followersArr, currentUserId];
+              })(),
+            }
+          : prev
       );
 
       const currentFollowing = Array.isArray(user.following) ? user.following : [];
@@ -99,9 +129,37 @@ export default function FindUsers() {
   }
 
   function handleModalFollowChange(targetId: string, isFollowing: boolean) {
-    setResults((prev) => prev.map((u) => (u._id === targetId ? { ...u, isFollowing } : u)));
+    setResults((prev) =>
+      prev.map((u) => {
+        if (u._id !== targetId) return u;
+        const followersArr = Array.isArray((u as any).followers) ? [...(u as any).followers] : [];
+        const currentUserId = user?._id;
+        const newFollowers = isFollowing
+          ? currentUserId &&
+            !followersArr.some((f: any) => (typeof f === "string" ? f === currentUserId : f._id === currentUserId))
+            ? [...followersArr, currentUserId]
+            : followersArr
+          : followersArr.filter((f: any) => (typeof f === "string" ? f !== currentUserId : f._id !== currentUserId));
+        return {
+          ...u,
+          isFollowing,
+          followers: newFollowers,
+        };
+      })
+    );
 
-    setSelectedUser((prev) => (prev && prev._id === targetId ? { ...prev, isFollowing } : prev));
+    setSelectedUser((prev) => {
+      if (!prev || prev._id !== targetId) return prev;
+      const followersArr = Array.isArray((prev as any).followers) ? [...(prev as any).followers] : [];
+      const currentUserId = user?._id;
+      const newFollowers = isFollowing
+        ? currentUserId &&
+          !followersArr.some((f: any) => (typeof f === "string" ? f === currentUserId : f._id === currentUserId))
+          ? [...followersArr, currentUserId]
+          : followersArr
+        : followersArr.filter((f: any) => (typeof f === "string" ? f !== currentUserId : f._id !== currentUserId));
+      return { ...prev, isFollowing, followers: newFollowers };
+    });
   }
 
   return (
@@ -114,7 +172,6 @@ export default function FindUsers() {
           </p>
         </header>
 
-        {/* Search */}
         <div className="flex items-center gap-3 mb-6 max-w-md mx-auto">
           <label htmlFor="find-user" className="sr-only">Search users</label>
           <div className="flex items-center flex-1 bg-white rounded-lg shadow px-3 py-2">
@@ -141,7 +198,6 @@ export default function FindUsers() {
 
         {error && <p className="text-center text-red-600 mb-4">{error}</p>}
 
-        {/* Results */}
         <div className="grid gap-4 sm:grid-cols-2">
           {results.length === 0 && !loading ? (
             <div className="col-span-full text-center text-gray-600 py-8">
@@ -186,7 +242,7 @@ export default function FindUsers() {
                     ) : (
                       <button
                         onClick={() => handleFollowToggle(u._id, isFollowing)}
-                        disabled={!!btnLoadingId}
+                        disabled={btnLoadingId === u._id}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition ${
                           isFollowing
                             ? "bg-white border border-green-500 text-green-700 hover:bg-green-50"
@@ -217,7 +273,6 @@ export default function FindUsers() {
         </div>
       </div>
 
-      {/* Modal */}
       <UserDetailsModal
         isVisible={modalOpen}
         onClose={() => setModalOpen(false)}
