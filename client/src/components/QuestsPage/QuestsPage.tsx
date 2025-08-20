@@ -5,6 +5,7 @@ import type { Quest, QuestsPageProps } from '../../types';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import QuestModal from '../QuestModal/QuestModal';
 
+
 export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPageProps) {
   const [showQuestModal, setShowQuestModal] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
