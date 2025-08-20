@@ -5,9 +5,11 @@ import {
   editUserCredentials,
   editUserData,
   editUserPassword,
+  followUser,
   getMyQuest,
   getMyQuests,
   getUser,
+  getUserByUsername,
   getUsers,
   loginUser,
   logoutUser,
@@ -15,14 +17,16 @@ import {
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
-  uploadProfilePicture,
+  unfollowUser,
+  uploadProfilePicture
 } from '../controllers/userController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
 const router: Router = express.Router();
 
 router.get('/users', getUsers); //get all users
-router.get('/users/:userId', getUser); //user lookup
+router.get('/users/:userId', getUser); //user
+router.get('/users/by-username/:username', getUserByUsername);
 
 router.post('/users', registerUser); //TODO change with auth
 router.post('/login', loginUser); //TODO change with auth
@@ -52,7 +56,7 @@ router.patch('/users/:userId/my-quests/:questId/favorite', authenticateJWT, togg
 
 // router.get('/users/:userId/follwers', getUserFollowers);
 // router.get('/users/:userId/follwing', getUserFollowing);
-// router.post('/users/:userId/follow', followUser);
-// router.delete('/users/:userId/follow', unfollowUser);
+router.post('/users/:targetUserId/follow', authenticateJWT, followUser);
+router.delete('/users/:targetUserId/follow', authenticateJWT, unfollowUser);
 
 export default router;
