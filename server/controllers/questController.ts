@@ -157,31 +157,28 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const radiusM = Math.min(Math.max(1, Math.floor(Number(radius ?? 5000))), 50000);
-    const max = (() => {
-      const n = Number(limit);
-      return Number.isFinite(n) ? Math.max(1, Math.min(n, 100)) : 50;
-    })();
+    const radiusMeters = Math.min(Math.max(1, Math.floor(Number(radius ?? 5000))), 50000);
+    const maxResults = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(Number(limit), 100)) : 50;
 
     const kindsParam =
       typeof kinds === "string" && kinds.trim()
         ? `&kinds=${encodeURIComponent(kinds)}`
         : "";
 
-    const url =
+    const opentripmapUrl =
       `https://api.opentripmap.com/0.1/en/places/radius?` +
-      `radius=${radiusM}&lon=${lon}&lat=${lat}${kindsParam}&limit=${max}&apikey=${OPENTRIPMAP_KEY}`;
+      `radius=${radiusMeters}&lon=${lon}&lat=${lat}${kindsParam}&limit=${maxResults}&apikey=${OPENTRIPMAP_KEY}`;
 
-    const r = await fetch(url);
-    if (!r.ok) {
-      res.status(r.status).json({ error: `opentripmap ${r.status}` });
+    const opentripmapRes = await fetch(opentripmapUrl);
+    if (!opentripmapRes.ok) {
+      res.status(opentripmapRes.status).json({ error: `opentripmap ${opentripmapRes.status}` });
       return;
     }
-    const json = await r.json();
+    const opentripmapJson = await opentripmapRes.json();
 
-    const features: any[] = Array.isArray(json?.features) ? json.features : [];
+    const opentripmapFeatures: any[] = Array.isArray(opentripmapJson?.features) ? opentripmapJson.features : [];
 
-    const items: QuestDTO[] = features
+    const placeItems: QuestDTO[] = opentripmapFeatures
       .filter((feature: any) => Array.isArray(feature?.geometry?.coordinates) && feature.geometry.coordinates.length === 2)
       .map((feature: any): QuestDTO => {
         const [featureLon, featureLat] = feature.geometry.coordinates as [number, number];
@@ -210,131 +207,129 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     const segment =
       typeof req.query.segment === 'string' ? req.query.segment : undefined;
 
-    let merged: QuestDTO[] = items;
+    let allItems: QuestDTO[] = placeItems;
 
-    function dedupeByStableKey(list: QuestDTO[]): QuestDTO[] {
-      const map = new Map<string, QuestDTO>();
-      for (const q of list) {
-        const key =
-          q.clientId ??
-          `${q.source ?? 'ext'}:${q.sourceId ?? q.name}:${q.location.coordinates.join(',')}`;
-        if (!map.has(key)) map.set(key, q);
-      }
-      return Array.from(map.values());
-    }
+    if (includeEvents && TICKETMASTER_KEY) {
+      // ticketmaster events
+      const radiusKm = Math.min(150, Math.max(1, Math.round(radiusMeters / 1000)));
+      const geopoint = geohash(lat, lon, 9);
+      const ticketmasterParams = new URLSearchParams({
+        apikey: String(TICKETMASTER_KEY),
+        geopoint,
+        radius: String(radiusKm),
+        unit: 'km',
+        size: String(maxResults),
+        sort: 'distance,asc',
+      });
+      if (segment) ticketmasterParams.set('classificationName', segment);
 
-    try {
-      if (includeEvents && TICKETMASTER_KEY) {
-        const radiusKm = Math.min(150, Math.max(1, Math.round(radiusM / 1000)));
-        const geopoint = geohash(lat, lon, 9);
-        const ticketmasterParams = new URLSearchParams({
-          apikey: String(TICKETMASTER_KEY),
-          geoPoint: geopoint,
-          radius: String(radiusKm),
-          unit: 'km',
-          size: String(max),
-          sort: 'distance,asc',
+      const ticketmasterUrl = `https://app.ticketmaster.com/discovery/v2/events.json?${ticketmasterParams.toString()}`;
+      const ticketmasterRes = await fetch(ticketmasterUrl);
+      const ticketmasterJson = ticketmasterRes.ok ? await ticketmasterRes.json() : null;
+      const ticketmasterEvents: any[] = Array.isArray(ticketmasterJson?._embedded?.events)
+        ? ticketmasterJson._embedded.events
+        : [];
+
+      let eventItems: QuestDTO[] = ticketmasterEvents.map((event: any): QuestDTO => {
+        const venue = event?._embedded?.venues?.[0];
+        const loc = venue?.location;
+        const priceRange = Array.isArray(event?.priceRanges) && event.priceRanges.length ? event.priceRanges[0] : undefined;
+        const isAgeRestricted = event?.ageRestrictions?.legalAgeEnforced === true;
+
+        const item: QuestDTO = {
+          name: String(event?.name ?? 'Event'),
+          type: 'event',
+          location: {
+            type: 'Point',
+            coordinates: [
+              loc?.longitude ? Number(loc.longitude) : Number(lon),
+              loc?.latitude ? Number(loc.latitude) : Number(lat),
+            ],
+          },
+          ageRestricted: Boolean(isAgeRestricted),
+          source: 'ticketmaster',
+          sourceId: String(event?.id ?? ''),
+          clientId: undefined,
+        };
+
+        if (typeof priceRange?.min === 'number') item.price = priceRange.min;
+        if (typeof priceRange?.currency === 'string') item.currency = priceRange.currency;
+        const startIso = event?.dates?.start?.dateTime ? String(event.dates.start.dateTime) : undefined;
+        const endIso   = event?.dates?.end?.dateTime   ? String(event.dates.end.dateTime)   : undefined;
+        if (startIso) item.startAt = startIso;
+        if (endIso)   item.endAt   = endIso;
+        const desc = typeof event?.info === 'string' ? event.info : (typeof event?.pleaseNote === 'string' ? event.pleaseNote : undefined);
+        if (desc) item.description = desc;
+        if (typeof event?.url === 'string') item.url = event.url;
+        item.clientId = `tm:${item.sourceId}`;
+        return item;
+      });
+
+      // France fallback
+      if (!eventItems.length && inFrance(lat, lon)) {
+        const ODS_BASE = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records';
+        const odsParams = new URLSearchParams({
+          limit: String(maxResults),
+          'geofilter.distance': `${lat},${lon},${radiusKm * 1000}`,
         });
-        if (segment) ticketmasterParams.set('classificationName', segment);
+        const odsRes = await fetch(`${ODS_BASE}?${odsParams.toString()}`);
+        if (odsRes.ok) {
+          const odsJson: any = await odsRes.json();
+          const odsRows: any[] = Array.isArray(odsJson?.results) ? odsJson.results : [];
+          eventItems = odsRows.map((f): QuestDTO => {
+            const hasPoint = f?.location?.lat && f?.location?.lon;
+            const arrayPoint = Array.isArray(f?.geo_point_2d) && f.geo_point_2d.length === 2;
+            const latNum = hasPoint ? Number(f.location.lat) : (arrayPoint ? Number(f.geo_point_2d[0]) : undefined);
+            const lonNum = hasPoint ? Number(f.location.lon) : (arrayPoint ? Number(f.geo_point_2d[1]) : undefined);
 
-        const ticketmasterUrl = `https://app.ticketmaster.com/discovery/v2/events.json?${ticketmasterParams.toString()}`;
-        const ticketmasterRes = await fetch(ticketmasterUrl);
-        const ticketmasterJson = ticketmasterRes.ok ? await ticketmasterRes.json() : null;
-        const ticketmasterEvents: any[] = Array.isArray(ticketmasterJson?._embedded?.events)
-          ? ticketmasterJson._embedded.events
-          : [];
+            const title = f?.title ?? f?.title_fr ?? f?.titre ?? f?.name ?? 'Événement';
+            const startStr = f?.date_start ?? f?.start ?? f?.firstdate_begin;
+            const endStr   = f?.date_end   ?? f?.end   ?? f?.lastdate_end;
+            const link     = f?.link ?? f?.url ?? f?.website;
+            const summary  = f?.description ?? f?.summary ?? f?.lead_text;
 
-        let eventItems: QuestDTO[] = ticketmasterEvents.map((event: any): QuestDTO => {
-          const venue = event?._embedded?.venues?.[0];
-          const loc = venue?.location;
-          const priceRange = Array.isArray(event?.priceRanges) && event.priceRanges.length ? event.priceRanges[0] : undefined;
-          const isAgeRestricted = event?.ageRestrictions?.legalAgeEnforced === true;
+            const item: QuestDTO = {
+              name: String(title),
+              type: 'event',
+              location: {
+                type: 'Point',
+                coordinates: [
+                  Number.isFinite(lonNum as number) ? Number(lonNum) : Number(lon),
+                  Number.isFinite(latNum as number) ? Number(latNum) : Number(lat),
+                ],
+              },
+              ageRestricted: false,
+              source: 'openagenda-ods',
+              sourceId: String(f?.uid ?? f?.id ?? String(title)),
+              clientId: undefined,
+            };
 
-          const item: QuestDTO = {
-            name: String(event?.name ?? 'Event'),
-            type: 'event',
-            location: {
-              type: 'Point',
-              coordinates: [
-                loc?.longitude ? Number(loc.longitude) : Number(lon),
-                loc?.latitude ? Number(loc.latitude) : Number(lat),
-              ],
-            },
-            ageRestricted: Boolean(isAgeRestricted),
-            source: 'ticketmaster',
-            sourceId: String(event?.id ?? ''),
-            clientId: undefined,
-          };
-
-          if (typeof priceRange?.min === 'number') item.price = priceRange.min;
-          if (typeof priceRange?.currency === 'string') item.currency = priceRange.currency;
-          const startIso = event?.dates?.start?.dateTime ? String(event.dates.start.dateTime) : undefined;
-          const endIso   = event?.dates?.end?.dateTime   ? String(event.dates.end.dateTime)   : undefined;
-          if (startIso) item.startAt = startIso;
-          if (endIso)   item.endAt   = endIso;
-          const desc = typeof event?.info === 'string' ? event.info : (typeof event?.pleaseNote === 'string' ? event.pleaseNote : undefined);
-          if (desc) item.description = desc;
-          if (typeof event?.url === 'string') item.url = event.url;
-          item.clientId = `tm:${item.sourceId}`;
-          return item;
-        });
-
-        // France fallback
-        if (!eventItems.length && inFrance(lat, lon)) {
-          const ODS_BASE = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records';
-          const p2 = new URLSearchParams({
-            limit: String(max),
-            'geofilter.distance': `${lat},${lon},${radiusKm * 1000}`,
+            if (typeof link === 'string') item.url = link;
+            if (typeof summary === 'string') item.description = summary;
+            if (startStr) item.startAt = String(startStr);
+            if (endStr)   item.endAt   = String(endStr);
+            item.clientId = `oa:${item.sourceId}`;
+            return item;
           });
-          const rr = await fetch(`${ODS_BASE}?${p2.toString()}`);
-          if (rr.ok) {
-            const jj: any = await rr.json();
-            const rows: any[] = Array.isArray(jj?.results) ? jj.results : [];
-            eventItems = rows.map((f): QuestDTO => {
-              const hasPoint = f?.location?.lat && f?.location?.lon;
-              const arrayPoint = Array.isArray(f?.geo_point_2d) && f.geo_point_2d.length === 2;
-              const latNum = hasPoint ? Number(f.location.lat) : (arrayPoint ? Number(f.geo_point_2d[0]) : undefined);
-              const lonNum = hasPoint ? Number(f.location.lon) : (arrayPoint ? Number(f.geo_point_2d[1]) : undefined);
-
-              const title = f?.title ?? f?.title_fr ?? f?.titre ?? f?.name ?? 'Événement';
-              const startStr = f?.date_start ?? f?.start ?? f?.firstdate_begin;
-              const endStr   = f?.date_end   ?? f?.end   ?? f?.lastdate_end;
-              const link     = f?.link ?? f?.url ?? f?.website;
-              const summary  = f?.description ?? f?.summary ?? f?.lead_text;
-
-              const item: QuestDTO = {
-                name: String(title),
-                type: 'event',
-                location: {
-                  type: 'Point',
-                  coordinates: [
-                    Number.isFinite(lonNum as number) ? Number(lonNum) : Number(lon),
-                    Number.isFinite(latNum as number) ? Number(latNum) : Number(lat),
-                  ],
-                },
-                ageRestricted: false,
-                source: 'openagenda-ods',
-                sourceId: String(f?.uid ?? f?.id ?? String(title)),
-                clientId: undefined,
-              };
-
-              if (typeof link === 'string') item.url = link;
-              if (typeof summary === 'string') item.description = summary;
-              if (startStr) item.startAt = String(startStr);
-              if (endStr)   item.endAt   = String(endStr);
-              item.clientId = `oa:${item.sourceId}`;
-              return item;
-            });
-          }
         }
-
-        merged = dedupeByStableKey([...items, ...eventItems]);
       }
-    } catch {
-      merged = items;
+
+      allItems = [...placeItems, ...eventItems];
     }
 
-    res.status(200).json(merged);
+
+    const deduped = (() => {
+      const byKey = new Map<string, QuestDTO>();
+      for (const quest of allItems) {
+        const stableKey =
+          quest.clientId ??
+          `${quest.source ?? 'ext'}:${quest.sourceId ?? quest.name}:${quest.location.coordinates.join(',')}`;
+        if (!byKey.has(stableKey)) byKey.set(stableKey, quest);
+      }
+      return Array.from(byKey.values());
+    })();
+
+    res.status(200).json(deduped);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Failed to fetch live quests" });

@@ -4,7 +4,7 @@ import mongoose from '../db';
 
 export interface IQuest extends Document {
   name: string;
-  type: 'event' | 'place' | 'activity';
+  type: 'event' | 'place';
   location: {
     type: 'Point';
     coordinates: [number, number]; // [lon, lat]
@@ -44,7 +44,7 @@ const QuestSchema = new Schema<IQuest>(
     },
     type: {
       type: String,
-      enum: ['event', 'place', 'activity'],
+      enum: ['event', 'place'],
       required: true,
     },
     location: {
