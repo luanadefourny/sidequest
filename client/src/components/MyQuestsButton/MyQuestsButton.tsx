@@ -5,7 +5,7 @@ import type { MyQuestsButtonProps } from '../../types';
 import { useUser } from '../Context/userContext';
 
 export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQuestsButtonProps) {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const isInMyQuests = myQuests.some(
     (quest) => (typeof quest.quest === 'string' ? quest.quest : quest.quest._id) === questId,
   );
@@ -25,6 +25,9 @@ export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQue
         updated = await addToMyQuests(user._id, questId, 1);
         setMyQuests(updated || []);
       }
+      
+    setMyQuests(updated || []);
+    setUser({ ...user, myQuests: updated || [] })
     } catch (error) {
       console.error('Error updating quest:', error);
     }

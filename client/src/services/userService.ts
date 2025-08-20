@@ -3,6 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../constants';
 import { extractAxiosError } from '../helperFunctions';
 import type {
+  AuthResponse,
   Credentials,
   EditUserData,
   LoginUserData,
@@ -16,6 +17,12 @@ const server = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
+});
+
+server.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth-token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
 async function getUsers(): Promise<User[]> {
@@ -45,9 +52,10 @@ async function registerUser(userData: RegisterUserData): Promise<User> {
   }
 }
 
-async function loginUser(loginData: LoginUserData): Promise<User> {
+async function loginUser(loginData: LoginUserData): Promise<AuthResponse> {
   try {
-    const { data } = await server.post<User>(`/login`, loginData);
+    const { data } = await server.post<AuthResponse>(`/login`, loginData);
+    console.log('login service: ', data);
     return data;
   } catch (error) {
     extractAxiosError(error, 'loginUser');

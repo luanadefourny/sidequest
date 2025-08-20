@@ -1,5 +1,10 @@
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
+let apiData: any[] = [];
+let currentMap: google.maps.Map | null = null;
+let currentRadius = 1000; //meters
+let loadSeq = 0;
+let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
 export function getMarkerPosition() {
   return coordsHelper;
@@ -16,56 +21,71 @@ async function loadMarkers(
   bounds: google.maps.LatLngBounds,
   latitude: number,
   longitude: number,
+  radius: number
 ) {
-  //! mock data call starts here
-  try {
-    const { AdvancedMarkerElement } = (await google.maps.importLibrary(
-      'marker',
-    )) as google.maps.MarkerLibrary;
-    const res = await fetch(
-      `http://localhost:3000/quests?near=${longitude},${latitude}&radius=10000`,
-    );
-    if (!res.ok) throw new Error('Failed to fetch mock data from DB');
-    const data = await res.json();
 
-    const infoWindow = new google.maps.InfoWindow();
+    const seq = ++loadSeq;
+    // clear previous markers
+    mapMarkers.forEach(m => (m.map = null));
+    mapMarkers = [];
+  //! Opentripmap call starts here - DON'T DELETE IT PLEASE
+    try {
+      const { AdvancedMarkerElement } = (await google.maps.importLibrary(
+        'marker',
+      )) as google.maps.MarkerLibrary;
+      const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
+      if (!res.ok) throw new Error("Failed to fetch OpenTripMap data");
+      const data = await res.json();
 
-    data.forEach((entry: any) => {
-      const [lon, lat] = entry.location.coordinates;
-      const name = entry.name || 'Unnamed place';
-      const type = entry.type || 'No category found';
-      const description = entry.description || 'No address found';
+      if (seq !== loadSeq) return;
+      
+      apiData = data;
+      console.log(apiData);
 
-      const icon = document.createElement('img');
-      icon.src = './creep.jpg';
-      icon.style.width = '20px';
-      icon.style.height = '20px';
+      const infoWindow = new google.maps.InfoWindow();
 
-      const marker = new AdvancedMarkerElement({
-        map,
-        position: { lat, lng: lon },
-        title: name,
-        content: icon,
-      });
+       data.forEach((feature: any) => {
+        console.log('Feature: ',feature);
+        const [lon, lat] = feature.geometry.coordinates;
+        const name = feature.properties.name || "Unnamed place";
+        const kinds = feature.properties.kinds || "No category found";
 
-      // Include OpenTripMap markers in bounds
-      bounds.extend({ lat, lng: lon });
+        const icon = document.createElement("img");
+        icon.src = "./creep.jpg";
+        icon.style.width = "20px";
+        icon.style.height = "20px";
 
-      marker.addListener('click', async () => {
-        //TODO get a fallback image to plug in as default if we have no details.preview.source
+        const marker = new AdvancedMarkerElement({
+          map,
+          position: { lat, lng: lon },
+          title: name,
+          content: icon,
+        });
 
-        infoWindow.setContent(`
+        // Include OpenTripMap markers in bounds
+        bounds.extend({ lat, lng: lon });
+
+        marker.addListener("click", async () => {
+          const res = await fetch(`/api/opentripmap/details/${feature.properties.xid}`);
+          const details = await res.json();
+          console.log(details);
+          const address = details.address ? `${details.address.road || ''} ${details.address.house_number || ''}, ${details.address.city || ''}, ${details.address.country || ''}` : 'No address available';
+
+    //       //TODO get a fallback image to plug in as default if we have no details.preview.source
+
+          infoWindow.setContent(`
             <div style="font-size:14px">
+            ${details.preview?.source ? `<img src="${details.preview.source}" style="max-height:200px; width:auto; height:auto;"/>` : ""}
             <strong>${name}</strong><br/>
-            <em>${type}</em><br/>
-            ${description}
+            <em>${kinds}</em><br/>
+            ${address}
             </div>
             `);
-        infoWindow.open(map, marker);
-      });
-    });
+            infoWindow.open(map, marker);
+          });
+        });
 
-    // Fit map to include the searched place + all OpenTripMap markers
+    //     // Fit map to include the searched place + all OpenTripMap markers
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds);
       if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
@@ -82,9 +102,77 @@ async function loadMarkers(
     map.setZoom(15);
   }
 }
+    //! Opentripmap call ends here
+
+
+  //! mock data call starts here
+//   try {
+//     const { AdvancedMarkerElement } = (await google.maps.importLibrary(
+//       'marker',
+//     )) as google.maps.MarkerLibrary;
+//     const res = await fetch(
+//       `http://localhost:3000/quests?near=${longitude},${latitude}&radius=10000`,
+//     );
+//     if (!res.ok) throw new Error('Failed to fetch mock data from DB');
+//     const data = await res.json();
+
+//     const infoWindow = new google.maps.InfoWindow();
+
+//     data.forEach((entry: any) => {
+//       const [lon, lat] = entry.location.coordinates;
+//       const name = entry.name || 'Unnamed place';
+//       const type = entry.type || 'No category found';
+//       const description = entry.description || 'No address found';
+
+//       const icon = document.createElement('img');
+//       icon.src = './creep.jpg';
+//       icon.style.width = '20px';
+//       icon.style.height = '20px';
+
+//       const marker = new AdvancedMarkerElement({
+//         map,
+//         position: { lat, lng: lon },
+//         title: name,
+//         content: icon,
+//       });
+
+//       // Include OpenTripMap markers in bounds
+//       bounds.extend({ lat, lng: lon });
+
+//       marker.addListener('click', async () => {
+//         //TODO get a fallback image to plug in as default if we have no details.preview.source
+
+//         infoWindow.setContent(`
+//             <div style="font-size:14px">
+//             <strong>${name}</strong><br/>
+//             <em>${type}</em><br/>
+//             ${description}
+//             </div>
+//             `);
+//         infoWindow.open(map, marker);
+//       });
+//     });
+
+//     // Fit map to include the searched place + all OpenTripMap markers
+//     if (!bounds.isEmpty()) {
+//       map.fitBounds(bounds);
+//       if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+//         map.setZoom(15);
+//       }
+//     } else {
+//       // If no markers, center on fallback location
+//       map.setCenter({ lat: latitude, lng: longitude });
+//       map.setZoom(15);
+//     }
+//   } catch (error) {
+//     console.error('Error loading OpenTripMap data:', error);
+//     map.setCenter({ lat: latitude, lng: longitude });
+//     map.setZoom(15);
+//   }
+// }
 //! mock data call ends here
 
-export async function initMap(container: HTMLElement, input: HTMLInputElement): Promise<void> {
+export async function initMap(container: HTMLElement, input: HTMLInputElement, radius: number): Promise<void> {
   // The location of Grand Place
   let position = { lat: 50.84676, lng: 4.35278 };
 
@@ -125,6 +213,8 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
     streetViewControl: false,
   });
 
+  currentMap = map;
+
   let currentMarker: google.maps.marker.AdvancedMarkerElement | null = null;
 
   currentMarker = new AdvancedMarkerElement({
@@ -134,7 +224,9 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
   });
 
   const bounds = new google.maps.LatLngBounds();
-  await loadMarkers(map, bounds, position.lat, position.lng);
+  console.log('Radius here: ', radius);
+  currentRadius = radius;
+  await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
 
   const autocomplete = new Autocomplete(input);
   autocomplete.bindTo('bounds', map);
@@ -168,7 +260,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
     // Create a LatLngBounds object to include all markers
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(place.geometry.location);
-    await loadMarkers(map, bounds, latitude, longitude);
+    await loadMarkers(map, bounds, latitude, longitude, radius);
 
     //! Opentripmap call starts here - DON'T DELETE IT PLEASE
     // try {
@@ -230,3 +322,19 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement): 
     //! Opentripmap call ends here
   });
 }
+
+window.addEventListener('radiuschange', async (e: Event) => {
+  try {
+    if (!currentMap || !coordsHelper) return;
+    const { radius } = (e as CustomEvent<{ radius: number }>).detail;
+    currentRadius = radius;
+    const [lonStr, latStr] = coordsHelper.split(',');
+    const lon = parseFloat(lonStr);
+    const lat = parseFloat(latStr);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+    const bounds = new google.maps.LatLngBounds();
+    await loadMarkers(currentMap, bounds, lat, lon, currentRadius);
+  } catch (err) {
+    console.error('Failed to reload markers on radius change', err);
+  }
+});

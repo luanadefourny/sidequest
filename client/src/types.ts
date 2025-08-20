@@ -30,6 +30,11 @@ type User = {
   }[];
 };
 
+type AuthResponse = {
+  user: User;
+  token: string;
+}
+
 type PublicUserData = {
   _id: string;
   username: string;
@@ -122,9 +127,12 @@ type UserContextType = {
 interface HomePageProps {
   location: Location | null;
   setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
+  radius: number;
+  setRadius: React.Dispatch<React.SetStateAction<number>>;
 }
 interface MapComponentProps {
-  setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
+  setLocation: (loc: { longitude: string; latitude: string }) => void;
+  radius: number;
 }
 interface QuestsPageProps {
   quests: Quest[];
@@ -143,6 +151,7 @@ interface MyQuestsPageProps {
 }
 
 export type {
+  AuthResponse,
   Credentials,
   EditUserData,
   ErrorBody,

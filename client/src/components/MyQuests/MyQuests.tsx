@@ -5,6 +5,8 @@ import type { MyQuestsPageProps } from '../../types';
 import FavouriteButton from '../FavouriteButton/favouriteButton';
 import MyQuestModal from '../MyQuestModal/MyQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
+import MyQuests from "../../assets/MyQuests.jpg"
+
 
 export default function MyQuestsPage({
   myQuests,
@@ -13,67 +15,92 @@ export default function MyQuestsPage({
 }: MyQuestsPageProps) {
   const [showQuestModal, setShowQuestModal] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+
   return (
     <>
-      <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-6 text-center tracking-wide">
-          My Quests
-        </h1>
-
-        {myQuestsLoading ? (
-          <p className="text-center text-gray-70 text-lg0">Loading your quests...</p>
-        ) : myQuests.length === 0 ? (
-          <p className="text-center text-gray-700 text-lg">
-            You have no quests added yet.{' '}
-            <Link to="/quests" className="text-blue-600 hover:underline">
-              Browse quests
-            </Link>
+      <div className="min-h-screen bg-cover bg-center bg-no-repeat p-6 sm:p-10"
+      style={{ backgroundImage: `url(${MyQuests})` }}>
+        <header className="max-w-7xl mx-auto mb-8 text-center">
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-2 tracking-tight drop-shadow-sm">
+            My Quests
+          </h1>
+          <p className="text-sm text-gray-600">
+            All quests you've saved or added — manage them here.
           </p>
-        ) : (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {myQuests.map((myQuest) => {
-              if (typeof myQuest.quest === 'string') return null;
-              return (
-                <div
-                  key={myQuest.quest._id}
-                  className="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow duration-300"
-                >
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                      {myQuest.quest.name}
-                    </h2>
-                    <p className="text-gray-700 text-base leading-relaxed">
-                      {myQuest.quest.description}
-                    </p>
-                  </div>
+        </header>
 
-                  <div className="flex items-center justify-between mt-auto space-x-4">
-                    <MyQuestsButton
-                      questId={myQuest.quest._id}
-                      myQuests={myQuests}
-                      setMyQuests={setMyQuests}
-                    />
-                    <button
-                      className="flex-grow text-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
-                      onClick={() => {
-                        setSelectedQuest(myQuest.quest);
-                        setShowQuestModal(true);
-                      }}
-                    >
-                      View Quest
-                    </button>
-                    <FavouriteButton
-                      questId={myQuest.quest._id}
-                      myQuests={myQuests}
-                      setMyQuests={setMyQuests}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <main className="max-w-7xl mx-auto">
+          {myQuestsLoading ? (
+            <div className="py-24 text-center">
+              <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-full shadow">
+                <svg className="w-5 h-5 animate-spin text-green-600" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeOpacity="0.25" />
+                  <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+                <span className="text-gray-700 font-medium">Loading your quests…</span>
+              </div>
+            </div>
+          ) : myQuests.length === 0 ? (
+            <div className="py-24 text-center">
+              <div className="inline-block bg-white/80 backdrop-blur-sm px-8 py-6 rounded-2xl shadow">
+                <p className="text-lg text-gray-700 mb-4">
+                  You have no quests added yet.
+                </p>
+                <Link to="/quests" className="inline-block px-5 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold shadow hover:from-green-700 hover:to-emerald-700 transition">
+                  Browse quests
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-6">
+              {myQuests.map((myQuest) => {
+                if (typeof myQuest.quest === 'string') return null;
+
+                return (
+                  <article
+                    key={myQuest.quest._id}
+                    className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg p-6 flex flex-col justify-between hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
+                  >
+                    <div className="mb-4">
+                      <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                        {myQuest.quest.name}
+                      </h2>
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
+                        {myQuest.quest.description}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-6">
+                      <MyQuestsButton
+                        questId={myQuest.quest._id}
+                        myQuests={myQuests}
+                        setMyQuests={setMyQuests}
+                      />
+
+                      <button
+                        className="flex-1 text-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:from-green-700 hover:to-emerald-700 transition-transform duration-150 transform hover:-translate-y-0.5"
+                        onClick={() => {
+                          setSelectedQuest(myQuest.quest);
+                          setShowQuestModal(true);
+                        }}
+                      >
+                        🔍 View Quest
+                      </button>
+
+                      <FavouriteButton
+                        questId={myQuest.quest._id}
+                        myQuests={myQuests}
+                        setMyQuests={setMyQuests}
+                      />
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </main>
       </div>
+
       <MyQuestModal
         isVisible={showQuestModal}
         onClose={() => setShowQuestModal(false)}

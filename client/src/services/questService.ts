@@ -9,6 +9,12 @@ const server = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+server.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth-token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const { data } = await server.get<Quest[]>(`/quests`, { params: filters });
