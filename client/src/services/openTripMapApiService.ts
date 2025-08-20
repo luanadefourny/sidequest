@@ -3,7 +3,7 @@ import axios from 'axios'
 import { extractAxiosError } from '../helperFunctions';
 import type { OpenTripMapDetails, OpenTripMapPlace } from '../types';
 
-const api = axios.create({
+const otm = axios.create({
   baseURL: '/api/opentripmap',
   headers: { 'Content-Type': 'application/json' },
 })
@@ -12,7 +12,7 @@ const api = axios.create({
 
 async function getPlaces (latitude: number, longitude: number, radius: number, kinds?: string): Promise<OpenTripMapPlace[]> {
   try {
-    const { data } = await api.get('', {
+    const { data } = await otm.get('', {
       params: {
         latitude,
         longitude,
@@ -56,7 +56,7 @@ async function getPlaceDetails (xid?: string): Promise<OpenTripMapDetails | null
   if (!xid) return null;
 
   try {
-    const { data } = await api.get(`/details/${xid}`);
+    const { data } = await otm.get(`/details/${xid}`);
     // console.log('getPlaceDetails data: ', data);
     const address = data?.address
       ? `${data.address.road || ''} ${data.address.house_number || ''}, ${data.address.city || ''}, ${data.address.country || ''}`.trim()

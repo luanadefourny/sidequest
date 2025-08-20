@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 const OPENTRIPMAP_KEY = process.env.OPENTRIPMAP_KEY!;
 
 export async function getOpenTripMapEvents(request: Request, response: Response) {
-  const { latitude, longitude, radius } = request.query;
+  const { latitude, longitude, radius, kinds } = request.query;
   console.log(radius);
 
   if (!latitude || !longitude) {
@@ -11,17 +11,26 @@ export async function getOpenTripMapEvents(request: Request, response: Response)
   }
 
   try {
-    console.log(radius);
-    const url = `https://api.opentripmap.com/0.1/en/places/radius?radius=${radius}&lon=${longitude}&lat=${latitude}&apikey=${OPENTRIPMAP_KEY}`;
-    console.log(url);
-    const responseData = await fetch(url as string);
+    // console.log(radius);
+    const radiusMeters = Math.min(50000, Math.max(1, Math.floor(Number(radius ?? 10000))));
+    const params = new URLSearchParams({
+      radius: String(radiusMeters),
+      lon: String(longitude),
+      lat: String(latitude),
+      apikey: OPENTRIPMAP_KEY,
+    });
+    if (typeof kinds === 'string' && kinds.trim()) params.set('kinds', kinds);
+
+    const url = `https://api.opentripmap.com/0.1/en/places/radius?${params.toString()}`;
+    // console.log(url);
+    const responseData = await fetch(url);
 
     if (!responseData.ok) {
       return response.status(responseData.status).json({ error: 'Something went wrong' });
     }
 
     const parsedData = await responseData.json();
-    return response.json(parsedData.features);
+    return response.json(Array.isArray(parsedData?.features) ? parsedData.features : []);
   } catch (error) {
     console.log(error);
     response.status(500).json({ error: 'Some server error in opentripmap controller' });

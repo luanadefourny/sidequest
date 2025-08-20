@@ -166,6 +166,22 @@ type OpenTripMapDetails = {
   raw?: any;
 }
 
+type QuestDTO = {
+  _id?: string;
+  name: string;
+  type: 'event' | 'place' | 'activity';
+  location: { type: 'Point'; coordinates: [number, number] };
+  ageRestricted: boolean;
+  price?: number;
+  currency?: string;
+  url?: string;
+  startAt?: string; // ISO
+  endAt?: string;   // ISO
+  description?: string;
+  source?: string;
+  sourceId?: string;
+};
+
 export type {
   AuthResponse,
   Credentials,
@@ -184,6 +200,7 @@ export type {
   OpenTripMapPlace,
   PublicUserData,
   Quest,
+  QuestDTO,
   QuestFilters,
   QuestsPageProps,
   RegisterUserData,

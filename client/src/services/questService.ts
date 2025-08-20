@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { serverUrl } from '../constants';
 import { extractAxiosError } from '../helperFunctions';
-import type { Quest, QuestFilters } from '../types';
+import type { Quest, QuestDTO, QuestFilters } from '../types';
 
 const server = axios.create({
   baseURL: serverUrl,
