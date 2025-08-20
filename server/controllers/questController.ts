@@ -5,6 +5,32 @@ import Quest from '../models/questModel';
 const OPENTRIPMAP_KEY = process.env.OPENTRIPMAP_KEY;
 const TICKETMASTER_KEY = process.env.TICKETMASTER_KEY;
 
+const INCLUDE_KINDS = [
+  'amusements',
+  'architecture',
+  'cultural',
+  'historic',
+  'beaches',
+  'geological_formations',
+  'natural_springs',
+  'nature_reserves',
+  'waterfalls',
+  'view_points',
+  'sport',
+  'foods',
+];
+const EXCLUDE_KINDS = [
+  'accomodations',
+  'adult',
+  'urban_environment',
+  'industrial_facilities',
+  'rivers',
+  'religion',
+  'banks',
+  'shops',
+  'transport',
+];
+
 // helpers for Ticketmaster proximity
 const BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 function geohash(lat: number, lon: number, precision = 9) {
@@ -156,6 +182,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     }
 
     const { near, radius, limit, kinds } = req.query;
+    console.log('kinds: ',kinds);
 
     if (!near || typeof near !== 'string') {
       res.status(400).json({ error: "near required as 'lon,lat'" });
@@ -196,15 +223,12 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     const tmSize   = Math.min(requestedLimit, 200);  // TM max page size ~200
 
     // Build OTM URL
-    const kindsParam =
-      typeof kinds === 'string' && kinds.trim()
-        ? `&kinds=${encodeURIComponent(kinds)}`
-        : '';
+    const kindsParams = INCLUDE_KINDS.length ? INCLUDE_KINDS.join(',') : (typeof kinds === 'string' && kinds.trim() ? kinds : '');
     const otmUrl =
       // `https://api.opentripmap.com/0.1/en/places/radius?` +
       // `radius=${radiusMeters}&lon=${lon}&lat=${lat}${kindsParam}&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
       // `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=architecture,cultural,historic,beaches,geological_formations,natural_springs,nature_reserves,waterfalls,view_points,sport,foods,shops&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
-      `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=architecture,cultural,historic,beaches,geological_formations,natural_springs,nature_reserves,waterfalls,view_points,sport,foods&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
+      `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=${kindsParams}&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
 
     // Build TM URL (if key present)
     let tmUrl: string | null = null;
@@ -240,6 +264,12 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
 
     const placeItems: QuestDTO[] = otmFeatures
       .filter((f: any) => Array.isArray(f?.geometry?.coordinates) && f.geometry.coordinates.length === 2)
+      .filter((f: any) => {
+        if (!INCLUDE_KINDS.length) return true;
+        const kindsString = typeof f?.properties?.kinds === 'string' ? f.properties.kinds.split(',') : [];
+        return !kindsString.some((kind: string) => EXCLUDE_KINDS.includes(kind));
+      })
+      .filter((f: any) => typeof f?.properties?.name === 'string' && f.properties.name.trim().length > 0)
       .map((f: any): QuestDTO => {
         const [fLon, fLat] = f.geometry.coordinates as [number, number];
         const props = f.properties ?? {};
@@ -313,9 +343,12 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         return quest;
       });
     }
-
-    // Merge, sort by distance, and cap overall size
-    let merged: QuestDTO[] = [...placeItems, ...eventItems];
+    
+    function withinRadius(quest: QuestDTO) {
+      const [questLon, questLat] = quest.location.coordinates;
+      return distanceMeters(lon, lat, questLon, questLat) <= radiusMeters;
+    }
+    let merged: QuestDTO[] = [...placeItems, ...eventItems].filter(withinRadius);
     merged.sort((a, b) => {
       const [aLon, aLat] = a.location.coordinates;
       const [bLon, bLat] = b.location.coordinates;
