@@ -47,8 +47,8 @@ export default function MyQuestModal({
           <p className="mb-2">
             Price: {quest.currency} {quest.price}
           </p>
-          <MyQuestsButton questId={quest._id} myQuests={myQuests} setMyQuests={setMyQuests} />
-          <FavouriteButton questId={quest._id} myQuests={myQuests} setMyQuests={setMyQuests} />
+          <MyQuestsButton quest={quest} myQuests={myQuests} setMyQuests={setMyQuests} />
+          <FavouriteButton quest={quest} myQuests={myQuests} setMyQuests={setMyQuests} />
         </div>
       </div>
     </div>

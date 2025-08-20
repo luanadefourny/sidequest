@@ -66,6 +66,7 @@ function distanceMeters(lon1: number, lat1: number, lon2: number, lat2: number) 
 }
 
 type QuestDTO = {
+  _id: string;
   name: string;
   type: 'event' | 'place';
   location: { type: 'Point'; coordinates: [number, number] };
@@ -78,7 +79,7 @@ type QuestDTO = {
   description?: string;
   source?: string;
   sourceId?: string;
-  clientId?: string;
+  // clientId?: string;
   venueName?: string;
   image?: string;
 };
@@ -287,7 +288,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
           url: wikiUrl,
           source: 'opentripmap',
           sourceId: String(props.xid ?? props.id ?? `${fLon},${fLat}`),
-          clientId: `otm:${String(props.xid ?? props.id ?? `${fLon},${fLat}`)}`,
+          _id: `otm:${String(props.xid ?? props.id ?? `${fLon},${fLat}`)}`,
         };
       });
 
@@ -326,7 +327,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
           ageRestricted: Boolean(isAgeRestricted),
           source: 'ticketmaster',
           sourceId: String(ev?.id ?? ''),
-          clientId: `tm:${String(ev?.id ?? '')}`,
+          _id: `tm:${String(ev?.id ?? '')}`,
           venueName: typeof venue?.name === 'string' ? venue.name : undefined,
           image: typeof primaryImage === 'string' ? primaryImage : undefined,
         };

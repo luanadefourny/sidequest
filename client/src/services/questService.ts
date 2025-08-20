@@ -45,7 +45,7 @@ async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
         : [NaN, NaN];
 
       const id =
-        quest.clientId ??
+        quest._id ??
         (quest.source && quest.sourceId
           ? `${quest.source}:${quest.sourceId}`
           : `${quest.name}:${lon},${lat}`);

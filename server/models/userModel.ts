@@ -4,7 +4,7 @@ import mongoose from '../db';
 
 export interface APIQuestObject {
   _id: string;
-  clientId?: string;
+  // clientId?: string;
   name: string;
   type: 'event' | 'place';
   location: {
@@ -55,7 +55,7 @@ export interface IUser extends Document {
 
 const APIQuestObjectSchema = new Schema(
   {
-    clientId: { type: String, required: true, index: true },
+    _id: { type: String, required: true, index: true },
     name: { type: String, required: true, trim: true },
     type: { type: String, enum: ['event', 'place'], required: true },
     location: {
@@ -129,6 +129,7 @@ const MyLocationSchema = new Schema(
       coordinates: {
         type: [Number],
         required: true,
+        default: undefined,
         validate: {
           validator: (v: number[]) => Array.isArray(v) && v.length === 2,
           message: 'coordinates must be [longitude, latitude]',

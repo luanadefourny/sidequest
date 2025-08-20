@@ -46,7 +46,7 @@ export default function FavQuestModal({
           <p className="mb-2">
             Price: {quest.currency} {quest.price}
           </p>
-          <FavouriteButton questId={quest._id} myQuests={myQuests} setMyQuests={setMyQuests} />
+          <FavouriteButton quest={quest} myQuests={myQuests} setMyQuests={setMyQuests} />
         </div>
       </div>
     </div>

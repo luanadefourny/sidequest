@@ -58,7 +58,7 @@ type Quest = {
   description?: string;
   source?: string;
   sourceId?: string;
-  clientId?: string;
+  // clientId?: string;
   venueName?: string;
   image?: string;
 };
@@ -90,7 +90,7 @@ interface Credentials {
   email?: string;
 }
 interface MyQuest {
-  quest: string | Quest;
+  quest: Quest;
   isFavorite: boolean;
 }
 
@@ -143,7 +143,7 @@ interface QuestsPageProps {
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
 }
 interface MyQuestsButtonProps {
-  questId: string;
+  quest: Quest;
   myQuests: MyQuest[];
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
 }
@@ -183,7 +183,7 @@ type QuestDTO = {
   description?: string;
   source?: string;
   sourceId?: string;
-  clientId?: string;
+  // clientId?: string;
   venueName?: string;
   image?: string;
 };

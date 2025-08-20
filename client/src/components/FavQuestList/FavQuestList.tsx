@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import MyQuests from '../../assets/MyQuests.jpg';
 import type { MyQuestsPageProps } from '../../types';
+import type { Quest } from '../../types';
 import { useUser } from '../Context/userContext';
 import FavouriteButton from '../FavouriteButton/favouriteButton';
 import FavQuestModal from '../FavQuestModal/FavQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
-import MyQuests from '../../assets/MyQuests.jpg';
-import type { Quest } from '../../types';
 
 export default function FavQuestList({
   myQuests,
@@ -111,7 +111,7 @@ export default function FavQuestList({
 
                     <div className="flex items-center gap-3 mt-6">
                       <MyQuestsButton
-                        questId={myQuest.quest._id}
+                        quest={myQuest.quest}
                         myQuests={myQuests}
                         setMyQuests={setMyQuests}
                       />
@@ -127,7 +127,7 @@ export default function FavQuestList({
                       </button>
 
                       <FavouriteButton
-                        questId={myQuest.quest._id}
+                        quest={myQuest.quest}
                         myQuests={myQuests}
                         setMyQuests={setMyQuests}
                       />

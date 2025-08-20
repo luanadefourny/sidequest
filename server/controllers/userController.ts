@@ -368,7 +368,7 @@ async function getMyQuest(req: Request, res: Response): Promise<void> {
 
     //check if quest is part of myQuests
     const questIndex = user.myQuests.findIndex(
-      (myQuest: any) => myQuest.quest && (myQuest.quest as any).clientId === questId
+      (myQuest: any) => myQuest.quest && (myQuest.quest as any)._id === questId
     );
     if (questIndex === -1) {
       res.status(404).json({ error: 'No quest with that questId found for this user' });
@@ -407,7 +407,7 @@ async function addToMyQuests(req: Request, res: Response): Promise<void> {
     }
 
     const questExists = userToUpdate.myQuests.some(
-      (myQuest) => myQuest.quest && myQuest.quest.clientId === questToAdd.clientId
+      (myQuest) => myQuest.quest && myQuest.quest._id === questToAdd._id
     )
 
     // if already in my quests, return the array as is
@@ -446,7 +446,7 @@ async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
 
     //check if quest is part of myQuests
     const questIndex = userToUpdate.myQuests.findIndex(
-      (myQuest) => myQuest.quest && myQuest.quest.clientId === questId,
+      (myQuest) => myQuest.quest && myQuest.quest._id === questId,
       // (myQuest) => myQuest.quest.toString() === questId,
     );
     //nothing to remove
@@ -484,7 +484,7 @@ async function toggleFavoriteQuest(req: Request, res: Response): Promise<void> {
     }
 
     const questToFavorite = userToUpdate.myQuests.find(
-      (myQuest) => myQuest.quest && myQuest.quest.clientId === questId,
+      (myQuest) => myQuest.quest && myQuest.quest._id === questId,
     );
     if (!questToFavorite) {
       res.status(404).json({ error: 'Quest not found in myQuests' });
