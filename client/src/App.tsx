@@ -62,7 +62,6 @@ export default function App() {
       return;
     }
 
-    // const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
     if (!needsMyQuests) {
       setMyQuestsLoading(false);
       return;
@@ -87,7 +86,6 @@ export default function App() {
   }, [loggedIn, user?._id, pathname]);
 
   return (
-    // <BrowserRouter>
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
@@ -153,6 +151,5 @@ export default function App() {
         }
       />
     </Routes>
-    //  </BrowserRouter>
   );
 }

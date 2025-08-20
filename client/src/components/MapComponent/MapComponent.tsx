@@ -1,7 +1,7 @@
 // MapComponent.tsx
-import React, { useEffect, useRef, useState } from 'react';
 import './MapComponent.css';
 
+import React, { useEffect, useRef, useState } from 'react';
 import { IoIosSearch } from 'react-icons/io';
 import { RiCustomerService2Fill } from 'react-icons/ri';
 
@@ -64,7 +64,7 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
         // fail gracefully, show in console for debugging
         // don't crash the whole react tree
         // (React will show this in dev overlay)
-        // eslint-disable-next-line no-console
+         
         console.error('Map init failed', err);
       }
     });
@@ -79,7 +79,7 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
       try {
         initMap(container, input, radius);
       } catch (err) {
-        // eslint-disable-next-line no-console
+         
         console.error('Re-init map failed', err);
       }
     }

@@ -35,6 +35,7 @@ async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
     if ((filters as any).limit)  params.limit  = String((filters as any).limit);
     if ((filters as any).kinds)  params.kinds  = String((filters as any).kinds);
     params.includeEvents = '1';
+    params.todayOnly = '1';
 
     const { data } = await server.get<QuestDTO[]>('/api/quests/live', { params });
 
