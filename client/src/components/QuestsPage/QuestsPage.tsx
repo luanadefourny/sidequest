@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
+import QuestPage from '../../assets/QuestsPage.jpg';
 import type { Quest, QuestsPageProps } from '../../types';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
 import QuestModal from '../QuestModal/QuestModal';
-import QuestPage from '../../assets/QuestsPage.jpg';
+
 
 export default function QuestsPage({ quests, myQuests, setMyQuests }: QuestsPageProps) {
   const [showQuestModal, setShowQuestModal] = useState(false);

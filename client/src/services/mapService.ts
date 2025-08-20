@@ -1,10 +1,15 @@
+import type { Quest } from '../types';
+import { getPlaceDetails } from './openTripMapApiService';
+import { getQuests } from './questService';
+
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
-let apiData: any[] = [];
+// let apiData: any[] = [];
 let currentMap: google.maps.Map | null = null;
 let currentRadius = 1000; //meters
 let loadSeq = 0;
 let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+const returnLimit = 150;
 
 export function getMarkerPosition() {
   return coordsHelper;
@@ -33,22 +38,26 @@ async function loadMarkers(
       const { AdvancedMarkerElement } = (await google.maps.importLibrary(
         'marker',
       )) as google.maps.MarkerLibrary;
-      const res = await fetch(`/api/opentripmap?latitude=${latitude}&longitude=${longitude}&radius=${radius}`);
-      if (!res.ok) throw new Error("Failed to fetch OpenTripMap data");
-      const data = await res.json();
+      // const quests: OpenTripMapPlace[] = await getPlaces(latitude, longitude, radius);
+      const quests: Quest[] = await getQuests({
+        near: `${longitude},${latitude}`,
+        radius,
+        limit: returnLimit,
+      })
 
       if (seq !== loadSeq) return;
       
-      apiData = data;
-      console.log(apiData);
+      // apiData = places;
 
       const infoWindow = new google.maps.InfoWindow();
 
-       data.forEach((feature: any) => {
-        console.log('Feature: ',feature);
-        const [lon, lat] = feature.geometry.coordinates;
-        const name = feature.properties.name || "Unnamed place";
-        const kinds = feature.properties.kinds || "No category found";
+      quests.forEach((quest) => {
+        // console.log('Place: ',place);
+        // const { coords: { lat, lng }, name, kinds, xid } = place;
+        const [lon, lat] = quest.location.coordinates;
+        const questLongitude = Number(lon);
+        const questLatitude = Number(lat);
+        const name = quest.name;
 
         const icon = document.createElement("img");
         icon.src = "./creep.jpg";
@@ -57,33 +66,46 @@ async function loadMarkers(
 
         const marker = new AdvancedMarkerElement({
           map,
-          position: { lat, lng: lon },
+          position: { lat: questLatitude, lng: questLongitude },
           title: name,
           content: icon,
         });
+        mapMarkers.push(marker);
 
         // Include OpenTripMap markers in bounds
-        bounds.extend({ lat, lng: lon });
+        bounds.extend({ lat: questLatitude, lng: questLongitude });
 
-        marker.addListener("click", async () => {
-          const res = await fetch(`/api/opentripmap/details/${feature.properties.xid}`);
-          const details = await res.json();
-          console.log(details);
-          const address = details.address ? `${details.address.road || ''} ${details.address.house_number || ''}, ${details.address.city || ''}, ${details.address.country || ''}` : 'No address available';
+        marker.addListener('click', async () => {
+          let bodyHtml = '';
 
-    //       //TODO get a fallback image to plug in as default if we have no details.preview.source
+          if (quest.source === 'opentripmap' && typeof quest.sourceId === 'string' && quest.sourceId) {
+            // Enrich OTM places with image/address
+            const details = await getPlaceDetails(quest.sourceId);
+            const address = details?.address ?? '';
+            const img = details?.preview
+              ? `<img src="${details.preview}" style="max-height:200px;width:auto;height:auto;" alt=""/>`
+              : '';
+            bodyHtml = `${img}${address ? `<br/>${address}` : ''}`;
+          } else {
+            // Events or non-OTM places
+            const img = quest.image ? `<img src="${quest.image}" style="max-height:200px;width:auto;height:auto;" alt=""/>` : '';
+            const venue = quest.venueName ? `<div><strong>${quest.venueName}</strong></div>` : '';
+            const desc = quest.description ? `<div>${quest.description}</div>` : '';
+            const link = quest.url ? `<a href="${quest.url}" target="_blank" rel="noopener">More info</a>` : '';
+            bodyHtml = `${img}${venue}${desc}${link}`;
+          }
 
+          const typeLabel = quest.type;
           infoWindow.setContent(`
             <div style="font-size:14px">
-            ${details.preview?.source ? `<img src="${details.preview.source}" style="max-height:200px; width:auto; height:auto;"/>` : ""}
-            <strong>${name}</strong><br/>
-            <em>${kinds}</em><br/>
-            ${address}
+              <strong>${name}</strong><br/>
+              <em>${typeLabel}</em><br/>
+              ${bodyHtml}
             </div>
-            `);
-            infoWindow.open(map, marker);
-          });
+          `);
+          infoWindow.open(map, marker);
         });
+      });
 
     //     // Fit map to include the searched place + all OpenTripMap markers
     if (!bounds.isEmpty()) {
@@ -102,10 +124,10 @@ async function loadMarkers(
     map.setZoom(15);
   }
 }
-    //! Opentripmap call ends here
+//! Opentripmap call ends here
 
 
-  //! mock data call starts here
+//! mock data call starts here
 //   try {
 //     const { AdvancedMarkerElement } = (await google.maps.importLibrary(
 //       'marker',
