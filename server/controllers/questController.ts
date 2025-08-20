@@ -41,6 +41,8 @@ type QuestDTO = {
   source?: string;
   sourceId?: string;
   clientId?: string;
+  venueName?: string;
+  image?: string;
 };
 
 
@@ -235,6 +237,8 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         const loc = venue?.location;
         const priceRange = Array.isArray(event?.priceRanges) && event.priceRanges.length ? event.priceRanges[0] : undefined;
         const isAgeRestricted = event?.ageRestrictions?.legalAgeEnforced === true;
+        const images: any[] = Array.isArray(event?.images) ? event.images : [];
+        const primaryImage = images.find(i => typeof i?.url === 'string')?.url;
 
         const item: QuestDTO = {
           name: String(event?.name ?? 'Event'),
@@ -250,6 +254,8 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
           source: 'ticketmaster',
           sourceId: String(event?.id ?? ''),
           clientId: undefined,
+          venueName: typeof venue?.name === 'string' ? venue.name : undefined,
+          image: typeof primaryImage === 'string' ? primaryImage : undefined,
         };
 
         if (typeof priceRange?.min === 'number') item.price = priceRange.min;
