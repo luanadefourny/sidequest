@@ -218,7 +218,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
 
       const ticketmasterParams = new URLSearchParams({
         apikey: String(TICKETMASTER_KEY),
-        geopoint: geoHash,
+        geoPoint: geoHash,
         radius: String(radiusKm),
         unit: 'km',
         size: String(maxResults),
