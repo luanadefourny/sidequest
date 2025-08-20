@@ -29,39 +29,51 @@ server.interceptors.request.use((config) => {
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const params: Record<string, string> = {};
-    if ((filters as any).near)   params.near   = String((filters as any).near);
-    if ((filters as any).radius) params.radius = String((filters as any).radius);
+    if ((filters as any).near)   params.near   = String((filters as any).near);   // "lon,lat"
+    if ((filters as any).radius) params.radius = String((filters as any).radius); // meters
     if ((filters as any).limit)  params.limit  = String((filters as any).limit);
     if ((filters as any).kinds)  params.kinds  = String((filters as any).kinds);
 
     const { data } = await server.get<QuestDTO[]>('/api/quests/live', { params });
 
-    const withIds: Quest[] = (data ?? []).map((quest) => {
-      const fallbackId = `${quest.source ?? 'ext'}:${quest.sourceId ?? quest.name}:${quest.location.coordinates.join(',')}`;
+    const normalized: Quest[] = (Array.isArray(data) ? data : []).map((quest) => {
+      const [lon, lat] = Array.isArray(quest.location?.coordinates)
+        ? quest.location.coordinates
+        : [NaN, NaN];
+
+      const id =
+        quest.clientId ??
+        (quest.source && quest.sourceId
+          ? `${quest.source}:${quest.sourceId}`
+          : `${quest.name}:${lon},${lat}`);
+
       return {
-        _id: quest.clientId ?? fallbackId,
-        name: quest.name,
-        type: quest.type,
-        location: quest.location,
-        ageRestricted: quest.ageRestricted,
-        price: quest.price,
-        currency: quest.currency,
-        url: quest.url,
-        startAt: quest.startAt,
-        endAt: quest.endAt,
-        description: quest.description,
-        source: quest.source,
-        sourceId: quest.sourceId,
-        clientId: quest.clientId,
+        _id: String(id),
+        name: String(quest.name ?? 'Unknown'),
+        type: quest.type === 'event' ? 'event' : 'place',
+        location: {
+          type: 'Point',
+          coordinates: [Number(lon), Number(lat)],
+        },
+        ageRestricted: Boolean(quest.ageRestricted),
+        price: typeof quest.price === 'number' ? quest.price : undefined,
+        currency: typeof quest.currency === 'string' ? quest.currency : undefined,
+        url: typeof quest.url === 'string' ? quest.url : undefined,
+        startAt: typeof quest.startAt === 'string' ? quest.startAt : undefined,
+        endAt: typeof quest.endAt === 'string' ? quest.endAt : undefined,
+        description: typeof quest.description === 'string' ? quest.description : undefined,
+        source: typeof quest.source === 'string' ? quest.source : undefined,
+        sourceId: typeof quest.sourceId === 'string' ? quest.sourceId : undefined,
+        venueName: typeof (quest as any).venueName === 'string' ? (quest as any).venueName : undefined,
+        image: typeof (quest as any).image === 'string' ? (quest as any).image : undefined,
       };
     });
 
-    return withIds;
+    return normalized;
   } catch (error) {
     extractAxiosError(error, 'getQuests');
   }
 }
-
 async function getQuest(questId: string): Promise<Quest> {
   try {
     const { data } = await server.get<Quest>(`/quests/${questId}`);
