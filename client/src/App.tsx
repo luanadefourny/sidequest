@@ -73,7 +73,7 @@ export default function App() {
     let cancelled = false;
     async function fetchMyQuests() {
       try {
-        const data = await getMyQuests(user!._id, 1);
+        const data = await getMyQuests(user!._id);
         if (!cancelled) setMyQuests(data ?? []);
       } catch (error) {
         if (!cancelled) setMyQuests([]);
