@@ -272,7 +272,8 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
       });
 
       // France fallback
-      if (!eventItems.length && inFrance(lat, lon)) {
+      const countryCode = typeof req.query.countryCode === 'string' ? req.query.countryCode.toUpperCase(): undefined;
+      if (!eventItems.length && countryCode === 'FR' && inFrance(lat, lon)) {
         const ODS_BASE = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records';
         const odsParams = new URLSearchParams({
           limit: String(maxResults),

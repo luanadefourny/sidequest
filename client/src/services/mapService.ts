@@ -76,26 +76,33 @@ async function loadMarkers(
         bounds.extend({ lat: questLatitude, lng: questLongitude });
 
         marker.addListener('click', async () => {
-          let contentHtml = `<div style="font-size:14px">
-              <strong>${name}</strong><br/>
-              <em>${quest.type}</em><br/>`;
+          let bodyHtml = '';
 
-          // If OpenTripMap, try to enrich with image + address
           if (quest.source === 'opentripmap' && typeof quest.sourceId === 'string' && quest.sourceId) {
+            // Enrich OTM places with image/address
             const details = await getPlaceDetails(quest.sourceId);
             const address = details?.address ?? '';
             const img = details?.preview
               ? `<img src="${details.preview}" style="max-height:200px;width:auto;height:auto;" alt=""/>`
               : '';
-            contentHtml += `${img}${address ? `<br/>${address}` : ''}`;
+            bodyHtml = `${img}${address ? `<br/>${address}` : ''}`;
           } else {
-            // Fallback for non-OTM
-            if (quest.description) contentHtml += `${quest.description}<br/>`;
-            if (quest.url) contentHtml += `<a href="${quest.url}" target="_blank" rel="noopener">More info</a>`;
+            // Events or non-OTM places
+            const img = quest.image ? `<img src="${quest.image}" style="max-height:200px;width:auto;height:auto;" alt=""/>` : '';
+            const venue = quest.venueName ? `<div><strong>${quest.venueName}</strong></div>` : '';
+            const desc = quest.description ? `<div>${quest.description}</div>` : '';
+            const link = quest.url ? `<a href="${quest.url}" target="_blank" rel="noopener">More info</a>` : '';
+            bodyHtml = `${img}${venue}${desc}${link}`;
           }
 
-          contentHtml += `</div>`;
-          infoWindow.setContent(contentHtml);
+          const typeLabel = quest.type;
+          infoWindow.setContent(`
+            <div style="font-size:14px">
+              <strong>${name}</strong><br/>
+              <em>${typeLabel}</em><br/>
+              ${bodyHtml}
+            </div>
+          `);
           infoWindow.open(map, marker);
         });
       });
