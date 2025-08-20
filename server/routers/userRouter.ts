@@ -5,6 +5,7 @@ import {
   editUserCredentials,
   editUserData,
   editUserPassword,
+  followUser,
   getMyQuest,
   getMyQuests,
   getUser,
@@ -15,6 +16,7 @@ import {
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  unfollowUser,
   uploadProfilePicture,
 } from '../controllers/userController';
 import { authenticateJWT } from '../middleware/authMiddleware';
@@ -52,7 +54,7 @@ router.patch('/users/:userId/my-quests/:questId/favorite', authenticateJWT, togg
 
 // router.get('/users/:userId/follwers', getUserFollowers);
 // router.get('/users/:userId/follwing', getUserFollowing);
-// router.post('/users/:userId/follow', followUser);
-// router.delete('/users/:userId/follow', unfollowUser);
+router.post('/users/:targetUserId/follow', authenticateJWT, followUser);
+router.delete('/users/:targetUserId/follow', authenticateJWT, unfollowUser);
 
 export default router;
