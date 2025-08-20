@@ -43,6 +43,15 @@ async function getUser(userId: string): Promise<PublicUserData> {
   }
 }
 
+async function getUserByUsername(username: string): Promise<PublicUserData> {
+  try {
+    const { data } = await server.get<PublicUserData>(`/users/by-username/${username}`);
+    return data;
+  } catch (error) {
+    extractAxiosError(error, 'getUserByUsername');
+  }
+}
+
 async function registerUser(userData: RegisterUserData): Promise<User> {
   try {
     const { data } = await server.post<User>(`/users`, userData);
@@ -207,19 +216,38 @@ async function toggleFavoriteQuest(
   }
 }
 
+async function followUser (targetUserId: string): Promise<void> {
+  try {
+    await server.post(`/users/${targetUserId}/follow`);
+  } catch (error) {
+    extractAxiosError(error, 'followUser');
+  }
+}
+
+async function unfollowUser (targetUserId: string): Promise<void> {
+  try {
+    await server.delete(`/users/${targetUserId}/follow`);
+  } catch (error) {
+    extractAxiosError(error, 'unfollowUser');
+  }
+}
+
 export {
   addToMyQuests,
   editUserCredentials,
   editUserData,
   editUserPassword,
+  followUser,
   getMyQuest,
   getMyQuests,
   getUser,
+  getUserByUsername,
   getUsers,
   loginUser,
   logoutUser,
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  unfollowUser,
   uploadProfilePicture,
 };
