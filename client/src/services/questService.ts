@@ -29,16 +29,6 @@ server.interceptors.request.use((config) => {
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const params: Record<string, string> = {};
-    // const near = filters.near;
-
-    // if (near) {
-    //   params.near = String(near);
-    //   const [longitudeStr, latitudeStr] = near.split(',');
-    //   const longitude = Number(longitudeStr);
-    //   const latitude = Number(latitudeStr);
-    //   const inFrance = Number.isFinite(latitude) && Number.isFinite(longitude) && latitude >= 41 && latitude <= 51.5 && longitude >= -5.5 && longitude <= 9.7;
-    //   if (inFrance) params.countryCode = 'FR';
-    // }
 
     if ((filters as any).near) params.near = String((filters as any).near);
     if ((filters as any).radius) params.radius = String((filters as any).radius);
@@ -80,7 +70,7 @@ async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
         image: typeof (quest as any).image === 'string' ? (quest as any).image : undefined,
       };
     });
-
+    console.log('normalized: ',normalized);
     return normalized;
   } catch (error) {
     extractAxiosError(error, 'getQuests');

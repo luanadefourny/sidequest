@@ -27,6 +27,17 @@ function geohash(lat: number, lon: number, precision = 9) {
 }
 function inFrance(lat: number, lon: number) { return lat >= 41 && lat <= 51.5 && lon >= -5.5 && lon <= 9.7; }
 
+function distanceMeters(lon1: number, lat1: number, lon2: number, lat2: number) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
 type QuestDTO = {
   name: string;
   type: 'event' | 'place';
@@ -50,7 +61,7 @@ async function getQuests(req: Request, res: Response): Promise<void> {
   try {
     //optional query parameters for filtering on the backend
     const {
-      type, // 'event' | 'place' | 'activity'
+      type, // 'event' | 'place'
       ageRestricted, // '0' | '1'
       priceMin,
       priceMax, // numbers
@@ -103,12 +114,10 @@ async function getQuests(req: Request, res: Response): Promise<void> {
       };
     }
 
-    // const quests = await Quest.find(quest);
-    const amountOfQuestsToReturn = (() => {
-      const n = Number(limit);
-      if (!Number.isFinite(n)) return 20; //defaults to 50
-      return Math.max(1, Math.min(n, 100)); //will never return more than 100 or less than 1
-    })();
+    const requestedLimit = Number(limit);
+    const amountOfQuestsToReturn = Number.isFinite(requestedLimit)
+      ? Math.max(1, requestedLimit)
+      : 20;
 
     const quests = await Quest.find(quest).limit(amountOfQuestsToReturn);
 
@@ -158,9 +167,24 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
       res.status(400).json({ error: "invalid coordinates" });
       return;
     }
+    // Today window (UTC). Use todayOnly=0|false to disable.
+    const now = new Date();
+    const dayStartUtc = new Date(Date.UTC(
+      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0
+    ));
+    const dayEndUtc = new Date(Date.UTC(
+      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999
+    ));
+    const dayStartIso = dayStartUtc.toISOString();
+    const dayEndIso = dayEndUtc.toISOString();
+    const todayOnly = !(req.query.todayOnly === '0' || req.query.todayOnly === 'false');
 
     const radiusMeters = Math.min(Math.max(1, Math.floor(Number(radius ?? 5000))), 50000);
-    const maxResults = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(Number(limit), 100)) : 50;
+    const requestedLimit = Number(limit);
+    const maxResults = Number.isFinite(requestedLimit)
+      ? Math.max(1, requestedLimit)
+      : 50;
+
 
     const kindsParam =
       typeof kinds === "string" && kinds.trim()
@@ -204,6 +228,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         return item;
       });
 
+
     const includeEvents =
       !(req.query.includeEvents === '0' || req.query.includeEvents === 'false');
     const segment =
@@ -221,7 +246,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         geoPoint: geoHash,
         radius: String(radiusKm),
         unit: 'km',
-        size: String(maxResults),
+        size: String(Math.min(maxResults, 200)),
         sort: 'distance,asc',
       });
       if (segment) ticketmasterParams.set('classificationName', segment);
@@ -233,15 +258,19 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         ? ticketmasterJson._embedded.events
         : [];
 
-      let eventItems: QuestDTO[] = ticketmasterEvents.map((event: any): QuestDTO => {
+      // Map Ticketmaster events, keeping localDate for robust "today" filtering
+      type TMEventPair = { item: QuestDTO; startAt?: string; startLocalDate?: string };
+      const tmPairs: TMEventPair[] = ticketmasterEvents.map((event: any): TMEventPair => {
         const venue = event?._embedded?.venues?.[0];
         const loc = venue?.location;
         const priceRange = Array.isArray(event?.priceRanges) && event.priceRanges.length ? event.priceRanges[0] : undefined;
         const isAgeRestricted = event?.ageRestrictions?.legalAgeEnforced === true;
         const images: any[] = Array.isArray(event?.images) ? event.images : [];
         const primaryImage = images.find(i => typeof i?.url === 'string')?.url;
-
-        const item: QuestDTO = {
+        const startLocalDate: string | undefined =
+          typeof event?.dates?.start?.localDate === 'string' ? event.dates.start.localDate : undefined;
+  
+        const questItem: QuestDTO = {
           name: String(event?.name ?? 'Event'),
           type: 'event',
           location: {
@@ -258,21 +287,41 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
           venueName: typeof venue?.name === 'string' ? venue.name : undefined,
           image: typeof primaryImage === 'string' ? primaryImage : undefined,
         };
-
-        if (typeof priceRange?.min === 'number') item.price = priceRange.min;
-        if (typeof priceRange?.currency === 'string') item.currency = priceRange.currency;
+  
+        if (typeof priceRange?.min === 'number') questItem.price = priceRange.min;
+        if (typeof priceRange?.currency === 'string') questItem.currency = priceRange.currency;
         const startIso = event?.dates?.start?.dateTime ? String(event.dates.start.dateTime) : undefined;
         const endIso   = event?.dates?.end?.dateTime   ? String(event.dates.end.dateTime)   : undefined;
-        if (startIso) item.startAt = startIso;
-        if (endIso)   item.endAt   = endIso;
+        if (startIso) questItem.startAt = startIso;
+        if (endIso)   questItem.endAt   = endIso;
         const desc = typeof event?.info === 'string' ? event.info : (typeof event?.pleaseNote === 'string' ? event.pleaseNote : undefined);
-        if (desc) item.description = desc;
-        if (typeof event?.url === 'string') item.url = event.url;
-        item.clientId = `tm:${item.sourceId}`;
-        return item;
+        if (desc) questItem.description = desc;
+        if (typeof event?.url === 'string') questItem.url = event.url;
+        questItem.clientId = `tm:${questItem.sourceId}`;
+  
+        return { item: questItem, startAt: questItem.startAt, startLocalDate };
       });
+  
+      // Apply "today" filtering AFTER fetching, using UTC startAt or localDate fallback
+      let eventItems: QuestDTO[];
+      if (todayOnly) {
+        const todayYmdUtc = dayStartIso.slice(0, 10); // 'YYYY-MM-DD' in UTC
+        eventItems = tmPairs
+          .filter(({ startAt, startLocalDate }) => {
+            const startMs = startAt ? Date.parse(startAt) : NaN;
+            const withinUtcDay =
+              Number.isFinite(startMs) &&
+              startMs >= dayStartUtc.getTime() &&
+              startMs <= dayEndUtc.getTime();
+            const matchesLocalDate = startLocalDate === todayYmdUtc;
+            return withinUtcDay || matchesLocalDate;
+          })
+          .map(p => p.item);
+      } else {
+        eventItems = tmPairs.map(p => p.item);
+      }
 
-      // France fallback
+      // France fallback BEFORE dedupe (so fallback also gets deduped)
       const countryCode = typeof req.query.countryCode === 'string' ? req.query.countryCode.toUpperCase(): undefined;
       if (!eventItems.length && countryCode === 'FR' && inFrance(lat, lon)) {
         const ODS_BASE = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records';
@@ -285,12 +334,12 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
           const odsJson: any = await odsRes.json();
           const odsRows: any[] = Array.isArray(odsJson?.results) ? odsJson.results : [];
           eventItems = odsRows.map((f): QuestDTO => {
-            const hasPoint = f?.location?.lat && f?.location?.lon;
+            const hasPoint   = f?.location?.lat && f?.location?.lon;
             const arrayPoint = Array.isArray(f?.geo_point_2d) && f.geo_point_2d.length === 2;
             const latNum = hasPoint ? Number(f.location.lat) : (arrayPoint ? Number(f.geo_point_2d[0]) : undefined);
             const lonNum = hasPoint ? Number(f.location.lon) : (arrayPoint ? Number(f.geo_point_2d[1]) : undefined);
 
-            const title = f?.title ?? f?.title_fr ?? f?.titre ?? f?.name ?? 'Événement';
+            const title   = f?.title ?? f?.title_fr ?? f?.titre ?? f?.name ?? 'Événement';
             const startStr = f?.date_start ?? f?.start ?? f?.firstdate_begin;
             const endStr   = f?.date_end   ?? f?.end   ?? f?.lastdate_end;
             const link     = f?.link ?? f?.url ?? f?.website;
@@ -319,25 +368,32 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
             item.clientId = `oa:${item.sourceId}`;
             return item;
           });
+          if (todayOnly) {
+            eventItems = eventItems.filter(ev => {
+              const start = ev.startAt ? Date.parse(ev.startAt) : NaN;
+              const end   = ev.endAt   ? Date.parse(ev.endAt)   : start;
+              if (Number.isNaN(start)) return false;
+              // keep if the event overlaps today (UTC)
+              return end >= dayStartUtc.getTime() && start <= dayEndUtc.getTime();
+            });
+          }
         }
       }
 
+      // merge non-deduped lists
       allItems = [...placeItems, ...eventItems];
+
+      allItems.sort((a, b) => {
+        const [alon, alat] = a.location.coordinates;
+        const [blon, blat] = b.location.coordinates;
+        const da = distanceMeters(lon, lat, alon, alat);
+        const db = distanceMeters(lon, lat, blon, blat);
+        return da - db;
+      });
     }
-
-
-    const deduped = (() => {
-      const byKey = new Map<string, QuestDTO>();
-      for (const quest of allItems) {
-        const stableKey =
-          quest.clientId ??
-          `${quest.source ?? 'ext'}:${quest.sourceId ?? quest.name}:${quest.location.coordinates.join(',')}`;
-        if (!byKey.has(stableKey)) byKey.set(stableKey, quest);
-      }
-      return Array.from(byKey.values());
-    })();
-
-    res.status(200).json(deduped);
+    
+    // Removed global de-duplication: respond directly with merged list
+    res.status(200).json(allItems);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Failed to fetch live quests" });
