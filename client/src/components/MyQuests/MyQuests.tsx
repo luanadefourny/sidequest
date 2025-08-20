@@ -5,7 +5,7 @@ import type { MyQuestsPageProps } from '../../types';
 import FavouriteButton from '../FavouriteButton/favouriteButton';
 import MyQuestModal from '../MyQuestModal/MyQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
-import MyQuests from "../../../public/MyQuests.jpg"
+import MyQuests from "../../assets/MyQuests.jpg"
 
 
 export default function MyQuestsPage({
