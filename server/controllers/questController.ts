@@ -184,7 +184,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     }
 
     const { near, radius, limit, kinds } = req.query;
-    console.log('kinds: ',kinds);
+    // console.log('kinds: ',kinds);
 
     if (!near || typeof near !== 'string') {
       res.status(400).json({ error: "near required as 'lon,lat'" });

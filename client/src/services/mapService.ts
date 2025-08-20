@@ -13,6 +13,34 @@ let loadSeq = 0;
 let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 const returnLimit = HARD_LIMIT;
 
+let currentCircle: google.maps.Circle | null = null;
+
+function upsertRadiusCircle(
+  map: google.maps.Map,
+  center: google.maps.LatLngLiteral,
+  radius: number
+) {
+  if (currentCircle) {
+    currentCircle.setCenter(center);
+    currentCircle.setRadius(radius);
+    currentCircle.setMap(map);
+  } else {
+    currentCircle = new google.maps.Circle({
+      map,
+      center,
+      radius,
+      strokeColor: '#059669',
+      strokeOpacity: 0.5,
+      strokeWeight: 1,
+      fillColor: '#10b981',
+      fillOpacity: 0.07, // transparent fill
+      clickable: false,
+    });
+  }
+  const b = currentCircle.getBounds();
+  if (b) map.fitBounds(b);
+}
+
 export function getMarkerPosition() {
   return coordsHelper;
 }
@@ -145,13 +173,24 @@ async function loadMarkers(
       });
 
     //     // Fit map to include the searched place + all OpenTripMap markers
-    if (!bounds.isEmpty()) {
+    // if (!bounds.isEmpty()) {
+    //   map.fitBounds(bounds);
+    //   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+    //     map.setZoom(15);
+    //   }
+    // } else {
+    //   // If no markers, center on fallback location
+    //   map.setCenter({ lat: latitude, lng: longitude });
+    //   map.setZoom(15);
+    // }
+
+    const circleBounds = currentCircle?.getBounds();
+    if (circleBounds) {
+      map.fitBounds(circleBounds, 0);
+    } else if (!bounds.isEmpty()) {
       map.fitBounds(bounds);
-      if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-        map.setZoom(15);
-      }
+      if (bounds.getNorthEast().equals(bounds.getSouthWest())) map.setZoom(15);
     } else {
-      // If no markers, center on fallback location
       map.setCenter({ lat: latitude, lng: longitude });
       map.setZoom(15);
     }
@@ -285,6 +324,9 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   const bounds = new google.maps.LatLngBounds();
   console.log('Radius here: ', radius);
   currentRadius = radius;
+
+  upsertRadiusCircle(map, position, currentRadius);
+
   // Plot markers for both events and places on initial load
   await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
 
@@ -320,7 +362,12 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     // Create a LatLngBounds object to include all markers
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(place.geometry.location);
-    await loadMarkers(map, bounds, latitude, longitude, radius);
+
+    // fit to circle first, then load with the current radius
+    upsertRadiusCircle(map, { lat: latitude, lng: longitude }, currentRadius);
+
+    await loadMarkers(map, bounds, latitude, longitude, currentRadius);
+    // await loadMarkers(map, bounds, latitude, longitude, radius);
 
     //! Opentripmap call starts here - DON'T DELETE IT PLEASE
     // try {
@@ -392,6 +439,10 @@ window.addEventListener('radiuschange', async (e: Event) => {
     const lon = parseFloat(lonStr);
     const lat = parseFloat(latStr);
     if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+
+
+    upsertRadiusCircle(currentMap, { lat, lng: lon }, currentRadius);
+
     const bounds = new google.maps.LatLngBounds();
     await loadMarkers(currentMap, bounds, lat, lon, currentRadius);
   } catch (err) {

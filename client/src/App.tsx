@@ -34,7 +34,6 @@ export default function App() {
     setMyQuestsLoading(needsMyQuests);
   }, [loggedIn, needsMyQuests]);
 
-  //TODO prop drill these
   const [quests, setQuests] = useState<Quest[]>([]);
   const [myQuests, setMyQuests] = useState<MyQuest[]>([]);
   const [myQuestsLoading, setMyQuestsLoading] = useState<boolean>(false);

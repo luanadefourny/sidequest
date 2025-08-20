@@ -67,25 +67,25 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
   }, [setLocation]);
 
   // re-init on apply event (HomePage dispatches 'applymap')
-  useEffect(() => {
-    function onApply() {
-      const container = mapContainerRef.current;
-      const input = document.getElementById('pac-input') as HTMLInputElement | null;
-      if (!container) return;
-      try {
-        if (input) {
-          initMap(container, input, radius);
-        } else {
-          console.error('Input element not found');
-        }
-      } catch (err) {
+  // useEffect(() => {
+  //   function onApply() {
+  //     const container = mapContainerRef.current;
+  //     const input = document.getElementById('pac-input') as HTMLInputElement | null;
+  //     if (!container) return;
+  //     try {
+  //       if (input) {
+  //         initMap(container, input, radius);
+  //       } else {
+  //         console.error('Input element not found');
+  //       }
+  //     } catch (err) {
          
-        console.error('Re-init map failed', err);
-      }
-    }
-    window.addEventListener('applymap', onApply);
-    return () => window.removeEventListener('applymap', onApply);
-  }, [radius]);
+  //       console.error('Re-init map failed', err);
+  //     }
+  //   }
+  //   window.addEventListener('applymap', onApply);
+  //   return () => window.removeEventListener('applymap', onApply);
+  // }, [radius]);
 
   // broadcast radius change to any listeners in mapService if needed
 
