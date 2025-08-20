@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { FiUserPlus, FiUserCheck, FiSearch } from "react-icons/fi";
 import type { User } from "../../types";
 
-import { getUsers, getUserByUsername, followUser, unfollowUser } from "../../services/userService";
+import {
+  getUsers,
+  getUserByUsername,
+  followUser,
+  unfollowUser,
+} from "../../services/userService";
 import { useUser } from "../Context/userContext";
 import type { PublicUserData } from "../../types";
+import UserDetailsModal from "./UserDetailsModal";
 
 type LocalUser = PublicUserData & { isFollowing?: boolean };
 
@@ -17,13 +22,19 @@ export default function FindUsers() {
   const [btnLoadingId, setBtnLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // modal state
+  const [selectedUser, setSelectedUser] = useState<LocalUser | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
   useEffect(() => {
     if (!user) setResults((r) => r.map((u) => ({ ...u, isFollowing: false })));
   }, [user]);
 
   const deriveIsFollowing = (candidateId: string) => {
     if (!user?.following) return false;
-    return user.following.some((f: any) => (typeof f === "string" ? f === candidateId : f._id === candidateId));
+    return user.following.some((f: any) =>
+      typeof f === "string" ? f === candidateId : f._id === candidateId
+    );
   };
 
   async function handleSearch() {
@@ -32,7 +43,10 @@ export default function FindUsers() {
     try {
       if (!search.trim()) {
         const all = await getUsers();
-        const list = (all ?? []).map((u) => ({ ...u, isFollowing: deriveIsFollowing(u._id) }));
+        const list = (all ?? []).map((u) => ({
+          ...u,
+          isFollowing: deriveIsFollowing(u._id),
+        }));
         setResults(list);
       } else {
         const single = await getUserByUsername(search.trim());
@@ -52,36 +66,43 @@ export default function FindUsers() {
   }
 
   async function handleFollowToggle(targetId: string, currentlyFollowing: boolean) {
-  if (!user) {
-    alert('Please log in to follow users.');
-    return;
-  }
-
-  setBtnLoadingId(targetId);
-  try {
-    if (currentlyFollowing) {
-      await unfollowUser(targetId);
-    } else {
-      await followUser(targetId);
+    if (!user) {
+      alert("Please log in to follow users.");
+      return;
     }
 
-    setResults((prev) => prev.map((u) => (u._id === targetId ? { ...u, isFollowing: !currentlyFollowing } : u)));
+    setBtnLoadingId(targetId);
+    try {
+      if (currentlyFollowing) {
+        await unfollowUser(targetId);
+      } else {
+        await followUser(targetId);
+      }
 
-    const currentFollowing = Array.isArray(user.following) ? user.following : [];
+      setResults((prev) =>
+        prev.map((u) => (u._id === targetId ? { ...u, isFollowing: !currentlyFollowing } : u))
+      );
 
-    const filteredFollowing = currentlyFollowing
-      ? currentFollowing.filter((f: any) => (typeof f === 'string' ? f !== targetId : f._id !== targetId))
-      : [...currentFollowing, targetId]; 
+      const currentFollowing = Array.isArray(user.following) ? user.following : [];
+      const filteredFollowing = currentlyFollowing
+        ? currentFollowing.filter((f: any) => (typeof f === "string" ? f !== targetId : f._id !== targetId))
+        : [...currentFollowing, targetId];
 
-    const updatedUser = { ...(user as User), following: filteredFollowing } as User;
-    setUser(updatedUser);
-  } catch (err) {
-    console.error('Follow/unfollow failed:', err);
-    setError('Action failed — try again.');
-  } finally {
-    setBtnLoadingId(null);
+      const updatedUser = { ...(user as User), following: filteredFollowing } as User;
+      setUser(updatedUser);
+    } catch (err) {
+      console.error("Follow/unfollow failed:", err);
+      setError("Action failed — try again.");
+    } finally {
+      setBtnLoadingId(null);
+    }
   }
-}
+
+  function handleModalFollowChange(targetId: string, isFollowing: boolean) {
+    setResults((prev) => prev.map((u) => (u._id === targetId ? { ...u, isFollowing } : u)));
+
+    setSelectedUser((prev) => (prev && prev._id === targetId ? { ...prev, isFollowing } : prev));
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-gray-100 p-6 sm:p-10">
@@ -124,28 +145,39 @@ export default function FindUsers() {
         <div className="grid gap-4 sm:grid-cols-2">
           {results.length === 0 && !loading ? (
             <div className="col-span-full text-center text-gray-600 py-8">
-              No users found. Try searching a different username or click <button onClick={handleSearch} className="text-green-600 font-semibold underline">list all</button>.
+              No users found. Try searching a different username or click{" "}
+              <button onClick={handleSearch} className="text-green-600 font-semibold underline">list all</button>.
             </div>
           ) : (
             results.map((u) => {
               const isFollowing = !!u.isFollowing;
               const isSelf = user?._id === u._id;
               return (
-                <div key={u._id} className="flex items-center justify-between gap-4 bg-white rounded-2xl p-4 shadow">
+                <div
+                  key={u._id}
+                  className="flex items-center justify-between gap-4 bg-white rounded-2xl p-4 shadow"
+                >
                   <div className="flex items-center gap-4">
-                    <img
-                      src={u.profilePicture || "/default-avatar.png"}
-                      alt={u.username}
-                      className="w-14 h-14 rounded-full object-cover border"
-                    />
-                    <div>
-                      <Link to={`/users/${u._id}`} className="text-gray-900 font-semibold hover:underline">
-                        {u.username}
-                      </Link>
-                      <div className="text-sm text-gray-500">
-                        {u.firstName || u.lastName ? `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() : "Traveler"}
+                    <button
+                      onClick={() => {
+                        setSelectedUser(u);
+                        setModalOpen(true);
+                      }}
+                      className="flex items-center gap-4 p-0 text-left"
+                      aria-label={`Open profile for ${u.username}`}
+                    >
+                      <img
+                        src={u.profilePicture || "/default-avatar.png"}
+                        alt={u.username}
+                        className="w-14 h-14 rounded-full object-cover border"
+                      />
+                      <div>
+                        <div className="text-gray-900 font-semibold hover:underline">{u.username}</div>
+                        <div className="text-sm text-gray-500">
+                          {u.firstName || u.lastName ? `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() : "Traveler"}
+                        </div>
                       </div>
-                    </div>
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-3">
@@ -184,6 +216,14 @@ export default function FindUsers() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      <UserDetailsModal
+        isVisible={modalOpen}
+        onClose={() => setModalOpen(false)}
+        userData={selectedUser}
+        onFollowChange={handleModalFollowChange}
+      />
     </div>
   );
 }
