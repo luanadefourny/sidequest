@@ -4,7 +4,7 @@ import { serverUrl } from '../constants';
 import { extractAxiosError } from '../helperFunctions';
 import type { Quest } from '../types';
 
-const server = axios.create({
+const api = axios.create({
   baseURL: serverUrl,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -23,7 +23,7 @@ async function getTicketmasterEvents(params: {
     if (params.segment) q.segment = params.segment;
     if (params.limit)  q.size    = String(params.limit);
 
-    const { data } = await server.get<Quest[]>('/api/ticketmaster', { params: q });
+    const { data } = await api.get<Quest[]>('/api/ticketmaster', { params: q });
     return data;
   } catch (error) {
     extractAxiosError(error, 'getTicketmasterEvents');
@@ -32,7 +32,19 @@ async function getTicketmasterEvents(params: {
 }
 
 async function getEventDetails () {
-
+  if (!xid) return null;
+  
+    try {
+      const { data } = await api.get(`/details/${xid}`);
+      // console.log('getPlaceDetails data: ', data);
+      const address = data?.address
+        ? `${data.address.road || ''} ${data.address.house_number || ''}, ${data.address.city || ''}, ${data.address.country || ''}`.trim()
+        : undefined;
+      const preview = data?.preview?.source as string | undefined;
+      return { address, preview, raw: data }; 
+    } catch (error) {
+      extractAxiosError(error, 'getPlaceDetails');
+    }
 }
 
 export { getEventDetails, getTicketmasterEvents };

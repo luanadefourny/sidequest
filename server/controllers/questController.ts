@@ -27,6 +27,17 @@ function geohash(lat: number, lon: number, precision = 9) {
 }
 function inFrance(lat: number, lon: number) { return lat >= 41 && lat <= 51.5 && lon >= -5.5 && lon <= 9.7; }
 
+function distanceMeters(lon1: number, lat1: number, lon2: number, lat2: number) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
 type QuestDTO = {
   name: string;
   type: 'event' | 'place';
@@ -103,11 +114,10 @@ async function getQuests(req: Request, res: Response): Promise<void> {
       };
     }
 
-    const amountOfQuestsToReturn = (() => {
-      const n = Number(limit);
-      if (!Number.isFinite(n)) return 20; //defaults to 50
-      return Math.max(1, Math.min(n, 200)); //will never return more than 200 or less than 1
-    })();
+    const requestedLimit = Number(limit);
+    const amountOfQuestsToReturn = Number.isFinite(requestedLimit)
+      ? Math.max(1, requestedLimit)
+      : 20;
 
     const quests = await Quest.find(quest).limit(amountOfQuestsToReturn);
 
@@ -170,7 +180,11 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     const todayOnly = !(req.query.todayOnly === '0' || req.query.todayOnly === 'false');
 
     const radiusMeters = Math.min(Math.max(1, Math.floor(Number(radius ?? 5000))), 50000);
-    const maxResults = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(Number(limit), 100)) : 50;
+    const requestedLimit = Number(limit);
+    const maxResults = Number.isFinite(requestedLimit)
+      ? Math.max(1, requestedLimit)
+      : 50;
+
 
     const kindsParam =
       typeof kinds === "string" && kinds.trim()
@@ -232,7 +246,7 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         geoPoint: geoHash,
         radius: String(radiusKm),
         unit: 'km',
-        size: String(maxResults),
+        size: String(Math.min(maxResults, 200)),
         sort: 'distance,asc',
       });
       if (segment) ticketmasterParams.set('classificationName', segment);
@@ -368,6 +382,14 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
 
       // merge non-deduped lists
       allItems = [...placeItems, ...eventItems];
+
+      allItems.sort((a, b) => {
+        const [alon, alat] = a.location.coordinates;
+        const [blon, blat] = b.location.coordinates;
+        const da = distanceMeters(lon, lat, alon, alat);
+        const db = distanceMeters(lon, lat, blon, blat);
+        return da - db;
+      });
     }
     
     // Removed global de-duplication: respond directly with merged list
