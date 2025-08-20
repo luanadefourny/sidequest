@@ -60,9 +60,15 @@ async function loadMarkers(
         const questLongitude = Number(lon);
         const questLatitude = Number(lat);
         const name = quest.name;
+        const type = quest.type;
+
+        let pinImage: string = '';
+        if (type === 'event') pinImage = './orange_pin.svg';
+        else if (type === 'place') pinImage = './green_pin.svg';
 
         const icon = document.createElement("img");
-        icon.src = "./creep.jpg";
+        // icon.src = "./creep.jpg";
+        icon.src = pinImage;
         icon.style.width = "20px";
         icon.style.height = "20px";
 
