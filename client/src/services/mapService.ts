@@ -1,3 +1,4 @@
+import { HARD_LIMIT } from '../constants';
 import type { Quest } from '../types';
 import { getPlaceDetails } from './openTripMapApiService';
 import { getQuests } from './questService';
@@ -9,7 +10,7 @@ let currentMap: google.maps.Map | null = null;
 let currentRadius = 1000; //meters
 let loadSeq = 0;
 let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
-const returnLimit = 300;
+const returnLimit = HARD_LIMIT;
 
 export function getMarkerPosition() {
   return coordsHelper;

@@ -178,17 +178,18 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
 
     const radiusMeters = Math.min(Math.max(1, Math.floor(Number(radius ?? 5000))), 50000);
 
-    // Optional: only today's events when todayOnly=1|true (default OFF to avoid accidental empty results)
-    const todayOnly = (req.query.todayOnly === '1' || req.query.todayOnly === 'true');
-    const now = new Date();
-    const dayStartUtc = new Date(Date.UTC(
-      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0
-    ));
-    const dayEndUtc = new Date(Date.UTC(
-      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999
-    ));
-    const dayStartIso = dayStartUtc.toISOString();
-    const dayEndIso = dayEndUtc.toISOString();
+    // Optional: only today's events when todayOnly=1|true (default ON unless client disables)
+    const todayQuery = String(req.query.todayOnly ?? '1').toLowerCase();
+    const todayOnly = !(todayQuery === '0' || todayQuery === 'false');
+
+    // Compute YYYY-MM-DD in server local time for comparing with Ticketmaster's localDate
+    function ymdLocal(d = new Date()) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+    const todayYMD = ymdLocal();
 
     // Per-source limits so neither source drowns the other out
     const otmLimit = Math.min(requestedLimit, 500);  // OTM supports large page sizes
@@ -200,8 +201,10 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         ? `&kinds=${encodeURIComponent(kinds)}`
         : '';
     const otmUrl =
-      `https://api.opentripmap.com/0.1/en/places/radius?` +
-      `radius=${radiusMeters}&lon=${lon}&lat=${lat}${kindsParam}&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
+      // `https://api.opentripmap.com/0.1/en/places/radius?` +
+      // `radius=${radiusMeters}&lon=${lon}&lat=${lat}${kindsParam}&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
+      // `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=architecture,cultural,historic,beaches,geological_formations,natural_springs,nature_reserves,waterfalls,view_points,sport,foods,shops&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
+      `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=architecture,cultural,historic,beaches,geological_formations,natural_springs,nature_reserves,waterfalls,view_points,sport,foods&limit=${otmLimit}&apikey=${OPENTRIPMAP_KEY}`;
 
     // Build TM URL (if key present)
     let tmUrl: string | null = null;
@@ -217,11 +220,6 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         size: String(tmSize),
         sort: 'distance,asc',
       });
-
-      if (todayOnly) {
-        tmParams.set('startDateTime', dayStartIso);
-        tmParams.set('endDateTime', dayEndIso);
-      }
 
       tmUrl = `https://app.ticketmaster.com/discovery/v2/events.json?${tmParams.toString()}`;
     }
@@ -265,7 +263,16 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     let eventItems: QuestDTO[] = [];
     if (tmRes) {
       const tmJson = tmRes.ok ? await tmRes.json() : null;
-      const tmEvents: any[] = Array.isArray(tmJson?._embedded?.events) ? tmJson._embedded.events : [];
+      const tmAll: any[] = Array.isArray(tmJson?._embedded?.events) ? tmJson._embedded.events : [];
+
+      const tmEvents: any[] = todayOnly
+        ? tmAll.filter((ev: any) => {
+            const ld = ev?.dates?.start?.localDate;
+            if (typeof ld === 'string') return ld === todayYMD;
+            const dt = ev?.dates?.start?.dateTime;
+            return typeof dt === 'string' ? dt.slice(0, 10) === todayYMD : false;
+          })
+        : tmAll;
 
       eventItems = tmEvents.map((ev: any): QuestDTO => {
         const venue = ev?._embedded?.venues?.[0];
