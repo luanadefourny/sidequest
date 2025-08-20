@@ -16,6 +16,7 @@ import RegisterPage from './components/RegisterPage/RegisterPage';
 import { getQuests } from './services/questService';
 import { getMyQuests } from './services/userService';
 import type { Location, MyQuest, Quest, QuestFilters } from './types';
+import FindUsers from './components/FindUsers/FindUsers';
 
 export default function App() {
   const { user, loggedIn } = useUser();
@@ -152,7 +153,16 @@ export default function App() {
           </Layout>
         }
       />
+      <Route
+      path="/find-users"
+      element={
+        <Layout>
+          <FindUsers />
+        </Layout>
+      }
+      />
     </Routes>
+    
     //  </BrowserRouter>
   );
 }
