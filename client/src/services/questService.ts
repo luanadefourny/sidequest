@@ -29,20 +29,22 @@ server.interceptors.request.use((config) => {
 async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
   try {
     const params: Record<string, string> = {};
-    const near = filters.near;
+    // const near = filters.near;
 
-    if (near) {
-      params.near = String(near);
-      const [longitudeStr, latitudeStr] = near.split(',');
-      const longitude = Number(longitudeStr);
-      const latitude = Number(latitudeStr);
-      const inFrance = Number.isFinite(latitude) && Number.isFinite(longitude) && latitude >= 41 && latitude <= 51.5 && longitude >= -5.5 && longitude <= 9.7;
-      if (inFrance) params.countryCode = 'FR';
-    }
+    // if (near) {
+    //   params.near = String(near);
+    //   const [longitudeStr, latitudeStr] = near.split(',');
+    //   const longitude = Number(longitudeStr);
+    //   const latitude = Number(latitudeStr);
+    //   const inFrance = Number.isFinite(latitude) && Number.isFinite(longitude) && latitude >= 41 && latitude <= 51.5 && longitude >= -5.5 && longitude <= 9.7;
+    //   if (inFrance) params.countryCode = 'FR';
+    // }
 
-    if ((filters as any).radius) params.radius = String((filters as any).radius); // meters
+    if ((filters as any).near) params.near = String((filters as any).near);
+    if ((filters as any).radius) params.radius = String((filters as any).radius);
     if ((filters as any).limit)  params.limit  = String((filters as any).limit);
     if ((filters as any).kinds)  params.kinds  = String((filters as any).kinds);
+    params.includeEvents = '1';
 
     const { data } = await server.get<QuestDTO[]>('/api/quests/live', { params });
 

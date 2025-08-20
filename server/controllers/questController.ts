@@ -214,10 +214,11 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     if (includeEvents && TICKETMASTER_KEY) {
       // ticketmaster events
       const radiusKm = Math.min(150, Math.max(1, Math.round(radiusMeters / 1000)));
-      const geopoint = geohash(lat, lon, 9);
+      const geoHash = geohash(lat, lon, 9);
+
       const ticketmasterParams = new URLSearchParams({
         apikey: String(TICKETMASTER_KEY),
-        geopoint,
+        geopoint: geoHash,
         radius: String(radiusKm),
         unit: 'km',
         size: String(maxResults),
