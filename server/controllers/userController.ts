@@ -67,6 +67,28 @@ async function getUser(req: Request, res: Response): Promise<void> {
   }
 }
 
+  async function getUserByUsername(req: Request, res: Response): Promise<void> {
+    const { username } = req.params;
+    if (!username) { 
+      res.status(400).json({ error: 'Missing username parameter' }); 
+      return; 
+    }
+
+    try {
+      const user = await User.findOne({ username })
+        .select('username firstName lastName profilePicture')
+        .lean();
+
+      if (!user) { 
+        res.status(404).json({ error: 'User not found' }); 
+        return; 
+      }
+      res.status(200).json(user);
+    } catch {
+      res.status(500).json({ error: 'Failed to fetch user' });
+    }
+  }
+
 async function registerUser(req: Request, res: Response): Promise<void> {
   const parsedBody = registerSchema.safeParse(req.body);
   if (!parsedBody.success) {
@@ -592,6 +614,7 @@ export {
   getMyQuest,
   getMyQuests,
   getUser,
+  getUserByUsername,
   getUsers,
   loginUser,
   logoutUser,

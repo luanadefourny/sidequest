@@ -43,6 +43,15 @@ async function getUser(userId: string): Promise<PublicUserData> {
   }
 }
 
+async function getUserByUsername(username: string): Promise<PublicUserData> {
+  try {
+    const { data } = await server.get<PublicUserData>(`/users/by-username/${username}`);
+    return data;
+  } catch (error) {
+    extractAxiosError(error, 'getUserByUsername');
+  }
+}
+
 async function registerUser(userData: RegisterUserData): Promise<User> {
   try {
     const { data } = await server.post<User>(`/users`, userData);
@@ -232,6 +241,7 @@ export {
   getMyQuest,
   getMyQuests,
   getUser,
+  getUserByUsername,
   getUsers,
   loginUser,
   logoutUser,

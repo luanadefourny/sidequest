@@ -9,6 +9,7 @@ import {
   getMyQuest,
   getMyQuests,
   getUser,
+  getUserByUsername,
   getUsers,
   loginUser,
   logoutUser,
@@ -17,14 +18,15 @@ import {
   removeFromMyQuests,
   toggleFavoriteQuest,
   unfollowUser,
-  uploadProfilePicture,
+  uploadProfilePicture
 } from '../controllers/userController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
 const router: Router = express.Router();
 
 router.get('/users', getUsers); //get all users
-router.get('/users/:userId', getUser); //user lookup
+router.get('/users/:userId', getUser); //user
+router.get('/users/by-username/:username', getUserByUsername);
 
 router.post('/users', registerUser); //TODO change with auth
 router.post('/login', loginUser); //TODO change with auth
