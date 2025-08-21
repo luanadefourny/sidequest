@@ -6,13 +6,11 @@ import {
   getOpenTripMapEvents,
 } from '../controllers/opentripmapController';
 import { getQuestsLive } from '../controllers/questController';
-import { getSerpEvents } from '../controllers/serpapiController';
 import { getTicketmasterEventDetails, getTicketmasterEvents } from '../controllers/ticketmasterController';
 
 const router: Router = express.Router();
 
 router.get('/api/opentripmap', getOpenTripMapEvents);
-router.get('/api/serpapi', getSerpEvents);
 router.get('/api/opentripmap/details/:xid', getOpenTripMapEventImage);
 
 router.get('/api/ticketmaster', getTicketmasterEvents);

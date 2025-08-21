@@ -414,13 +414,13 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     });
     merged = merged.slice(0, requestedLimit);
 
-    console.log('questcontroller: ', {
-      radiusMeters,
-      otmFetched: otmFeatures.length,
-      // tmFetched: (tmRes ? (Array.isArray(tmJson?._embedded?.events) ? tmJson._embedded.events.length : 0) : 0),
-      afterKindsFilter: placeItems.length,
-      mergedWithinRadius: merged.length,
-    });
+    // console.log('questcontroller: ', {
+    //   radiusMeters,
+    //   otmFetched: otmFeatures.length,
+    //   // tmFetched: (tmRes ? (Array.isArray(tmJson?._embedded?.events) ? tmJson._embedded.events.length : 0) : 0),
+    //   afterKindsFilter: placeItems.length,
+    //   mergedWithinRadius: merged.length,
+    // });
 
     res.status(200).json(merged);
   } catch (err) {

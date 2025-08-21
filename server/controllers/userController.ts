@@ -198,7 +198,7 @@ async function editUserData(req: Request, res: Response): Promise<void> {
   }
 
   const parsedBody = editUserDataSchema.safeParse(req.body);
-  console.log(parsedBody);
+  // console.log(parsedBody);
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error });
     return;
@@ -217,7 +217,7 @@ async function editUserData(req: Request, res: Response): Promise<void> {
   if (profilePicture !== undefined) dataToUpdate.profilePicture = profilePicture;
   if (birthday !== undefined) dataToUpdate.birthday = birthday;
 
-  console.log(dataToUpdate);
+  // console.log(dataToUpdate);
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, dataToUpdate, { new: true });
     if (!updatedUser) {
