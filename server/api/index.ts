@@ -3,7 +3,6 @@ import cors from 'cors';
 // import dotenv from 'dotenv';
 import express, { Application } from 'express';
 import mongoose from 'mongoose';
-import path from 'path';
 
 import { connectDB } from '../db';
 // dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
