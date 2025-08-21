@@ -1,13 +1,13 @@
+// import dotenv from 'dotenv';
+import 'dotenv/config';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express, { Application } from 'express';
 import path from 'path';
 
 import { connectDB } from './db';
-
-
-dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
+// dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
 import apiRouter from './routers/apiRouter';
 import questRouter from './routers/questRouter';
 import userRouter from './routers/userRouter';
