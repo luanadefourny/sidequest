@@ -20,7 +20,7 @@ const app: Application = express();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || true, //VERCEL: changed from true to env
+    origin: process.env.FRONTEND_URL, //VERCEL: changed from true to env
     credentials: true,
   }),
 );
@@ -36,7 +36,6 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port: ${PORT}!`);
 // });
-//test
 
 //! to run server -> nodemon index.ts, make sure all dependencies and modules are installed and it should work
 export default app;
