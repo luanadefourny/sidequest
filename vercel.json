@@ -6,6 +6,7 @@
   ],
   "routes": [
     { "src": "^/api/(.*)", "dest": "/server/api/index.ts" },
-    { "src": "/(.*)", "dest": "/client/dist/index.html" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
