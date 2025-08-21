@@ -26,6 +26,8 @@ app.use(
 );
 app.use(express.json());
 
+
+connectDB().catch(console.error);
 app.get('/health', (_req, res) => {
   const { readyState, name, host, port } = mongoose.connection as any;
   res.status(200).json({
@@ -34,8 +36,6 @@ app.get('/health', (_req, res) => {
     time: new Date().toISOString(),
   });
 });
-
-connectDB().catch(console.error);
 
 app.use(userRouter);
 app.use(questRouter);
