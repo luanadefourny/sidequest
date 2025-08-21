@@ -42,6 +42,7 @@ app.use(questRouter);
 app.use(apiRouter);
 // app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
+//just to test
 app.use((err: any, _req: any, res: any, _next: any) => {
   console.error('[error]', err);
   res.status(err?.status || 500).json({ error: err?.message || 'Internal error' });
