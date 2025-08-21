@@ -20,7 +20,7 @@ const app: Application = express();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, //VERCEL: changed from true to env
+    origin: true, //VERCEL: changed from true to env
     credentials: true,
   }),
 );
@@ -31,7 +31,7 @@ connectDB().catch(console.error);
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
-app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+// app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port: ${PORT}!`);
