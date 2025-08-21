@@ -13,12 +13,12 @@ import {
   getUsers,
   loginUser,
   logoutUser,
-  profilePictureUpload,
+  // profilePictureUpload,
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
   unfollowUser,
-  uploadProfilePicture
+  // uploadProfilePicture
 } from '../controllers/userController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
@@ -33,12 +33,12 @@ router.post('/login', loginUser);
 router.patch('/users/:userId/logout', logoutUser);
 
 router.patch('/users/:userId', authenticateJWT, editUserData);
-router.post(
-  '/uploads/profile-picture',
-  authenticateJWT,
-  profilePictureUpload.single('file'),
-  uploadProfilePicture,
-);
+// router.post(
+//   '/uploads/profile-picture',
+//   authenticateJWT,
+//   profilePictureUpload.single('file'),
+//   uploadProfilePicture,
+// );
 router.patch('/users/:userId/credentials', authenticateJWT, editUserCredentials);
 router.patch('/users/:userId/password', authenticateJWT, editUserPassword);
 

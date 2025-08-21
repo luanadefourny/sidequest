@@ -26,8 +26,6 @@ app.use(
 );
 app.use(express.json());
 
-
-connectDB().catch(console.error);
 app.get('/health', (_req, res) => {
   const { readyState, name, host, port } = mongoose.connection as any;
   res.status(200).json({
@@ -37,10 +35,17 @@ app.get('/health', (_req, res) => {
   });
 });
 
+connectDB().catch(console.error);
+
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
 // app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error('[error]', err);
+  res.status(err?.status || 500).json({ error: err?.message || 'Internal error' });
+});
 
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port: ${PORT}!`);
