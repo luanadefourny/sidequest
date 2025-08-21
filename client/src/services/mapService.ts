@@ -6,9 +6,8 @@ import { getEventDetails } from './ticketmasterService';
 
 //TODO fix openmapapi to follow mock syntax when replugging it in
 let coordsHelper: string | null = null;
-// let apiData: any[] = [];
 let currentMap: google.maps.Map | null = null;
-let currentRadius = 1000; //meters
+let currentRadius: number | null = null; //meters
 let loadSeq = 0;
 let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 const returnLimit = HARD_LIMIT;
@@ -22,6 +21,7 @@ function upsertRadiusCircle(
 ) {
   if (currentCircle) {
     currentCircle.setCenter(center);
+    console.log(radius);
     currentCircle.setRadius(radius);
     currentCircle.setMap(map);
   } else {
@@ -58,7 +58,7 @@ async function loadMarkers(
   longitude: number,
   radius: number
 ) {
-
+    console.log(radius);
     const seq = ++loadSeq;
     // clear previous markers
     mapMarkers.forEach(m => (m.map = null));
@@ -69,11 +69,13 @@ async function loadMarkers(
         'marker',
       )) as google.maps.MarkerLibrary;
       // const quests: OpenTripMapPlace[] = await getPlaces(latitude, longitude, radius);
+      console.log('mapservice radius before getQuests: ', radius);
       const quests: Quest[] = await getQuests({
         near: `${longitude},${latitude}`,
         radius,
-        limit: returnLimit,
+        // limit: returnLimit,
       })
+      console.log('getQuests(map service): ', quests);
 
       if (seq !== loadSeq) return;
       
@@ -82,7 +84,7 @@ async function loadMarkers(
       const infoWindow = new google.maps.InfoWindow();
 
       quests.forEach((quest) => {
-        console.log('Place: ',quest);
+        // console.log('Place: ',quest);
         // const { coords: { lat, lng }, name, kinds, xid } = place;
         const [lon, lat] = quest.location.coordinates;
         const questLongitude = Number(lon);
@@ -273,6 +275,7 @@ async function loadMarkers(
 export async function initMap(container: HTMLElement, input: HTMLInputElement, radius: number): Promise<void> {
   // The location of Grand Place
   let position = { lat: 50.84676, lng: 4.35278 };
+  console.log(radius);
 
   if (navigator.geolocation) {
     try {
@@ -325,10 +328,12 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   console.log('Radius here: ', radius);
   currentRadius = radius;
 
-  upsertRadiusCircle(map, position, currentRadius);
-
+  upsertRadiusCircle(map, position, radius);
+  // upsertRadiusCircle(map, position, currentRadius);
+  console.log(radius);
   // Plot markers for both events and places on initial load
-  await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
+  await loadMarkers(map, bounds, position.lat, position.lng, radius);
+  // await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
 
   const autocomplete = new Autocomplete(input);
   autocomplete.bindTo('bounds', map);
@@ -363,10 +368,15 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(place.geometry.location);
 
-    // fit to circle first, then load with the current radius
-    upsertRadiusCircle(map, { lat: latitude, lng: longitude }, currentRadius);
+    console.log(currentRadius);
+    console.log(radius);
+    const r = currentRadius ?? radius;
+    console.log(r);
 
-    await loadMarkers(map, bounds, latitude, longitude, currentRadius);
+    // fit to circle first, then load with the current radius
+    upsertRadiusCircle(map, { lat: latitude, lng: longitude }, r);
+
+    await loadMarkers(map, bounds, latitude, longitude, r);
     // await loadMarkers(map, bounds, latitude, longitude, radius);
 
     //! Opentripmap call starts here - DON'T DELETE IT PLEASE
@@ -434,6 +444,7 @@ window.addEventListener('radiuschange', async (e: Event) => {
   try {
     if (!currentMap || !coordsHelper) return;
     const { radius } = (e as CustomEvent<{ radius: number }>).detail;
+    console.log(radius);
     currentRadius = radius;
     const [lonStr, latStr] = coordsHelper.split(',');
     const lon = parseFloat(lonStr);

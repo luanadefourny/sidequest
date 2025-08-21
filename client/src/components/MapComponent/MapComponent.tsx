@@ -44,7 +44,8 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
     if (initedRef.current) return;
     initedRef.current = true;
 
-    const container = document.getElementById('map');
+    // const container = document.getElementById('map');
+    const container = mapContainerRef.current;
     const input = document.getElementById('pac-input') as HTMLInputElement;
     if (!container) return;
 
@@ -64,7 +65,7 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
         console.error('Map init failed', err);
       }
     });
-  }, [setLocation]);
+  }, [setLocation, radius]);
 
   // re-init on apply event (HomePage dispatches 'applymap')
   // useEffect(() => {
@@ -115,8 +116,8 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
         placeholder="Search places"
         style={{ visibility: showInput ? 'visible' : 'hidden' }}
         className="absolute text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow" />
-      <div id="map" ref={mapContainerRef}></div>
-      <div id="map"></div>
+      <div id="map" ref={mapContainerRef} />
+      {/* <div id="map"></div> */}
     </div>
   );
 }
