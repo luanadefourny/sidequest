@@ -71,7 +71,7 @@ async function getQuests(filters: QuestFilters = {}): Promise<Quest[]> {
         image: typeof (quest as any).image === 'string' ? (quest as any).image : undefined,
       };
     });
-    console.log('normalized: ',normalized);
+    // console.log('normalized: ',normalized);
     return normalized;
   } catch (error) {
     extractAxiosError(error, 'getQuests');
