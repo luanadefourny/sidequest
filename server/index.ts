@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import express, { Application } from 'express';
 import path from 'path';
 
+import { connectDB } from './db';
+
 
 dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
 import apiRouter from './routers/apiRouter';
@@ -22,6 +24,11 @@ app.use(
   }),
 );
 app.use(express.json());
+
+connectDB()
+  .then(() => console.log('[server] DB ready'))
+  .catch((e) => console.error('[server] DB failed', e));
+
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
@@ -31,4 +38,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}!`);
 });
 
-//! to run server -> nodemon index.ts, make sure all dependencies and modules are installed and it should work

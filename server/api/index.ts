@@ -2,28 +2,32 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 // import dotenv from 'dotenv';
 import express, { Application } from 'express';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 import path from 'path';
 
+import { connectDB } from '../db';
 // dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
 import apiRouter from '../routers/apiRouter';
 import questRouter from '../routers/questRouter';
 import userRouter from '../routers/userRouter';
 
 // const PORT: string | undefined = process.env.LOCAL_PORT;
-if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI not set');
-mongoose.connect(process.env.MONGODB_URI).catch(console.error);
+// if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI not set');
+// mongoose.connect(process.env.MONGODB_URI).catch(console.error);
 
 const app: Application = express();
 
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'http://localhost:5173',
-    credentials: true, // allow cookies
+    origin: true,
+    credentials: true,
   }),
 );
 app.use(express.json());
+
+connectDB().catch(console.error);
+
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
