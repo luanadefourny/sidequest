@@ -20,7 +20,7 @@ async function getPlaces (latitude: number, longitude: number, radius: number, k
         ...(kinds ? { kinds } : {}),
       },
     });
-    console.log('getPlaces data: ', data);
+    // console.log('getPlaces data: ', data);
 
     const arr = Array.isArray(data) ? data : Array.isArray(data?.features) ? data.features : [];
 
@@ -53,12 +53,12 @@ async function getPlaces (latitude: number, longitude: number, radius: number, k
 }
 
 async function getPlaceDetails (xid?: string): Promise<OpenTripMapDetails | null> {
-  console.log('get place details');
+  // console.log('get place details');
   if (!xid) return null;
 
   try {
     const { data } = await otm.get(`/details/${xid}`);
-    console.log('getPlaceDetails data: ', data);
+    // console.log('getPlaceDetails data: ', data);
     const address = data?.address
       ? `${data.address.road || ''} ${data.address.house_number || ''}, ${data.address.city || ''}, ${data.address.country || ''}`.trim()
       : undefined;

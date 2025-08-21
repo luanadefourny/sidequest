@@ -14,7 +14,7 @@ import MyQuestsPage from './components/MyQuests/MyQuests';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import QuestsPage from './components/QuestsPage/QuestsPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
-import { HARD_LIMIT } from './constants';
+// import { HARD_LIMIT } from './constants';
 import { getQuests } from './services/questService';
 import { getMyQuests } from './services/userService';
 import type { Location, MyQuest, Quest, QuestFilters } from './types';
@@ -24,7 +24,7 @@ export default function App() {
   const { pathname } = useLocation();
   const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
   const [radius, setRadius] = useState<number>(1000);
-  const LIST_LIMIT = HARD_LIMIT;
+  // const LIST_LIMIT = HARD_LIMIT;
 
   useLayoutEffect(() => {
     if (!loggedIn) {
@@ -52,7 +52,7 @@ export default function App() {
         };
         // console.log(radius);
         const data = await getQuests(filters);
-        console.log('getQuest(app): ' , data);
+        // console.log('getQuest(app): ' , data);
         if (!cancelled && data) setQuests(data);
       } catch (error) {
         if (!cancelled) console.log('Failed to fetch quests: ', error);

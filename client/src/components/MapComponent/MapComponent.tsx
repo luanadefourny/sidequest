@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-const apiKey = import.meta.env.VITE_API_KEY;
+const apiKey = import.meta.env.VITE_API_KEY; //TODO change where this comes from 
 
 function loadGoogleMapsScript(onLoad: () => void) {
   if (document.getElementById('google-maps-script')) {

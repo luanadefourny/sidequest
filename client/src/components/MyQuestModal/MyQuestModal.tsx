@@ -28,7 +28,7 @@ export default function MyQuestModal({
     }
   };
 
-  console.log(quest);
+  // console.log(quest);
 
   return (
     <div

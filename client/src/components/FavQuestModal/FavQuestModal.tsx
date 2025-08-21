@@ -27,7 +27,7 @@ export default function FavQuestModal({
     }
   };
 
-  console.log(quest);
+  // console.log(quest);
 
   return (
     <div

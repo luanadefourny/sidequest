@@ -21,7 +21,7 @@ function upsertRadiusCircle(
 ) {
   if (currentCircle) {
     currentCircle.setCenter(center);
-    console.log(radius);
+    // console.log(radius);
     currentCircle.setRadius(radius);
     currentCircle.setMap(map);
   } else {
@@ -58,7 +58,7 @@ async function loadMarkers(
   longitude: number,
   radius: number
 ) {
-    console.log(radius);
+    // console.log(radius);
     const seq = ++loadSeq;
     // clear previous markers
     mapMarkers.forEach(m => (m.map = null));
@@ -69,13 +69,13 @@ async function loadMarkers(
         'marker',
       )) as google.maps.MarkerLibrary;
       // const quests: OpenTripMapPlace[] = await getPlaces(latitude, longitude, radius);
-      console.log('mapservice radius before getQuests: ', radius);
+      // console.log('mapservice radius before getQuests: ', radius);
       const quests: Quest[] = await getQuests({
         near: `${longitude},${latitude}`,
         radius,
         // limit: returnLimit,
       })
-      console.log('getQuests(map service): ', quests);
+      // console.log('getQuests(map service): ', quests);
 
       if (seq !== loadSeq) return;
       
@@ -275,7 +275,7 @@ async function loadMarkers(
 export async function initMap(container: HTMLElement, input: HTMLInputElement, radius: number): Promise<void> {
   // The location of Grand Place
   let position = { lat: 50.84676, lng: 4.35278 };
-  console.log(radius);
+  // console.log(radius);
 
   if (navigator.geolocation) {
     try {
@@ -309,7 +309,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   const map = new Map(container, {
     zoom: 15,
     center: position,
-    mapId: import.meta.env.VITE_MAP_ID,
+    mapId: import.meta.env.VITE_MAP_ID, //TODO change where it comes from 
     mapTypeControl: false,
     streetViewControl: false,
   });
@@ -325,12 +325,12 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   });
 
   const bounds = new google.maps.LatLngBounds();
-  console.log('Radius here: ', radius);
+  // console.log('Radius here: ', radius);
   currentRadius = radius;
 
   upsertRadiusCircle(map, position, radius);
   // upsertRadiusCircle(map, position, currentRadius);
-  console.log(radius);
+  // console.log(radius);
   // Plot markers for both events and places on initial load
   await loadMarkers(map, bounds, position.lat, position.lng, radius);
   // await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
@@ -349,7 +349,7 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     //!does the thing
     emitMarkerPosition(longitude, latitude);
 
-    console.log(getMarkerPosition());
+    // console.log(getMarkerPosition());
 
     // Removes old marker if there is one
     if (currentMarker) {
@@ -368,10 +368,10 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(place.geometry.location);
 
-    console.log(currentRadius);
-    console.log(radius);
+    // console.log(currentRadius);
+    // console.log(radius);
     const r = currentRadius ?? radius;
-    console.log(r);
+    // console.log(r);
 
     // fit to circle first, then load with the current radius
     upsertRadiusCircle(map, { lat: latitude, lng: longitude }, r);
@@ -444,7 +444,7 @@ window.addEventListener('radiuschange', async (e: Event) => {
   try {
     if (!currentMap || !coordsHelper) return;
     const { radius } = (e as CustomEvent<{ radius: number }>).detail;
-    console.log(radius);
+    // console.log(radius);
     currentRadius = radius;
     const [lonStr, latStr] = coordsHelper.split(',');
     const lon = parseFloat(lonStr);
