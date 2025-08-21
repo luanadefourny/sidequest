@@ -36,6 +36,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port: ${PORT}!`);
 // });
+//test
 
 //! to run server -> nodemon index.ts, make sure all dependencies and modules are installed and it should work
 export default app;
