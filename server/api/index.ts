@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 // import dotenv from 'dotenv';
 import express, { Application } from 'express';
-// import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import path from 'path';
 
 import { connectDB } from '../db';
@@ -25,6 +25,15 @@ app.use(
   }),
 );
 app.use(express.json());
+
+app.get('/health', (_req, res) => {
+  const { readyState, name, host, port } = mongoose.connection as any;
+  res.status(200).json({
+    ok: true,
+    mongo: { connected: readyState === 1, readyState, name, host, port },
+    time: new Date().toISOString(),
+  });
+});
 
 connectDB().catch(console.error);
 
