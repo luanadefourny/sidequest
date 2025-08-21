@@ -34,7 +34,6 @@ export default function App() {
     setMyQuestsLoading(needsMyQuests);
   }, [loggedIn, needsMyQuests]);
 
-  //TODO prop drill these
   const [quests, setQuests] = useState<Quest[]>([]);
   const [myQuests, setMyQuests] = useState<MyQuest[]>([]);
   const [myQuestsLoading, setMyQuestsLoading] = useState<boolean>(false);
@@ -46,9 +45,14 @@ export default function App() {
       try {
         if (!location) return;
 
-        const filters: QuestFilters = { near: `${location.longitude},${location.latitude}`, radius, limit: LIST_LIMIT };
-
+        const filters: QuestFilters = { 
+          near: `${location.longitude},${location.latitude}`, 
+          radius: radius, 
+          // limit: LIST_LIMIT,
+        };
+        // console.log(radius);
         const data = await getQuests(filters);
+        console.log('getQuest(app): ' , data);
         if (!cancelled && data) setQuests(data);
       } catch (error) {
         if (!cancelled) console.log('Failed to fetch quests: ', error);

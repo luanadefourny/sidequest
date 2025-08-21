@@ -4,4 +4,4 @@ export const PROFILE_PICS = Array.from(
   (_, i) => `/profile-pics/profile-pic-${i + 1}.jpg`,
 );
 export const STORAGE_KEY = 'user';
-export const HARD_LIMIT = 250;
+export const HARD_LIMIT = 500;

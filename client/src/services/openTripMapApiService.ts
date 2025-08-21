@@ -53,6 +53,7 @@ async function getPlaces (latitude: number, longitude: number, radius: number, k
 }
 
 async function getPlaceDetails (xid?: string): Promise<OpenTripMapDetails | null> {
+  console.log('get place details');
   if (!xid) return null;
 
   try {

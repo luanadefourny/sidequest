@@ -44,7 +44,8 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
     if (initedRef.current) return;
     initedRef.current = true;
 
-    const container = document.getElementById('map');
+    // const container = document.getElementById('map');
+    const container = mapContainerRef.current;
     const input = document.getElementById('pac-input') as HTMLInputElement;
     if (!container) return;
 
@@ -64,28 +65,28 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
         console.error('Map init failed', err);
       }
     });
-  }, [setLocation]);
+  }, [setLocation, radius]);
 
   // re-init on apply event (HomePage dispatches 'applymap')
-  useEffect(() => {
-    function onApply() {
-      const container = mapContainerRef.current;
-      const input = document.getElementById('pac-input') as HTMLInputElement | null;
-      if (!container) return;
-      try {
-        if (input) {
-          initMap(container, input, radius);
-        } else {
-          console.error('Input element not found');
-        }
-      } catch (err) {
+  // useEffect(() => {
+  //   function onApply() {
+  //     const container = mapContainerRef.current;
+  //     const input = document.getElementById('pac-input') as HTMLInputElement | null;
+  //     if (!container) return;
+  //     try {
+  //       if (input) {
+  //         initMap(container, input, radius);
+  //       } else {
+  //         console.error('Input element not found');
+  //       }
+  //     } catch (err) {
          
-        console.error('Re-init map failed', err);
-      }
-    }
-    window.addEventListener('applymap', onApply);
-    return () => window.removeEventListener('applymap', onApply);
-  }, [radius]);
+  //       console.error('Re-init map failed', err);
+  //     }
+  //   }
+  //   window.addEventListener('applymap', onApply);
+  //   return () => window.removeEventListener('applymap', onApply);
+  // }, [radius]);
 
   // broadcast radius change to any listeners in mapService if needed
 
@@ -115,8 +116,8 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
         placeholder="Search places"
         style={{ visibility: showInput ? 'visible' : 'hidden' }}
         className="absolute text-black bg-white font-semibold top-2 left-11 z-10 p-1 border rounded shadow" />
-      <div id="map" ref={mapContainerRef}></div>
-      <div id="map"></div>
+      <div id="map" ref={mapContainerRef} />
+      {/* <div id="map"></div> */}
     </div>
   );
 }
