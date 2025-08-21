@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoIosLogOut } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
+
 import { logoutUser } from '../../services/userService';
 import { useUser } from '../Context/userContext';
 
@@ -121,7 +122,7 @@ export default function NavBar() {
                   id="nav-menu"
                   role="menu"
                   aria-orientation="vertical"
-                  className="absolute right-0 mt-3 w-52 rounded-xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-xl overflow-hidden animate-fade-in"
+                  className="absolute right-0 mt-3 w-52 rounded-xl border border-gray-200 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden animate-fade-in"
                 >
                   <Link
                     to="/profile"
