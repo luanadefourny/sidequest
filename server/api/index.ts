@@ -20,7 +20,7 @@ const app: Application = express();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: true,
+    origin: process.env.FRONTEND_URL, //VERCEL: changed from true to env
     credentials: true,
   }),
 );

@@ -151,8 +151,8 @@ async function loginUser(req: Request, res: Response): Promise<void> {
     const token = generateToken(user._id.toString());
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none', //VERCEL: changed from lax to none
       path: '/',
     });
     res.status(200).json({ user, token });

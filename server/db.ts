@@ -27,13 +27,13 @@ if (!cached) cached = (global as any)._mongoose = {};
 
 export async function connectDB() {
   if (cached!.conn) {
-    console.log('[db] using cached connection');
+    console.log('[db] using cached connection to db:', mongoose.connection.name);
     return cached!.conn;
   }
 
   const uri =
     MONGODB_URI ||
-    `mongodb://127.0.0.1:${DB_PORT ?? '27017'}/${DB_NAME ?? 'sidequest'}`;
+    `mongodb://127.0.0.1:${DB_PORT ?? '27017'}/${DB_NAME ?? 'sidequest-api'}`;
 
   if (!uri) throw new Error('No MongoDB URI');
 
