@@ -33,7 +33,7 @@ export async function connectDB() {
 
   const uri =
     MONGODB_URI ||
-    `mongodb://127.0.0.1:${DB_PORT ?? '27017'}/${DB_NAME ?? 'sidequest-api'}`;
+    `mongodb://127.0.0.1:${DB_PORT}/${DB_NAME}`;
 
   if (!uri) throw new Error('No MongoDB URI');
 
