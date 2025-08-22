@@ -87,8 +87,3 @@ npm run plop:service serviceName
 
 ## Documentation - Apiary
 Everyone has been invited to the sidequest apiary docs and everytime an update is made to the apiary file and pushed to dev, the docs will update over there.
-
-## ESLINT
-Run the following script from both the client and server directory
-
-`npm run format:fix && npm run lint:fix`
