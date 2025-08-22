@@ -1,5 +1,5 @@
 // import dotenv from 'dotenv';
-import 'dotenv/config';
+import dotenv from 'dotenv';
 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -7,8 +7,8 @@ import express, { Application } from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
 
-import { connectDB } from './db';
-// dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
+// import { connectDB } from './db';
+dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
 import apiRouter from './routers/apiRouter';
 import questRouter from './routers/questRouter';
 import userRouter from './routers/userRouter';
@@ -25,19 +25,6 @@ app.use(
   }),
 );
 app.use(express.json());
-
-app.get('/health', (_req, res) => {
-  const { readyState, name, host, port } = mongoose.connection as any;
-  res.status(200).json({
-    ok: true,
-    mongo: { connected: readyState === 1, readyState, name, host, port },
-    time: new Date().toISOString(),
-  });
-});
-
-connectDB()
-  .then(() => console.log('[server] DB ready'))
-  .catch((e) => console.error('[server] DB failed', e));
 
 app.use(userRouter);
 app.use(questRouter);
