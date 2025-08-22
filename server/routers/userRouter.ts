@@ -33,7 +33,8 @@ router.post('/login', loginUser);
 router.patch('/users/:userId/logout', logoutUser);
 
 router.patch('/users/:userId', authenticateJWT, editUserData);
-router.post(
+if (process.env.VERCEL) router.post('/uploads/profile-picture', (req, res) => { res.status(404).json({ message: 'uploads disabled on serverless' }); return; });
+else router.post(
   '/uploads/profile-picture',
   authenticateJWT,
   profilePictureUpload.single('file'),

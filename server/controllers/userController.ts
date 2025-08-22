@@ -15,16 +15,20 @@ import {
 } from '../validation/userValidationSchemas';
 
 // Profile picture upload setup
-const PROFILE_PICTURE_DIR = path.join(process.cwd(), 'public', 'uploads', 'profile-pictures');
-fs.mkdirSync(PROFILE_PICTURE_DIR, { recursive: true });
+const isVercel = !!process.env.VERCEL;
+const PROFILE_PICTURE_DIR = isVercel ? 'tmp/uploads/profile-pictures' : path.join(process.cwd(), 'public', 'uploads', 'profile-pictures');
 
-const profilePictureStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, PROFILE_PICTURE_DIR),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  },
-});
+function ensureProfilePictureDir () {
+  fs.mkdirSync(PROFILE_PICTURE_DIR, { recursive: true });
+}
+
+const profilePictureStorage = isVercel
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (_req, _file, cb) => { ensureProfilePictureDir(); cb(null, PROFILE_PICTURE_DIR); },
+      filename: (_req, file, cb) =>
+        cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`)
+    });
 
 const profilePictureUpload = multer({
   storage: profilePictureStorage,
@@ -151,8 +155,8 @@ async function loginUser(req: Request, res: Response): Promise<void> {
     const token = generateToken(user._id.toString());
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none', //VERCEL: changed from lax to none
       path: '/',
     });
     res.status(200).json({ user, token });
@@ -232,6 +236,10 @@ async function editUserData(req: Request, res: Response): Promise<void> {
 }
 
 async function uploadProfilePicture(req: Request, res: Response): Promise<void> {
+  if (isVercel) {
+    res.status(404).json({ message: 'Uploads disabled on serveless' });
+    return;
+  }
   const file = (req).file as Express.Multer.File | undefined;
   if (!file) {
     res.status(400).json({ error: 'No file' });
