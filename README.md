@@ -1,89 +1,63 @@
 # SideQuest
-> Micro adventure / things to do recommendations (location based)
 
-## Project description
-Basic recommendations for things to do - nearby, simple and not too time-consuming when you're bored or want something new/different to do. Has a filtering system to narrow down the suggestions, or a random feature if feeling adventurous. The focus is on solo suggestions for now, allowing to expand to small/big group suggestions later on. Mobile first!
+<p align="center">
+  <img src="images/sidequest-logo.png" style="border-radius: 100px;" />
+</p>
 
-## MVP
-User inputs location and selects filters (or random) and gets a suggestion back on something to go do.
+> SideQuest is a mobile-first web application aimed at providing location-based micro-adventures. It is a tool for finding something to do when you are uninspired or simply bored and want to explore new places and events in your area. It uses geo-location or user input to determine a local radius and provides a list of quests to the user.
 
-## Tech Stach
-**Front End:** React, Vite, TypeScript (subject to change), Tailwind, Axios, plop + handlebars (automation)
+## Screenshots
 
-**Back End:** Node.js, Express, MongoDB (mongoose), Typescript, JWT tokens or Lucia Auth
+<p align="center">
+  <img src="images/sidequest-phone-1-transparent.png" />
+</p>
 
-## Data sources
-- Things to do: Google Places API + EventBrite API
-- User location: Geolocation API
-- Map: Leaflet.js
+<p align="center">
+  <img src="images/sidequest-phone-2-transparent.png" />
+</p>
 
+## Getting started
+1. Clone the [SideQuest](https://github.com/luanadefourny/sidequest) repository
 
-## Installation
-- Fork the [SideQuest](https://github.com/luanadefourny/sidequest) repository
-
-- Run `git clone` from your fork
-
-- Install all the dependencies, seed the database and run the app
-
-**Root directory**
+2. Install dependencies
 
 ```
 npm install
-```
-**Server side**
-```
 cd server
 npm install
-```
-**Seed the mock data** (from the server directory)
-
-
-To populate the database with mock data for development, you will have to create a `.env` file (based on the `.env.example` file) as well as run some TS code before building the app.
-
-1. Copy the `.env.example` file to `.env` (server)
-```
-cp .env.example .env
-```
-2. Populate the variables in `.env` with the necessary values
-
-3. Run the seed file (from root)
-```
-npx ts-node server/seed.ts --clean //starts fresh
-npx ts-node server/seed.ts //won't drop the existing collections
-```
-
-If you want to switch between a database containing mock data and a clean database without any mock entries, you can simply change the `DB_NAME` variable in your `.env` file to point to the desired database name. This effectively switches the database connection, so running the app afterward will use the selected database without any further manual changes.
-</file>
-
-**Run the server**
-```
-nodemon index.ts
-```
-**Client side**
-```
 cd ../client
 npm install
+```
+
+3. Add environment variables
+
+- Create a `.env` file (based on the `.env.example` file)
+- Copy the `.env.example` file to `.env` (server)
+  ```
+  cp .env.example .env
+  ```
+
+4. Run the app
+
+```
 npm run dev
+cd ../server
+nodemon index.ts
 ```
 
-## Extra files
-All types and interfaces are in types.ts
+5. Click 'Get Started' and you're all set to use the app!
 
-Constant global variables for client are in constants.ts (please define and change them in there only and import them where needed)
+## Tech Stack
 
-## Client automation
-If you want to add components and/or services, feel free to use the scripts I have created. Running them allows the creation of Component and Service files. They are run straight from the client directory and will create the respective directories, js and css files where needed with a predesign template.
-```
-npm run plop -- component componentName
-npm run plop -- service serviceName
-```
+* TypeScript
+* React
+* Express
+* MongoDB (Mongoose)
+* Tailwind CSS
 
-or
+## Developers
 
-```
-npm run plop:component componentName
-npm run plop:service serviceName
-```
-
-## Documentation - Apiary
-Everyone has been invited to the sidequest apiary docs and everytime an update is made to the apiary file and pushed to dev, the docs will update over there.
+* Luana Defourny - [GitHub](https://github.com/luanadefourny) - [LinkedIn](https://www.linkedin.com/in/luanadefourny/)
+* Mihai Serban - [GitHub](https://github.com/Mihai-George-Serban) - [LinkedIn](https://www.linkedin.com/in/mihai-george-serban/)
+* Patrik Gjika - [GitHub](https://github.com/drtiku4) - [LinkedIn](https://www.linkedin.com/in/patrik-gjika-data-analyst-/)
+* Theo Crewe-Read - [GitHub](https://github.com/theocr301) - [LinkedIn](https://www.linkedin.com/in/theo-crewe-read-866998242/)
