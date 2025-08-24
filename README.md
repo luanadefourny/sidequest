@@ -45,7 +45,7 @@ cd ../server
 nodemon index.ts
 ```
 
-5. Click 'Get Started' and you're all set to use the app!
+5. Login with your user details or Create an account and you're all set to use the app!
 
 ## Tech Stack
 
