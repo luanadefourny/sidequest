@@ -4,13 +4,12 @@ import { toggleFavoriteQuest } from '../../services/userService';
 import type { MyQuestsButtonProps } from '../../types';
 import { useUser } from '../Context/userContext';
 
-export default function FavouriteButton({ questId, myQuests, setMyQuests }: MyQuestsButtonProps) {
+export default function FavouriteButton({ quest, myQuests, setMyQuests }: MyQuestsButtonProps) {
   const { user, setUser } = useUser();
 
-  const quest = myQuests.find((myQuest) => {
-    return (typeof myQuest.quest === 'string' ? myQuest.quest : myQuest.quest._id) === questId;
-  });
-  const isFavorite = !!quest?.isFavorite;
+  const item = myQuests.find((myQuest) => myQuest.quest._id === quest._id);
+
+  const isFavorite = !!item?.isFavorite;
 
   async function handleClick() {
     if (!user) {
@@ -19,7 +18,7 @@ export default function FavouriteButton({ questId, myQuests, setMyQuests }: MyQu
     }
 
     try {
-      const updated = await toggleFavoriteQuest(user._id, questId, 1);
+      const updated = await toggleFavoriteQuest(user._id, quest._id);
       if (updated) setMyQuests(updated);
       setMyQuests(updated || []);
       setUser({...user, myQuests: updated || []})

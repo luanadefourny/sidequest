@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+
 import background from "../../assets/background.jpg";
 import type { HomePageProps } from "../../types";
 import MapComponent from "../MapComponent/MapComponent";
@@ -20,12 +21,10 @@ export default function HomePage({ location, setLocation, radius, setRadius }: H
     <img
       src="/sidequest-logo.png"
       alt="SideQuest Logo"
-      className="h-28 w-auto mb-1 drop-shadow-2xl hover:scale-110 transition-transform duration-500"
+      className="mb-5 h-28 w-auto mb-1 drop-shadow-2xl hover:scale-110 transition-transform duration-500"
     />
 
-    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 drop-shadow-sm mb-2">
-      Welcome to <span className="text-green-600">SideQuest</span>
-    </h1>
+  
 
     <p className="text-lg text-gray-700 mb-1 leading-relaxed font-medium">
       Discover{" "}

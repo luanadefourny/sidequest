@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoIosLogOut } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
+
 import { logoutUser } from '../../services/userService';
 import { useUser } from '../Context/userContext';
 
@@ -121,7 +122,7 @@ export default function NavBar() {
                   id="nav-menu"
                   role="menu"
                   aria-orientation="vertical"
-                  className="absolute right-0 mt-3 w-52 rounded-xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-xl overflow-hidden animate-fade-in"
+                  className="absolute right-0 mt-3 w-52 rounded-xl border border-gray-200 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden animate-fade-in"
                 >
                   <Link
                     to="/profile"
@@ -139,6 +140,14 @@ export default function NavBar() {
                     className="block px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors font-extrabold"
                   >
                     My Quests
+                  </Link>
+                  <Link
+                    to="/find-users"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-5 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors font-extrabold"
+                  >
+                    Find Users
                   </Link>
 
                   <Link

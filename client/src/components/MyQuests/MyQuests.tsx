@@ -1,12 +1,31 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import MyQuests from "../../assets/MyQuests.jpg"
 import type { MyQuestsPageProps } from '../../types';
+import type { Quest } from '../../types';
 import FavouriteButton from '../FavouriteButton/favouriteButton';
 import MyQuestModal from '../MyQuestModal/MyQuestModal';
 import MyQuestsButton from '../MyQuestsButton/MyQuestsButton';
-import MyQuests from "../../assets/MyQuests.jpg"
 
+function detectBadge(q: Quest) {
+  const asAny = q as any;
+  const typeVal = (asAny.type ?? asAny.category ?? asAny.kind) || '';
+  if (typeof typeVal === 'string') {
+    const t = typeVal.toLowerCase();
+    if (t.includes('event')) return { label: 'Event', className: 'bg-orange-500' };
+    if (t.includes('place')) return { label: 'Place', className: 'bg-emerald-600' };
+  }
+  if (Array.isArray(asAny.tags)) {
+    const tags = asAny.tags.map((x: any) => String(x).toLowerCase());
+    if (tags.some((x: string) => x.includes('event'))) return { label: 'Event', className: 'bg-orange-500' };
+    if (tags.some((x: string) => x.includes('place'))) return { label: 'Place', className: 'bg-emerald-600' };
+  }
+  if (asAny.isEvent) return { label: 'Event', className: 'bg-orange-500' };
+  if (asAny.isPlace) return { label: 'Place', className: 'bg-emerald-600' };
+  if (asAny.location && typeof asAny.location === 'string') return { label: 'Place', className: 'bg-emerald-600' };
+  return null;
+}
 
 export default function MyQuestsPage({
   myQuests,
@@ -55,24 +74,30 @@ export default function MyQuestsPage({
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-6">
               {myQuests.map((myQuest) => {
                 if (typeof myQuest.quest === 'string') return null;
-
+                const quest = myQuest.quest;
+                const badge = detectBadge(quest);
                 return (
                   <article
-                    key={myQuest.quest._id}
-                    className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg p-6 flex flex-col justify-between hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
+                    key={quest._id}
+                    className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg p-6 flex flex-col justify-between hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
                   >
+                    {badge && (
+                      <div className={`${badge.className} text-white px-2 py-1 rounded-md text-xs font-semibold absolute top-4 right-4`}>
+                        {badge.label}
+                      </div>
+                    )}
                     <div className="mb-4">
                       <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                        {myQuest.quest.name}
+                        {quest.name}
                       </h2>
                       <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
-                        {myQuest.quest.description}
+                        {quest.description}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-3 mt-6">
                       <MyQuestsButton
-                        questId={myQuest.quest._id}
+                        quest={quest}
                         myQuests={myQuests}
                         setMyQuests={setMyQuests}
                       />
@@ -80,7 +105,7 @@ export default function MyQuestsPage({
                       <button
                         className="flex-1 text-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:from-green-700 hover:to-emerald-700 transition-transform duration-150 transform hover:-translate-y-0.5"
                         onClick={() => {
-                          setSelectedQuest(myQuest.quest);
+                          setSelectedQuest(quest);
                           setShowQuestModal(true);
                         }}
                       >
@@ -88,7 +113,7 @@ export default function MyQuestsPage({
                       </button>
 
                       <FavouriteButton
-                        questId={myQuest.quest._id}
+                        quest={quest}
                         myQuests={myQuests}
                         setMyQuests={setMyQuests}
                       />

@@ -1,9 +1,7 @@
 {
   "scripts": {
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
-    "format:fix": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+    "lint": "eslint .",
+    "dev": "nodemon -r dotenv/config index.ts dotenv_config_path=../.env"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -28,9 +26,6 @@
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.39.1",
     "eslint": "^9.33.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.1"

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
+import React, { useEffect, useState } from 'react';
 
 const MAX_RADIUS_KM = 25;
 

@@ -4,10 +4,10 @@ import { addToMyQuests, removeFromMyQuests } from '../../services/userService';
 import type { MyQuestsButtonProps } from '../../types';
 import { useUser } from '../Context/userContext';
 
-export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQuestsButtonProps) {
+export default function MyQuestsButton({ quest, myQuests, setMyQuests }: MyQuestsButtonProps) {
   const { user, setUser } = useUser();
   const isInMyQuests = myQuests.some(
-    (quest) => (typeof quest.quest === 'string' ? quest.quest : quest.quest._id) === questId,
+    (myQuest) => myQuest.quest._id === quest._id,
   );
 
   const toggleMyQuest = async () => {
@@ -19,10 +19,10 @@ export default function MyQuestsButton({ questId, myQuests, setMyQuests }: MyQue
     try {
       let updated;
       if (isInMyQuests) {
-        updated = await removeFromMyQuests(user._id, questId, 1);
+        updated = await removeFromMyQuests(user._id, quest._id);
         setMyQuests(updated || []);
       } else {
-        updated = await addToMyQuests(user._id, questId, 1);
+        updated = await addToMyQuests(user._id, quest);
         setMyQuests(updated || []);
       }
       

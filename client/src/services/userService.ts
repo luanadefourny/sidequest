@@ -9,6 +9,7 @@ import type {
   LoginUserData,
   MyQuest,
   PublicUserData,
+  Quest,
   RegisterUserData,
   User,
 } from '../types';
@@ -43,6 +44,15 @@ async function getUser(userId: string): Promise<PublicUserData> {
   }
 }
 
+async function getUserByUsername(username: string): Promise<PublicUserData> {
+  try {
+    const { data } = await server.get<PublicUserData>(`/users/by-username/${username}`);
+    return data;
+  } catch (error) {
+    extractAxiosError(error, 'getUserByUsername');
+  }
+}
+
 async function registerUser(userData: RegisterUserData): Promise<User> {
   try {
     const { data } = await server.post<User>(`/users`, userData);
@@ -55,7 +65,7 @@ async function registerUser(userData: RegisterUserData): Promise<User> {
 async function loginUser(loginData: LoginUserData): Promise<AuthResponse> {
   try {
     const { data } = await server.post<AuthResponse>(`/login`, loginData);
-    console.log('login service: ', data);
+    // console.log('login service: ', data);
     return data;
   } catch (error) {
     extractAxiosError(error, 'loginUser');
@@ -146,64 +156,55 @@ async function getMyQuests(userId: string, populate?: 0 | 1): Promise<MyQuest[]>
   }
 }
 
-async function getMyQuest(userId: string, questId: string, populate?: 0 | 1): Promise<MyQuest> {
+async function getMyQuest(userId: string, questId: string): Promise<MyQuest> {
   try {
-    const { data } = await server.get<MyQuest>(`/users/${userId}/my-quests/${questId}`, {
-      params: populate !== undefined ? { populate } : {},
-    });
+    const { data } = await server.get<MyQuest>(`/users/${userId}/my-quests/${questId}`);
     return data;
   } catch (error) {
     extractAxiosError(error, 'getMyQuest');
   }
 }
 
-async function addToMyQuests(
-  userId: string,
-  questId: string,
-  populate?: 0 | 1,
-): Promise<MyQuest[]> {
+async function addToMyQuests(userId: string, quest: Quest): Promise<MyQuest[]> {
   try {
-    const { data } = await server.post<MyQuest[]>(
-      `/users/${userId}/my-quests/${questId}`,
-      undefined,
-      { params: populate !== undefined ? { populate } : {} },
-    );
+    const { data } = await server.post<MyQuest[]>(`/users/${userId}/my-quests/`, quest);
     return data;
   } catch (error) {
     extractAxiosError(error, 'addToMyQuests');
   }
 }
 
-async function removeFromMyQuests(
-  userId: string,
-  questId: string,
-  populate?: 0 | 1,
-): Promise<MyQuest[]> {
+async function removeFromMyQuests(userId: string, questId: string): Promise<MyQuest[]> {
   try {
-    const { data, status } = await server.delete<MyQuest[]>(
-      `/users/${userId}/my-quests/${questId}`,
-      { params: populate !== undefined ? { populate } : {} },
-    );
+    const { data, status } = await server.delete<MyQuest[]>(`/users/${userId}/my-quests/${questId}`);
     return status === 204 ? [] : data; //in case there is nothing to remove
   } catch (error) {
     extractAxiosError(error, 'removeFromMyQuests');
   }
 }
 
-async function toggleFavoriteQuest(
-  userId: string,
-  questId: string,
-  populate?: 0 | 1,
-): Promise<MyQuest[]> {
+async function toggleFavoriteQuest(userId: string, questId: string): Promise<MyQuest[]> {
   try {
-    const { data } = await server.patch<MyQuest[]>(
-      `/users/${userId}/my-quests/${questId}/favorite`,
-      undefined,
-      { params: populate !== undefined ? { populate } : {} },
-    );
+    const { data } = await server.patch<MyQuest[]>(`/users/${userId}/my-quests/${questId}/favorite`);
     return data;
   } catch (error) {
     extractAxiosError(error, 'toggleFavoriteQuest');
+  }
+}
+
+async function followUser (targetUserId: string): Promise<void> {
+  try {
+    await server.post(`/users/${targetUserId}/follow`);
+  } catch (error) {
+    extractAxiosError(error, 'followUser');
+  }
+}
+
+async function unfollowUser (targetUserId: string): Promise<void> {
+  try {
+    await server.delete(`/users/${targetUserId}/follow`);
+  } catch (error) {
+    extractAxiosError(error, 'unfollowUser');
   }
 }
 
@@ -212,14 +213,17 @@ export {
   editUserCredentials,
   editUserData,
   editUserPassword,
+  followUser,
   getMyQuest,
   getMyQuests,
   getUser,
+  getUserByUsername,
   getUsers,
   loginUser,
   logoutUser,
   registerUser,
   removeFromMyQuests,
   toggleFavoriteQuest,
+  unfollowUser,
   uploadProfilePicture,
 };
