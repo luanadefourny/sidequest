@@ -5,7 +5,8 @@ import { JWT_SECRET } from '../env';
 
 // dotenv.config();
 
-interface AuthenticatedRequest extends Request {
+
+export interface AuthenticatedRequest extends Request {
   user?: string | JwtPayload;
 }
 
