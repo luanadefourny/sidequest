@@ -1,5 +1,5 @@
 {
-  "type": "module",
+  "name": "server",
   "engines": {
     "node": "20.x"
   },
