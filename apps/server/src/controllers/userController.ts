@@ -467,10 +467,6 @@ async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
     userToUpdate.myQuests.splice(questIndex, 1);
     await userToUpdate.save();
 
-    if (req.query.populate === '1') {
-      await userToUpdate.populate('myQuests.quest');
-    }
-
     res.status(200).json(userToUpdate.myQuests);
   } catch (err) {
     console.log(err);
