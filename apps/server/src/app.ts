@@ -5,14 +5,16 @@ import { db } from "./mongo";
 import userRouter from "./routers/userRouter";
 import questRouter from './routers/questRouter';
 import apiRouter from './routers/apiRouter';
-import { CLIENT } from "./env";
+import { CLIENT, IS_SERVERLESS } from "./env";
 import cookieParser from 'cookie-parser';
 
 const app = express();
-app.use(cors({
-  origin: CLIENT,
-  credentials: true,
-}));
+if (!IS_SERVERLESS) {
+  app.use(cors({
+    origin: CLIENT,
+    credentials: true,
+  }));
+}
 app.use(express.json());
 app.use(cookieParser());
 

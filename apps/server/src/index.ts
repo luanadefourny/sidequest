@@ -8,7 +8,7 @@ import express, { Application } from 'express';
 // import mongoose from 'mongoose';
 import path from 'path';
 // import 'dotenv/config';
-import { PORT } from './env';
+import { PORT, CLIENT } from './env';
 
 
 // import { connectDB } from './db';
@@ -24,7 +24,7 @@ import userRouter from './routers/userRouter';
 // app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: CLIENT,
     credentials: true, // allow cookies
   }),
 );
