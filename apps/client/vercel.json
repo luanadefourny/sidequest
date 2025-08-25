@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://<SERVER_PROJECT>.vercel.app/api/:path*" }
+  ]
+}
