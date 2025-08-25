@@ -6,10 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
-    "format": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
-    "format:fix": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "lint": "eslint .",
     "preview": "vite preview",
     "plop": "cross-env NODE_OPTIONS=--no-warnings plop",
     "plop:component": "cross-env NODE_OPTIONS=--no-warnings plop component",

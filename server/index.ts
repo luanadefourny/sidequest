@@ -1,10 +1,14 @@
+// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express, { Application } from 'express';
+import mongoose from 'mongoose';
 import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, './.env') });
+// import { connectDB } from './db';
+dotenv.config({ path: path.resolve(__dirname, '../.env')}); //TODO change where it comes from
 import apiRouter from './routers/apiRouter';
 import questRouter from './routers/questRouter';
 import userRouter from './routers/userRouter';
@@ -21,6 +25,7 @@ app.use(
   }),
 );
 app.use(express.json());
+
 app.use(userRouter);
 app.use(questRouter);
 app.use(apiRouter);
@@ -30,4 +35,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}!`);
 });
 
-//! to run server -> nodemon index.ts, make sure all dependencies and modules are installed and it should work

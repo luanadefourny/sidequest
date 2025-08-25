@@ -47,7 +47,7 @@ type PublicUserData = {
 type Quest = {
   _id: string;
   name: string;
-  type: 'event' | 'place' | 'activity'; //! subject to change
+  type: 'event' | 'place'; //! subject to change
   location: GeoPoint;
   ageRestricted: boolean;
   price?: number;
@@ -58,6 +58,9 @@ type Quest = {
   description?: string;
   source?: string;
   sourceId?: string;
+  // clientId?: string;
+  venueName?: string;
+  image?: string;
 };
 
 interface RegisterUserData {
@@ -87,7 +90,7 @@ interface Credentials {
   email?: string;
 }
 interface MyQuest {
-  quest: string | Quest;
+  quest: Quest;
   isFavorite: boolean;
 }
 
@@ -97,7 +100,7 @@ interface FavouriteButtonProps {
 }
 
 type QuestFilters = {
-  type?: 'event' | 'place' | 'activity';
+  type?: 'event' | 'place';
   ageRestricted?: '0' | '1';
   priceMin?: number | string;
   priceMax?: number | string;
@@ -140,7 +143,7 @@ interface QuestsPageProps {
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
 }
 interface MyQuestsButtonProps {
-  questId: string;
+  quest: Quest;
   myQuests: MyQuest[];
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
 }
@@ -149,6 +152,41 @@ interface MyQuestsPageProps {
   setMyQuests: React.Dispatch<React.SetStateAction<MyQuest[]>>;
   myQuestsLoading: boolean;
 }
+
+type OpenTripMapPlace = {
+  id: string;
+  xid: string;
+  name: string;
+  kinds: string[];
+  coords: { lat: number, lng: number };
+  url?: string;
+  source: 'opentripmap';
+}
+
+type OpenTripMapDetails = {
+  address?: string;
+  preview?: string;
+  raw?: any;
+}
+
+type QuestDTO = {
+  _id?: string;
+  name: string;
+  type: 'event' | 'place';
+  location: { type: 'Point'; coordinates: [number, number] };
+  ageRestricted: boolean;
+  price?: number;
+  currency?: string;
+  url?: string;
+  startAt?: string; // ISO
+  endAt?: string;   // ISO
+  description?: string;
+  source?: string;
+  sourceId?: string;
+  // clientId?: string;
+  venueName?: string;
+  image?: string;
+};
 
 export type {
   AuthResponse,
@@ -164,8 +202,11 @@ export type {
   MyQuest,
   MyQuestsButtonProps,
   MyQuestsPageProps,
+  OpenTripMapDetails,
+  OpenTripMapPlace,
   PublicUserData,
   Quest,
+  QuestDTO,
   QuestFilters,
   QuestsPageProps,
   RegisterUserData,

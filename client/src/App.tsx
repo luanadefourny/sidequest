@@ -5,6 +5,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import { useUser } from './components/Context/userContext';
 import FavQuestList from './components/FavQuestList/FavQuestList';
+import FindUsers from './components/FindUsers/FindUsers';
 import HomePage from './components/HomePage/HomePage';
 import Layout from './components/Layout/Layout';
 import LoginPage from './components/LoginPage/LoginPage';
@@ -13,6 +14,7 @@ import MyQuestsPage from './components/MyQuests/MyQuests';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import QuestsPage from './components/QuestsPage/QuestsPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
+// import { HARD_LIMIT } from './constants';
 import { getQuests } from './services/questService';
 import { getMyQuests } from './services/userService';
 import type { Location, MyQuest, Quest, QuestFilters } from './types';
@@ -22,6 +24,7 @@ export default function App() {
   const { pathname } = useLocation();
   const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
   const [radius, setRadius] = useState<number>(1000);
+  // const LIST_LIMIT = HARD_LIMIT;
 
   useLayoutEffect(() => {
     if (!loggedIn) {
@@ -31,7 +34,6 @@ export default function App() {
     setMyQuestsLoading(needsMyQuests);
   }, [loggedIn, needsMyQuests]);
 
-  //TODO prop drill these
   const [quests, setQuests] = useState<Quest[]>([]);
   const [myQuests, setMyQuests] = useState<MyQuest[]>([]);
   const [myQuestsLoading, setMyQuestsLoading] = useState<boolean>(false);
@@ -41,13 +43,16 @@ export default function App() {
     let cancelled = false;
     async function fetchQuests() {
       try {
-        const filters: QuestFilters | undefined = location
-          ? { near: `${location.longitude},${location.latitude}`, radius }
-          : undefined;
+        if (!location) return;
 
-        if (!location && radius !== 1000) return;
-
+        const filters: QuestFilters = { 
+          near: `${location.longitude},${location.latitude}`, 
+          radius: radius, 
+          // limit: LIST_LIMIT,
+        };
+        // console.log(radius);
         const data = await getQuests(filters);
+        // console.log('getQuest(app): ' , data);
         if (!cancelled && data) setQuests(data);
       } catch (error) {
         if (!cancelled) console.log('Failed to fetch quests: ', error);
@@ -64,7 +69,6 @@ export default function App() {
       return;
     }
 
-    // const needsMyQuests = pathname === '/myquests' || pathname === '/favquestlist';
     if (!needsMyQuests) {
       setMyQuestsLoading(false);
       return;
@@ -73,7 +77,7 @@ export default function App() {
     let cancelled = false;
     async function fetchMyQuests() {
       try {
-        const data = await getMyQuests(user!._id, 1);
+        const data = await getMyQuests(user!._id);
         if (!cancelled) setMyQuests(data ?? []);
       } catch (error) {
         if (!cancelled) setMyQuests([]);
@@ -89,7 +93,6 @@ export default function App() {
   }, [loggedIn, user?._id, pathname]);
 
   return (
-    // <BrowserRouter>
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
@@ -154,7 +157,14 @@ export default function App() {
           </Layout>
         }
       />
+      <Route
+      path="/find-users"
+      element={
+        <Layout>
+          <FindUsers />
+        </Layout>
+      }
+      />
     </Routes>
-    //  </BrowserRouter>
   );
 }

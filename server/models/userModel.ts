@@ -2,6 +2,29 @@ import { Document, Model, Schema, Types } from 'mongoose';
 
 import mongoose from '../db';
 
+export interface APIQuestObject {
+  _id: string;
+  // clientId?: string;
+  name: string;
+  type: 'event' | 'place';
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [lon, lat]
+  };
+  url?: string;
+  image?: string;
+  venueName?: string;
+  description?: string;
+  price?: number;
+  currency?: string;
+  startAt?: string;
+  endAt?: string;
+  source?: string;
+  sourceId?: string;
+  ageRestricted?: boolean;
+}
+
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   __v: number;
@@ -16,7 +39,7 @@ export interface IUser extends Document {
   followers: Types.ObjectId[]; // users following you
   profilePicture: string;
   myQuests: {
-    quest: Types.ObjectId;
+    quest: APIQuestObject;
     isFavorite: boolean;
   }[]; // quests
   myLocations: {
@@ -30,11 +53,46 @@ export interface IUser extends Document {
   }[];
 }
 
+const APIQuestObjectSchema = new Schema(
+  {
+    _id: { type: String, required: true, index: true },
+    name: { type: String, required: true, trim: true },
+    type: { type: String, enum: ['event', 'place'], required: true },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+        validate: {
+          validator: (v: number[]) => Array.isArray(v) && v.length === 2,
+          message: 'coordinates must be [longitude, latitude]',
+        },
+      },
+    },
+    url: { type: String },
+    image: { type: String },
+    venueName: { type: String },
+    description: { type: String },
+    price: { type: Number },
+    currency: { type: String },
+    startAt: { type: String },
+    endAt: { type: String },
+    source: { type: String },
+    sourceId: { type: String },
+    ageRestricted: { type: Boolean },
+  },
+  { _id: false },
+);
+
+
 const MyQuestSchema = new Schema(
   {
     quest: {
-      type: Schema.ObjectId,
-      ref: 'Quest',
+      type: APIQuestObjectSchema,
       required: true,
     },
     isFavorite: {
@@ -71,6 +129,7 @@ const MyLocationSchema = new Schema(
       coordinates: {
         type: [Number],
         required: true,
+        default: undefined,
         validate: {
           validator: (v: number[]) => Array.isArray(v) && v.length === 2,
           message: 'coordinates must be [longitude, latitude]',
