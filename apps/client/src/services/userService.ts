@@ -167,7 +167,7 @@ async function getMyQuest(userId: string, questId: string): Promise<MyQuest> {
 
 async function addToMyQuests(userId: string, quest: Quest): Promise<MyQuest[]> {
   try {
-    const { data } = await server.post<MyQuest[]>(`/users/${userId}/my-quests/`, quest);
+    const { data } = await server.post<MyQuest[]>(`/users/${userId}/my-quests`, quest);
     return data;
   } catch (error) {
     extractAxiosError(error, 'addToMyQuests');
