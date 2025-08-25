@@ -24,12 +24,12 @@ jobs:
 
       # install server deps
       - name: Install server deps
-        working-directory: server
+        working-directory: apps/server
         run: npm ci
 
       # install client deps
       - name: Install client deps
-        working-directory: client
+        working-directory: apps/client
         run: npm ci
 
       # uncomment later when tests exist
