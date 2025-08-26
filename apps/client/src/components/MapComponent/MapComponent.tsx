@@ -44,7 +44,6 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
     if (initedRef.current) return;
     initedRef.current = true;
 
-    // const container = document.getElementById('map');
     const container = mapContainerRef.current;
     const input = document.getElementById('pac-input') as HTMLInputElement;
     if (!container) return;
@@ -58,38 +57,12 @@ export default function MapComponent({ setLocation, radius }: MapComponentProps)
           setLocation({ longitude: lon, latitude: lat });
         }
       } catch (err) {
-        // fail gracefully, show in console for debugging
-        // don't crash the whole react tree
-        // (React will show this in dev overlay)
-         
         console.error('Map init failed', err);
       }
     });
   }, [setLocation, radius]);
 
-  // re-init on apply event (HomePage dispatches 'applymap')
-  // useEffect(() => {
-  //   function onApply() {
-  //     const container = mapContainerRef.current;
-  //     const input = document.getElementById('pac-input') as HTMLInputElement | null;
-  //     if (!container) return;
-  //     try {
-  //       if (input) {
-  //         initMap(container, input, radius);
-  //       } else {
-  //         console.error('Input element not found');
-  //       }
-  //     } catch (err) {
-         
-  //       console.error('Re-init map failed', err);
-  //     }
-  //   }
-  //   window.addEventListener('applymap', onApply);
-  //   return () => window.removeEventListener('applymap', onApply);
-  // }, [radius]);
-
   // broadcast radius change to any listeners in mapService if needed
-
   useEffect(() => {
     window.dispatchEvent(new CustomEvent('radiuschange', { detail: { radius } }));
   }, [radius]);

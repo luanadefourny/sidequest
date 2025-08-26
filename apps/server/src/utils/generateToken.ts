@@ -1,8 +1,5 @@
-// import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../env';
-
-// dotenv.config();
 
 const generateToken = (userId: string): string => {
   if (!JWT_SECRET) {

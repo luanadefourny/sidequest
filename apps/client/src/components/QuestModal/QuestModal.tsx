@@ -46,8 +46,6 @@ export default function QuestModal({
 
   const badge = detectBadge(quest);
 
-
-
   return (
     <div
       id="wrapper"
