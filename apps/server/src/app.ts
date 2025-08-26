@@ -6,9 +6,6 @@ import questRouter from './routers/questRouter';
 import apiRouter from './routers/apiRouter';
 import { CLIENT, IS_SERVERLESS } from "./env";
 import cookieParser from 'cookie-parser';
-import { authenticateJWT } from "./middleware/authMiddleware";
-import type { AuthenticatedRequest } from "./middleware/authMiddleware";
-
 
 const app = express();
 if (!IS_SERVERLESS) app.use(cors({
