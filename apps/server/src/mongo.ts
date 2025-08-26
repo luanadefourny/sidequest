@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { MONGODB_URI, DB_NAME, DB_PORT } from "./env";
+import { MONGODB_URI } from "./env";
 
 const uri = MONGODB_URI;
 let cached: Promise<typeof mongoose> | undefined;
