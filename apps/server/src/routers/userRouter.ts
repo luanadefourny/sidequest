@@ -46,24 +46,7 @@ router.patch('/users/:userId/password', authenticateJWT, editUserPassword);
 //! all following endpoints have this: ?populate=0|1 to the end to decide whether to populate results or not
 router.get('/users/:userId/my-quests', authenticateJWT, getMyQuests);
 router.get('/users/:userId/my-quests/:questId', authenticateJWT, getMyQuest); //questId = clientId
-// router.post('/users/:userId/my-quests', authenticateJWT, addToMyQuests); //body = quest object
-
-// apps/server/src/routers/userRouter.ts
-// ...
-router.post(
-  '/users/:userId/my-quests',
-  authenticateJWT,
-  (req, _res, next) => { console.log('ADD HIT', req.method, req.originalUrl); next(); },
-  addToMyQuests
-);
-// optional: tolerate trailing slash
-router.post(
-  '/users/:userId/my-quests/',
-  authenticateJWT,
-  (req, _res, next) => { console.log('ADD HIT', req.method, req.originalUrl); next(); },
-  addToMyQuests
-);
-
+router.post('/users/:userId/my-quests', authenticateJWT, addToMyQuests); //body = quest object
 router.delete('/users/:userId/my-quests/:questId', authenticateJWT, removeFromMyQuests); //questId = clientId
 router.patch('/users/:userId/my-quests/:questId/favorite', authenticateJWT, toggleFavoriteQuest); //questId = clientId
 
