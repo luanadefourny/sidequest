@@ -6,6 +6,8 @@
 
 > SideQuest is a mobile-first web application aimed at providing location-based micro-adventures. It is a tool for finding something to do when you are uninspired or simply bored and want to explore new places and events in your area. It uses geo-location or user input to determine a local radius and provides a list of quests to the user.
 
+[Deployed version](https://sidequest-app.vercel.app)
+
 ## Screenshots
 
 <p align="center">
@@ -42,7 +44,7 @@ npm install
 ```
 npm run dev
 cd ../server
-nodemon index.ts
+npm run dev
 ```
 
 5. Login with your user details or Create an account and you're all set to use the app!
