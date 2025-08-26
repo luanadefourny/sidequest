@@ -227,7 +227,6 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     }
 
     const { near, radius, limit, kinds } = req.query;
-    // console.log('kinds: ',kinds);
 
     if (!near || typeof near !== 'string') {
       res.status(400).json({ error: "near required as 'lon,lat'" });
@@ -270,15 +269,6 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
     const tmPageBudget  = Number.isFinite(qTm)  && qTm  > 0 ? Math.min(qTm,  TM_MAX_PAGES)  : TM_MAX_PAGES;
     // Build OTM URL
     const kindsParams = INCLUDE_KINDS.length ? INCLUDE_KINDS.join(',') : (typeof kinds === 'string' && kinds.trim() ? kinds : '');
-    // const otmUrl =
-    //   // `https://api.opentripmap.com/0.1/en/places/radius?` +
-    //   // `radius=${radiusMeters}&lon=${lon}&lat=${lat}${kindsParam}&limit=${otmLimit}&apikey=${OTM_KEY}`;
-    //   // `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=architecture,cultural,historic,beaches,geological_formations,natural_springs,nature_reserves,waterfalls,view_points,sport,foods,shops&limit=${otmLimit}&apikey=${OTM_KEY}`;
-    //   `https://api.opentripmap.com/0.1/en/places/radius?radius=${radiusMeters}&lon=${lon}&lat=${lat}&kinds=${kindsParams}&limit=${otmLimit}&apikey=${OTM_KEY}`;
-
-    // // Build TM URL (if key present)
-    // let tmUrl: string | null = null;
-
     // Fetch OTM paged
     const otmFeatures: any[] = await fetchOtmPaged(lon, lat, radiusMeters, kindsParams, requestedLimit, otmPageBudget);
     // Prepare TM params and fetch paged if key present
@@ -298,23 +288,8 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
         sort: 'distance,asc',
       });
 
-      // tmUrl = `https://app.ticketmaster.com/discovery/v2/events.json?${tmParams.toString()}`;
       tmAll = await fetchTmPaged(tmParams, tmPageBudget);
     }
-    // console.log('tmUrl: ', tmUrl);
-    // Fetch in parallel
-    // const [otmRes, tmRes] = await Promise.all([
-    //   fetch(otmUrl),
-    //   tmUrl ? fetch(tmUrl) : Promise.resolve(null),
-    // ]);
-
-    // if (!otmRes.ok) {
-    //   res.status(otmRes.status).json({ error: `opentripmap ${otmRes.status}` });
-    //   return;
-    // }
-
-    // const otmJson = await otmRes.json();
-    // const otmFeatures: any[] = Array.isArray(otmJson?.features) ? otmJson.features : [];
 
     const placeItems: QuestDTO[] = otmFeatures
       .filter((f: any) => Array.isArray(f?.geometry?.coordinates) && f.geometry.coordinates.length === 2)
@@ -345,9 +320,6 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
       });
 
     let eventItems: QuestDTO[] = [];
-    // if (tmRes) {
-    //   const tmJson = tmRes.ok ? await tmRes.json() : null;
-    //   const tmAll: any[] = Array.isArray(tmJson?._embedded?.events) ? tmJson._embedded.events : [];
 
     const tmEvents: any[] = todayOnly
       ? tmAll.filter((ev: any) => {
@@ -411,14 +383,6 @@ async function getQuestsLive (req: Request, res: Response): Promise<void> {
       return da - db;
     });
     merged = merged.slice(0, requestedLimit);
-
-    // console.log('questcontroller: ', {
-    //   radiusMeters,
-    //   otmFetched: otmFeatures.length,
-    //   // tmFetched: (tmRes ? (Array.isArray(tmJson?._embedded?.events) ? tmJson._embedded.events.length : 0) : 0),
-    //   afterKindsFilter: placeItems.length,
-    //   mergedWithinRadius: merged.length,
-    // });
 
     res.status(200).json(merged);
   } catch (err: any) {
