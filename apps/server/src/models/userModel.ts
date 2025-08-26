@@ -4,7 +4,6 @@ import mongoose from '../db';
 
 export interface APIQuestObject {
   _id: string;
-  // clientId?: string;
   name: string;
   type: 'event' | 'place';
   location: {
