@@ -1,4 +1,3 @@
-// import { HARD_LIMIT } from '../constants';
 import type { Quest } from '../types';
 import { getPlaceDetails } from './openTripMapApiService';
 import { getQuests } from './questService';
@@ -10,7 +9,6 @@ let currentMap: google.maps.Map | null = null;
 let currentRadius: number | null = null; //meters
 let loadSeq = 0;
 let mapMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
-// const returnLimit = HARD_LIMIT;
 
 let currentCircle: google.maps.Circle | null = null;
 
@@ -21,7 +19,6 @@ function upsertRadiusCircle(
 ) {
   if (currentCircle) {
     currentCircle.setCenter(center);
-    // console.log(radius);
     currentCircle.setRadius(radius);
     currentCircle.setMap(map);
   } else {
@@ -58,7 +55,6 @@ async function loadMarkers(
   longitude: number,
   radius: number
 ) {
-    // console.log(radius);
     const seq = ++loadSeq;
     // clear previous markers
     mapMarkers.forEach(m => (m.map = null));
@@ -68,24 +64,16 @@ async function loadMarkers(
       const { AdvancedMarkerElement } = (await google.maps.importLibrary(
         'marker',
       )) as google.maps.MarkerLibrary;
-      // const quests: OpenTripMapPlace[] = await getPlaces(latitude, longitude, radius);
-      // console.log('mapservice radius before getQuests: ', radius);
       const quests: Quest[] = await getQuests({
         near: `${longitude},${latitude}`,
         radius,
-        // limit: returnLimit,
       })
-      // console.log('getQuests(map service): ', quests);
 
       if (seq !== loadSeq) return;
       
-      // apiData = places;
-
       const infoWindow = new google.maps.InfoWindow();
 
       quests.forEach((quest) => {
-        // console.log('Place: ',quest);
-        // const { coords: { lat, lng }, name, kinds, xid } = place;
         const [lon, lat] = quest.location.coordinates;
         const questLongitude = Number(lon);
         const questLatitude = Number(lat);
@@ -97,7 +85,6 @@ async function loadMarkers(
         else if (type === 'place') pinImage = './green_pin.svg';
 
         const icon = document.createElement("img");
-        // icon.src = "./creep.jpg";
         icon.src = pinImage;
         icon.style.width = "20px";
         icon.style.height = "20px";
@@ -173,18 +160,6 @@ async function loadMarkers(
           infoWindow.open(map, marker);
         });
       });
-
-    //     // Fit map to include the searched place + all OpenTripMap markers
-    // if (!bounds.isEmpty()) {
-    //   map.fitBounds(bounds);
-    //   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-    //     map.setZoom(15);
-    //   }
-    // } else {
-    //   // If no markers, center on fallback location
-    //   map.setCenter({ lat: latitude, lng: longitude });
-    //   map.setZoom(15);
-    // }
 
     const circleBounds = currentCircle?.getBounds();
     if (circleBounds) {
@@ -325,15 +300,11 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
   });
 
   const bounds = new google.maps.LatLngBounds();
-  // console.log('Radius here: ', radius);
   currentRadius = radius;
 
   upsertRadiusCircle(map, position, radius);
-  // upsertRadiusCircle(map, position, currentRadius);
-  // console.log(radius);
   // Plot markers for both events and places on initial load
   await loadMarkers(map, bounds, position.lat, position.lng, radius);
-  // await loadMarkers(map, bounds, position.lat, position.lng, currentRadius);
 
   const autocomplete = new Autocomplete(input);
   autocomplete.bindTo('bounds', map);
@@ -345,11 +316,8 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     const latitude = coords.lat();
     const longitude = coords.lng();
 
-    // coordsHelper = `${longitude},${latitude}`;
     //!does the thing
     emitMarkerPosition(longitude, latitude);
-
-    // console.log(getMarkerPosition());
 
     // Removes old marker if there is one
     if (currentMarker) {
@@ -368,16 +336,12 @@ export async function initMap(container: HTMLElement, input: HTMLInputElement, r
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(place.geometry.location);
 
-    // console.log(currentRadius);
-    // console.log(radius);
     const r = currentRadius ?? radius;
-    // console.log(r);
 
     // fit to circle first, then load with the current radius
     upsertRadiusCircle(map, { lat: latitude, lng: longitude }, r);
 
     await loadMarkers(map, bounds, latitude, longitude, r);
-    // await loadMarkers(map, bounds, latitude, longitude, radius);
 
     //! Opentripmap call starts here - DON'T DELETE IT PLEASE
     // try {
@@ -444,13 +408,11 @@ window.addEventListener('radiuschange', async (e: Event) => {
   try {
     if (!currentMap || !coordsHelper) return;
     const { radius } = (e as CustomEvent<{ radius: number }>).detail;
-    // console.log(radius);
     currentRadius = radius;
     const [lonStr, latStr] = coordsHelper.split(',');
     const lon = parseFloat(lonStr);
     const lat = parseFloat(latStr);
     if (Number.isNaN(lat) || Number.isNaN(lon)) return;
-
 
     upsertRadiusCircle(currentMap, { lat, lng: lon }, currentRadius);
 
