@@ -1,4 +1,3 @@
-// apps/server/src/middleware/authMiddleware.ts
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { JWT_SECRET } from '../env';
@@ -12,7 +11,6 @@ export const authenticateJWT = (
   res: Response,
   next: NextFunction,
 ): void => {
-  // NEW: accept cookie or Authorization: Bearer
   const bearer = req.get('authorization');
   const hdrToken = bearer?.startsWith('Bearer ') ? bearer.slice(7) : undefined;
   const token = req.cookies?.token || hdrToken;
