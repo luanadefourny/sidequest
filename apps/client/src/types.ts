@@ -13,7 +13,6 @@ type User = {
   _id: string;
   username: string;
   email: string;
-  // password: string;
   firstName: string;
   lastName: string;
   birthday: Date;
@@ -23,10 +22,10 @@ type User = {
   profilePicture: string;
   myQuests: MyQuest[];
   myLocations: {
-    label: string; //work
-    name?: string; //Apple Southampton
-    address?: string; //325 somethign road, SO15 1QE
-    location: GeoPoint; //[lon, lat]
+    label: string;
+    name?: string;
+    address?: string;
+    location: GeoPoint;
   }[];
 };
 
@@ -58,7 +57,6 @@ type Quest = {
   description?: string;
   source?: string;
   sourceId?: string;
-  // clientId?: string;
   venueName?: string;
   image?: string;
 };

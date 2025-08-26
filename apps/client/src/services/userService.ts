@@ -65,7 +65,6 @@ async function registerUser(userData: RegisterUserData): Promise<User> {
 async function loginUser(loginData: LoginUserData): Promise<AuthResponse> {
   try {
     const { data } = await server.post<AuthResponse>(`/login`, loginData);
-    // console.log('login service: ', data);
     return data;
   } catch (error) {
     extractAxiosError(error, 'loginUser');
@@ -100,7 +99,6 @@ async function editUserCredentials(userId: string, credentials: Credentials): Pr
       const status = error.response?.status;
       const serverMsg = error.response?.data?.message;
       if (status === 409) {
-        // surface a clean, user-friendly message
         throw new Error(serverMsg || 'Username or email already exists');
       }
       throw new Error(serverMsg || 'Failed to update credentials');
