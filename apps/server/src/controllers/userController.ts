@@ -16,7 +16,6 @@ import {
 import { IS_SERVERLESS } from '../env';
 
 // Profile picture upload setup
-
 const PROFILE_PICTURE_DIR = IS_SERVERLESS ? 'tmp/uploads/profile-pictures' : path.join(process.cwd(), 'public', 'uploads', 'profile-pictures');
 
 function ensureProfilePictureDir () {
@@ -157,7 +156,7 @@ async function loginUser(req: Request, res: Response): Promise<void> {
     res.cookie('token', token, {
       httpOnly: true,
       secure: IS_SERVERLESS ? true : false,
-      sameSite: 'lax', //VERCEL: changed from lax to none
+      sameSite: 'lax',
       path: '/',
     });
     res.status(200).json({ user, token });
@@ -194,7 +193,6 @@ async function logoutUser(req: Request, res: Response): Promise<void> {
 }
 
 //non-sensitive data only
-//TODO make separate endpoint for porfile picture upload in sprint 2 (for now just selecting from 10 profile picture options)
 async function editUserData(req: Request, res: Response): Promise<void> {
   const { userId } = req.params;
   if (!userId) {
@@ -203,7 +201,6 @@ async function editUserData(req: Request, res: Response): Promise<void> {
   }
 
   const parsedBody = editUserDataSchema.safeParse(req.body);
-  // console.log(parsedBody);
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error });
     return;
@@ -222,7 +219,6 @@ async function editUserData(req: Request, res: Response): Promise<void> {
   if (profilePicture !== undefined) dataToUpdate.profilePicture = profilePicture;
   if (birthday !== undefined) dataToUpdate.birthday = birthday;
 
-  // console.log(dataToUpdate);
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, dataToUpdate, { new: true });
     if (!updatedUser) {
@@ -384,10 +380,6 @@ async function getMyQuest(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // if (req.query.populate === '1') {
-    //   await user.populate('myQuests.quest');
-    // }
-
     res.status(200).json(user.myQuests[questIndex]);
   } catch (err) {
     console.log(err);
@@ -456,7 +448,6 @@ async function removeFromMyQuests(req: Request, res: Response): Promise<void> {
     //check if quest is part of myQuests
     const questIndex = userToUpdate.myQuests.findIndex(
       (myQuest) => myQuest.quest && myQuest.quest._id === questId,
-      // (myQuest) => myQuest.quest.toString() === questId,
     );
     //nothing to remove
     if (questIndex === -1) {
