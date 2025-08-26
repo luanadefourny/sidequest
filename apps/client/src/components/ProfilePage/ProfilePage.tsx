@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useMemo, useState, useEffect } from 'react';
 import { FiCamera, FiSettings } from 'react-icons/fi';
-import { Link, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import { PROFILE_PICS } from '../../constants';
 import {
@@ -38,6 +38,7 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState(user.lastName ?? '');
   const [birthday, setBirthday] = useState(toDateInputValue(user.birthday ?? null));
 
+  //TODO: prop drilling
   // MyQuests and Fav
   const [myQuests, setMyQuests] = useState(user.myQuests || []);
 
